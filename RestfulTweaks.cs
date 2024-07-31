@@ -5,6 +5,7 @@ using HarmonyLib;
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace RestfulTweaks
@@ -13,19 +14,25 @@ namespace RestfulTweaks
     public class Plugin : BaseUnityPlugin
     {
         private static Harmony _harmony;
-        internal static ManualLogSource Log;
+        internal static ManualLogSource Log; // static copy of the BaseUnityPligin.Logger object so it can be accessed in static methods, initilized in constructor
 
         private static ConfigEntry<bool> _debugLogging;
+        private static ConfigEntry<bool> _dumpItemListOnStart;
         private static ConfigEntry<int>  _dispensorStackSize;
+        private static ConfigEntry<int> _itemStackSize;
+        private static ConfigEntry<int> _agingBarrelStackSize;
         private readonly ConfigEntry<KeyCode> _itemDumphotKey;
-        static ItemDatabaseAccessor reflectedItemDatabaseAccessor;
+        private static List<Item> itemDB = new List<Item>();
 
         public Plugin()
         {
             // bind to config settings
             _debugLogging = Config.Bind("Debug", "Debug Logging", false, "Logs additional information to console");
-            _dispensorStackSize = Config.Bind("General", "Tap/Keg Stack Size", 99, "Change the amount of drinks you can store in taps/kegs");
-            _itemDumphotKey = Config.Bind("General", "Item Dump HotKey", KeyCode.F10, "Press to dump list of items to console");
+            _dispensorStackSize = Config.Bind("General", "Tap/Keg Stack Size", 0, "Change the amount of drinks you can store in taps/kegs; set to -1 to disable, set to 0 to use item stack size");
+            _agingBarrelStackSize = Config.Bind("General", "Aging Barrel Stack Size", 0, "NOT WORKING Change the amount of drinks you can store in aging barrels; set to -1 to disable, set to 0 to use item stack size");
+            _itemStackSize = Config.Bind("General", "Item Stack Size", 999, "Change the stack size of any item that normally stacks to 99; set to -1 to disable");
+            _itemDumphotKey = Config.Bind("Database", "List Items HotKey", KeyCode.None, "Press to dump list of items to console");
+            _dumpItemListOnStart= Config.Bind("Database", "List Items on start", false, "set to true to print a list of all items to console on startup");
         }
 
         private void Awake()
@@ -43,69 +50,63 @@ namespace RestfulTweaks
         
         private void Update()
         {
-            //find item of type type: ItemDatabaseAccessor
-            //Ah, back to that problem of "how to find a unity object with what we want as a component"
-            //Scene:DontDestoryOnLoad GameObject: Databases Components: lots of databases and database accessors inclusing ItemDatabaseAccessor.
-
-            //This will look for all <ItemDatabase> in every <ItemDatabaseAccessor>... I think.
-            //https://stackoverflow.com/questions/57637680/getting-a-reference-to-all-objects-of-a-type-in-class-in-c-sharp
-
-
             if (Input.GetKeyDown(_itemDumphotKey.Value))
             {
-                Type t = typeof(ItemDatabaseAccessor);
-                ItemDatabase[] dbSOs = t.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
-                    .Where(fieldInfo => fieldInfo.FieldType.Equals(typeof(ItemDatabase)))
-                    .Select(fieldInfo => fieldInfo.GetValue(this))
-                    .Cast<ItemDatabase>()
-                    .ToArray();
-                Log.LogInfo(String.Format("Found {0} ItemDatabaseAccessor.ItemDatabase objects", dbSOs.Length));
-                int reflectedItemId;
-                Item x;
-                foreach (ItemDatabase DB in dbSOs)
-                {
-                    Logger.LogInfo(string.Format("~~~~~~~~~~~~~~~~"));
-                    for (int i = 0; i < DB.items.Length; i++)
-                    {
-                        
-
-                        x = DB.items[i];
-                        reflectedItemId = Traverse.Create(x).Field("id").GetValue<int>();
-                        Log.LogInfo(String.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}", reflectedItemId, x.nameId, Price2Copper(x.price), Price2Copper(x.sellPrice), x.amountStack, x.shop, x.category));
-                    }
-                    Logger.LogInfo(string.Format("~~~~~~~~~~~~~~~~"));
-
-                }
-
-
-
-
+                Plugin.DumpItems();
             }
+        }
+
+        private static void DumpItems()
+        {
+            int reflectedItemId;
+            string reflectedItemIDesc;
+
+            Log.LogInfo(string.Format("~~~~~~~~~~~~~~~~"));
+            Log.LogInfo(string.Format("id, name, price, sellPrice, amountStack, shop, category, tags, description"));
+            foreach (Item x in Plugin.itemDB)
+            {
+                reflectedItemId = Traverse.Create(x).Field("id").GetValue<int>();                 //Protected
+                reflectedItemIDesc = Traverse.Create(x).Field("description").GetValue<string>();  //Protected
+
+                //translationByID
+
+                Log.LogInfo(String.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}",
+                    reflectedItemId, x.nameId, Price2Copper(x.price), Price2Copper(x.sellPrice), x.amountStack, x.shop, x.category, Tags2String(x.tags), LocalisationSystem.Get(reflectedItemIDesc)));
+            }
+            Log.LogInfo(string.Format("~~~~~~~~~~~~~~~~"));
         }
         public static int Price2Copper(Price x)
         {
             return x.gold * 100000 + x.silver * 100 + x.copper;
         }
-        
+        public static string Tags2String(Tag[] x)
+        {
+            return string.Join(":", x);
+        }
+
 
         public static void DebugLog(string message)
         {
             // Log a message to console only if debug is enabled in console
             if (_debugLogging.Value)
             {
-                Log.LogInfo(string.Format("NepRestfulTweaks: Debug: {0}", message));
+                Log.LogInfo(string.Format("DEBUG: {0}", message));
             }
         }
 
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+        // Adjust the maxstack for Taps/Kegs
+        // Doesn't work above 99, might be bacuse of the items 
+        // Need to look for *container.maxstack*, not slot.maxstack.
         [HarmonyPatch(typeof(DrinkDispenser), "Awake")]
         [HarmonyPostfix]
         static void DrinkDispenserAwakePostfix(DrinkDispenser __instance)
         {
-            // Need to look for *container.maxstack*, not slot.maxstack.
+            
 
             int x = __instance.maxStack;
-            if (__instance.maxStack < _dispensorStackSize.Value) { __instance.maxStack = _dispensorStackSize.Value; }
+            if (_dispensorStackSize.Value >= 0) { __instance.maxStack = _dispensorStackSize.Value; }
             DebugLog(String.Format("DrinkDispenser.Awake.Postfix maxstack: {0} -> {1}", x, __instance.maxStack));
         }
 
@@ -115,26 +116,69 @@ namespace RestfulTweaks
         //
         // AgingRack, AgingBarrel - these inherit from MonoBehavior
 
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        /*
+        // Aging Barrel Stack Size
+        [HarmonyPatch(typeof(AgingBarrelUI), "Awake")]
+        [HarmonyPostfix]
+        static void AgingBarrelUIAwakePostfix(AgingBarrelUI __instance)
+        {
+            SlotUI[] reflectedInputSlot1 = Traverse.Create(__instance).Field("inputSlot").GetValue<SlotUI[]>();
+            SlotUI[] reflectedInputSlot3 = Traverse.Create(__instance).Field("inputSlot3").GetValue<SlotUI[]>();
+            SlotUI[] reflectedInputSlot5 = Traverse.Create(__instance).Field("inputSlot6").GetValue<SlotUI[]>();
+            Slot x;
+            int y;
+
+            for (int i = 0; i < reflectedInputSlot1.Length; i++)
+            {
+                x = Traverse.Create(reflectedInputSlot1[i]).Field("slot").GetValue<Slot>();
+                y = Traverse.Create(x).Field("stack").GetValue<int>();
+                DebugLog(String.Format("Slot:1 index:{0} maxStack:{1}",i, y));
+            }
+            for (int j = 0; j < reflectedInputSlot3.Length; j++)
+            {
+                x = Traverse.Create(reflectedInputSlot3[j]).Field("slot").GetValue<Slot>();
+                y = Traverse.Create(x).Field("stack").GetValue<int>();
+                DebugLog(String.Format("Slot:1 index:{0} maxStack:{1}", i, y));
+            }
+            for (int k = 0; k < reflectedInputSlot5.Length; k++)
+            {
+                x = Traverse.Create(reflectedInputSlot1[k]).Field("slot").GetValue<Slot>();
+                y = Traverse.Create(x).Field("stack").GetValue<int>();
+                DebugLog(String.Format("Slot:5 index:{0} maxStack:{1}", i, y));
+            }
+
+        }
+        */
+
+
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Adjust stack size for items
+        //
+        // While we're at it, populate Plugin.itemDB with all the items that are in ItemDatabaseAccessor.itemDatabaseSO
+        // Because I can't figure out how to access objects in unity scene via C# or I would just use access
+        // Scene:DontDestoryOnLoad, GameObject: Databases, Component: ItemDatabaseAccessor, Field: itemDatabaseSO
+
         [HarmonyPatch(typeof(ItemDatabaseAccessor), "SetUpDatabase")]
         [HarmonyPostfix]
         static void SetUpDatabasePostfix(ItemDatabaseAccessor __instance)
         {
-            DebugLog("SetUpDatabase.Postfix");
             ItemDatabase reflectedItemDatabaseSO = Traverse.Create(__instance).Field("itemDatabaseSO").GetValue<ItemDatabase>();
+
             Item x;
-            int reflectedItemId;
-            DebugLog(String.Format("SetUpDatabase.Postfix {0} Items", reflectedItemDatabaseSO.items.Length));
-            Log.LogInfo("id, name, price, sellPrice, amountStack, shop, category");
+            
             for (int i = 0; i < reflectedItemDatabaseSO.items.Length; i++)
             {
                 x = reflectedItemDatabaseSO.items[i];
-                reflectedItemId = Traverse.Create(x).Field("id").GetValue<int>();
-                Log.LogInfo(String.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}", reflectedItemId, x.nameId, Price2Copper(x.price), Price2Copper(x.sellPrice), x.amountStack,x.shop,x.category));
-
+                Plugin.itemDB.Add(x); //put a copy in there for later access
+                if (_itemStackSize.Value > 0 && x.amountStack == 99 ) { x.amountStack = _itemStackSize.Value; } //Only change items with default stack size of 99
 
             }
+            DebugLog(String.Format("SetUpDatabase.Postfix {0} Items in Plugin.itemDB", Plugin.itemDB.Count));
 
-            reflectedItemDatabaseAccessor = __instance;
+            if (_dumpItemListOnStart.Value) Plugin.DumpItems();
         }
 
     }
