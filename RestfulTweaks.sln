@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32804.467
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoreHarvests", "MoreHarvests.csproj", "{F526D0FB-C888-451A-8135-956AC643158A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestfulTweaks", "RestfulTweaks.csproj", "{A6904240-8C60-4753-8B75-C4D68BDFE6C3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F526D0FB-C888-451A-8135-956AC643158A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F526D0FB-C888-451A-8135-956AC643158A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F526D0FB-C888-451A-8135-956AC643158A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F526D0FB-C888-451A-8135-956AC643158A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6904240-8C60-4753-8B75-C4D68BDFE6C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6904240-8C60-4753-8B75-C4D68BDFE6C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6904240-8C60-4753-8B75-C4D68BDFE6C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6904240-8C60-4753-8B75-C4D68BDFE6C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {6B7BD89E-B376-49DD-B4CC-A2F96D812892}
+		SolutionGuid = {5E498319-E0E3-4696-863F-86ABDA27F714}
 	EndGlobalSection
 EndGlobal

@@ -1,0 +1,32 @@
+To-Do
+
+Soil stays wet (FertileSoil class)
+Aging Barrel Stack size (if I can find it!)
+Faster Aging
+Transfer to existing stacks (can I add a UI element?)
+Sort (by what metric? probably not worth doing without a better plan)
+No fuel use on recipies
+Increase fish prices
+Forced sleep hour
+Candles never run out
+Auto-fireplace
+Change weather
+better haggling
+Faster recipes
+Cat opinion fix
+Digging options? HoleInGround class
+Recipie points per level up/free recipes
+harvest sith scythe (CropSetter cutDetection/cutDetectionActiveAge ?)
+walk through crops (CropSetter cropCollider/collisionDetection/collisionDetectionActiveAge ?)
+Soem way to identify  crops and fruit trees in your farm
+Movement speed: PlayerController.speed  (default 1f in code, 2.5f in game)
+Sprint Speed speed: PlayerController.sprintMultiplier  (default 1.75f in code, 1.6f in game)
+Crop Growing speed: Crop.daysToGrow, Crops daysUntilNewHarvest, 
+
+
+
+
+
+
+
+

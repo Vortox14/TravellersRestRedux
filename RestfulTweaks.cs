@@ -21,24 +21,39 @@ namespace RestfulTweaks
         private static ConfigEntry<int>  _dispensorStackSize;
         private static ConfigEntry<int> _itemStackSize;
         private static ConfigEntry<int> _agingBarrelStackSize;
-        private readonly ConfigEntry<KeyCode> _itemDumphotKey;
+        private static ConfigEntry<float> _moveSpeed;
+        private static ConfigEntry<float> _moveRunMult;
+        private static ConfigEntry<bool> _soilStaysWatered;
+        private static ConfigEntry<bool> _recipesNoFuel;
+        private static ConfigEntry<bool> _recipesNoFragments;
+        private static ConfigEntry<bool> _fireplaceNoFuelUse;
+
         private static List<Item> itemDB = new List<Item>();
 
+
+        public static ItemDatabaseAccessor itemDatabaseAccessor;
+        //public static RecipeDatabaseAccessor recipeDatabaseAccessor; //Not needed since RecipeDatabaseAccessor is full of useful static functions
         public Plugin()
         {
             // bind to config settings
             _debugLogging = Config.Bind("Debug", "Debug Logging", false, "Logs additional information to console");
-            _dispensorStackSize = Config.Bind("General", "Tap/Keg Stack Size", 0, "Change the amount of drinks you can store in taps/kegs; set to -1 to disable, set to 0 to use item stack size");
-            _agingBarrelStackSize = Config.Bind("General", "Aging Barrel Stack Size", 0, "NOT WORKING Change the amount of drinks you can store in aging barrels; set to -1 to disable, set to 0 to use item stack size");
-            _itemStackSize = Config.Bind("General", "Item Stack Size", 999, "Change the stack size of any item that normally stacks to 99; set to -1 to disable");
-            _itemDumphotKey = Config.Bind("Database", "List Items HotKey", KeyCode.None, "Press to dump list of items to console");
+            _dispensorStackSize = Config.Bind("Stacks", "Tap/Keg Stack Size", 0, "Change the amount of drinks you can store in taps/kegs; set to -1 to disable, set to 0 to use item stack size");
+            _agingBarrelStackSize = Config.Bind("Stacks", "Aging Barrel Stack Size", 0, "NOT WORKING Change the amount of drinks you can store in aging barrels; set to -1 to disable, set to 0 to use item stack size");
+            _itemStackSize = Config.Bind("Stacks", "Item Stack Size", 999, "Change the stack size of any item that normally stacks to 99; set to -1 to disable");
             _dumpItemListOnStart= Config.Bind("Database", "List Items on start", false, "set to true to print a list of all items to console on startup");
+            _moveSpeed = Config.Bind("Movement", "Walking Speed", 2.5f, "walking speed; set to 2.5f for default speed ");
+            _moveRunMult = Config.Bind("Movement", "Run Speed Multiplier", 1.6f, "run speed multiplier; set to 1.6f for default speed ");
+            _soilStaysWatered = Config.Bind("Farming", "Soil Stays Wet", false, "Soil stays watered");
+            _recipesNoFuel = Config.Bind("Recipes", "No Fuel", true, "Recipes no longer require fuel");
+            _recipesNoFragments= Config.Bind("Recipes", "No Fragment Cost", true, "Recipes No longer cost recipe Fragmenst to purchase");
+            _fireplaceNoFuelUse = Config.Bind("Misc", "Fireplace does not consume fuel", false, "fireplace no longer consume fuel");
         }
 
         private void Awake()
         {
             // Plugin startup logic
             Log = Logger;
+            initDBs();
             _harmony = Harmony.CreateAndPatchAll(typeof(Plugin));
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         }
@@ -48,19 +63,33 @@ namespace RestfulTweaks
             _harmony.UnpatchSelf();
         }
         
-        private void Update()
+        //private void Update()
+        //{
+        //    if (Input.GetKeyDown(_itemDumphotKey.Value))
+        //    {
+        //        Plugin.DumpItems();
+        //    }
+        //}
+        private static void initDBs()
         {
-            if (Input.GetKeyDown(_itemDumphotKey.Value))
+            if (itemDatabaseAccessor == null)
             {
-                Plugin.DumpItems();
+                itemDatabaseAccessor = UnityEngine.Object.FindObjectOfType<ItemDatabaseAccessor>();
             }
-        }
+            //Not needed since RecipeDatabaseAccessor is full of useful static functions
+            //if (recipeDatabaseAccessor == null)
+            //{
+            //    recipeDatabaseAccessor = RecipeDatabaseAccessor.GetInstance();
+            //}
 
+        }
         private static void DumpItems()
         {
+            
             int reflectedItemId;
             string reflectedItemIDesc;
 
+            
             Log.LogInfo(string.Format("~~~~~~~~~~~~~~~~"));
             Log.LogInfo(string.Format("id, name, price, sellPrice, amountStack, shop, category, tags, description"));
             foreach (Item x in Plugin.itemDB)
@@ -93,6 +122,31 @@ namespace RestfulTweaks
                 Log.LogInfo(string.Format("DEBUG: {0}", message));
             }
         }
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Soil Stays Watered
+
+
+
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Fireplace does not consume fuel
+
+
+        [HarmonyPatch(typeof(Fireplace), "Update")]
+        [HarmonyPrefix]
+        static bool FireplaceUpdatePrefix(Fireplace __instance)
+        {
+            if (_fireplaceNoFuelUse.Value)
+            {
+                return false; //just disable the update so fuel is never checvked
+            }
+            else
+            {
+                return true; // flow thorugh to normal Update
+            }
+        }
+
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
