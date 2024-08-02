@@ -126,8 +126,19 @@ namespace RestfulTweaks
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Soil Stays Watered
 
-
-
+        [HarmonyPatch(typeof(FertileSoil), "Update")]
+        [HarmonyPrefix]
+        static bool FertileSoilUpdatePrefix(FertileSoil __instance)
+        {
+            if (_soilStaysWatered.Value)
+            {
+                return false; //just disable the update so water level is not changed
+            }
+            else
+            {
+                return true; // flow thorugh to normal Update
+            }
+        }
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Fireplace does not consume fuel
