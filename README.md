@@ -1,10 +1,23 @@
-# TravellersRest-ModNameHere
+# TravellersRest-RestfulTweaks
 
-A Traveller's Rest mod to DESCRIPTION
+A Traveller's Rest mod with a lot of small tweaks. Each option can be configred seperately in the config file.
+
+* Change the stack size from the default 99
+* Change the amount of items that can be places in a keg/tap
+* adjust the player speed and run speed
+* Soil stays wet once watered
+* Fireplace does not consume fuel
+* All recipes require no fuel
+* All recipes purchased in the cave cost only one fragment.
+* Quick crafting 
+* Crops fully grown overnight
+* Reusable crops (grapes etc) can be harvested every day
+
+
 
 ## Downloading the mod
 
-Adding Traveller's Rest to Nexus Mods is in progress, until that is complete you can download the mod from [compiled-releases](https://github.com/DrStalker/TravellersRest-ModNameHere/tree/main/compiled-releases)
+Adding Traveller's Rest to Nexus Mods is in progress, until that is complete you can download the mod from [compiled-releases](https://github.com/DrStalker/TravellersRest-ReastfulTweaks/tree/main/compiled-releases)
 
 
 ## How to install mods:
