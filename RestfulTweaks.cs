@@ -27,6 +27,7 @@ namespace RestfulTweaks
         private static ConfigEntry<bool> _recipesNoFuel;
         private static ConfigEntry<bool> _recipesNoFragments;
         private static ConfigEntry<bool> _fireplaceNoFuelUse;
+        private static ConfigEntry<bool> _dumpRecipeListOnStart;
 
         private static List<Item> itemDB = new List<Item>();
 
@@ -41,12 +42,13 @@ namespace RestfulTweaks
             _agingBarrelStackSize = Config.Bind("Stacks", "Aging Barrel Stack Size", 0, "NOT WORKING Change the amount of drinks you can store in aging barrels; set to -1 to disable, set to 0 to use item stack size");
             _itemStackSize = Config.Bind("Stacks", "Item Stack Size", 999, "Change the stack size of any item that normally stacks to 99; set to -1 to disable");
             _dumpItemListOnStart= Config.Bind("Database", "List Items on start", false, "set to true to print a list of all items to console on startup");
-            _moveSpeed = Config.Bind("Movement", "Walking Speed", 2.5f, "walking speed; set to 2.5f for default speed ");
-            _moveRunMult = Config.Bind("Movement", "Run Speed Multiplier", 1.6f, "run speed multiplier; set to 1.6f for default speed ");
+            _dumpRecipeListOnStart = Config.Bind("Database", "List Recipes on start", false, "set to true to print a list of all recipes to console on startup");
+            _moveSpeed = Config.Bind("Movement", "Walking Speed", 2.5f, "walking speed; set to 2.5 for default speed ");
+            _moveRunMult = Config.Bind("Movement", "Run Speed Multiplier", 1.6f, "run speed multiplier; set to 1.6 for default speed ");
             _soilStaysWatered = Config.Bind("Farming", "Soil Stays Wet", false, "Soil stays watered");
             _recipesNoFuel = Config.Bind("Recipes", "No Fuel", true, "Recipes no longer require fuel");
-            _recipesNoFragments= Config.Bind("Recipes", "No Fragment Cost", true, "Recipes No longer cost recipe Fragmenst to purchase");
-            _fireplaceNoFuelUse = Config.Bind("Misc", "Fireplace does not consume fuel", false, "fireplace no longer consume fuel");
+            _recipesNoFragments= Config.Bind("Recipes", "No Fragment Cost", true, "Recipes No longer cost recipe Fragment to purchase");
+            _fireplaceNoFuelUse = Config.Bind("Misc", "Fireplace does not consume fuel", false, "fireplace no longer consumes fuel");
         }
 
         private void Awake()
@@ -54,8 +56,6 @@ namespace RestfulTweaks
             // Plugin startup logic
             Log = Logger;
             initDBs();
-            recipeChanges();
-            setPlayerSpeed();
             _harmony = Harmony.CreateAndPatchAll(typeof(Plugin));
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         }
@@ -66,16 +66,7 @@ namespace RestfulTweaks
         }
         
 
-        private static void setPlayerSpeed()
-        {
-            if (_moveRunMult.Value != 1.6f && _moveSpeed.Value != 2.5f)
-            {
-                PlayerController x = UnityEngine.Object.FindObjectOfType<PlayerController>();
-                x.speed = _moveSpeed.Value;
-                x.sprintMultiplier = _moveRunMult.Value;
 
-            }
-        }
 
         //private void Update()
         //{
@@ -98,22 +89,7 @@ namespace RestfulTweaks
 
         }
 
-        private static void recipeChanges()
-        {
-            RecipeDatabase reflectedRecipes = Traverse.Create(RecipeDatabaseAccessor.GetInstance()).Field("recipeDatabaseSO").GetValue<RecipeDatabase>();
-            if (reflectedRecipes != null)
-            {
-                for (int i =0;i< reflectedRecipes.recipes.Length;i++)
-                {
-                    DebugLog(reflectedRecipes.recipes[i].name);
-                }
 
-            } 
-            else
-            {
-                DebugLog("recipeChanges: could not find recipeDatabaseSO");
-            }
-        }
 
         private static void DumpItems()
         {
@@ -154,6 +130,39 @@ namespace RestfulTweaks
                 Log.LogInfo(string.Format("DEBUG: {0}", message));
             }
         }
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Player Speed
+
+        [HarmonyPatch(typeof(PlayerController), "Awake")]
+        [HarmonyPostfix]
+        private static void setPlayerSpeed(PlayerController __instance)
+        {
+            __instance.speed = _moveSpeed.Value;
+            __instance.sprintMultiplier = _moveRunMult.Value;
+        }
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Recipe Stuff
+        // The Recipe database is not accessible during Plugin.Awake(), so we attach to the Accessor Awake() function
+
+        [HarmonyPatch(typeof(RecipeDatabaseAccessor), "Awake")]
+        [HarmonyPostfix]
+        private static void RecipeDatabaseAccessorAwakePostFix(RecipeDatabaseAccessor __instance)
+        {
+            DebugLog("RecipeDatabaseAccessor.Awake.PostFix");
+            Recipe[] allRecipes = RecipeDatabaseAccessor.GetAllRecipes();
+            if (_dumpRecipeListOnStart.Value) Log.LogInfo(string.Format("id, name, fuel, recipeFragments, time"));
+            for (int i = 0; i < allRecipes.Length; i++)
+            {
+                if (_recipesNoFuel.Value) allRecipes[i].fuel = 0;
+                if (_recipesNoFragments.Value) allRecipes[i].recipeFragments = 0;
+
+                DebugLog(String.Format("Recipe: {0}, {1}, {2}, {3}, {4}", allRecipes[i].id, allRecipes[i].name, allRecipes[i].fuel, allRecipes[i].recipeFragments, allRecipes[i].time.weeks * 7 * 24 * 60 + allRecipes[i].time.days * 24 * 60 + allRecipes[i].time.hours * 60 + allRecipes[i].time.mins));
+            }
+
+        }
+
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Soil Stays Watered
