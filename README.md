@@ -12,7 +12,7 @@ A Traveller's Rest mod with a lot of small tweaks. Each option can be configured
 * Quick crafting 
 * Crops compelete a full stage of growth each night (including tree crops)
 * Reusable crops (grapes etc) can be harvested every day
-* Dump a list of items, crops or recipies to the console on startup.
+* Dump a list of items, crops or recipes to the console on startup.
 
 
 
