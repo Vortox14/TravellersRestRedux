@@ -25,6 +25,7 @@ namespace RestfulTweaks
         private static ConfigEntry<float> _moveRunMult;
         private static ConfigEntry<bool> _soilStaysWatered;
         private static ConfigEntry<bool> _recipesNoFuel;
+        private static ConfigEntry<int> _recipesQuickCook;
         private static ConfigEntry<bool> _recipesNoFragments;
         private static ConfigEntry<bool> _fireplaceNoFuelUse;
         private static ConfigEntry<bool> _dumpRecipeListOnStart;
@@ -47,8 +48,9 @@ namespace RestfulTweaks
             _moveRunMult = Config.Bind("Movement", "Run Speed Multiplier", 1.6f, "run speed multiplier; set to 1.6 for default speed ");
             _soilStaysWatered = Config.Bind("Farming", "Soil Stays Wet", false, "Soil stays watered");
             _recipesNoFuel = Config.Bind("Recipes", "No Fuel", true, "Recipes no longer require fuel");
-            _recipesNoFragments= Config.Bind("Recipes", "No Fragment Cost", true, "Cave recipies only cost one fragment");
+            _recipesNoFragments = Config.Bind("Recipes", "No Fragment Cost", true, "Cave Recipies only cost one fragment");
             _fireplaceNoFuelUse = Config.Bind("Misc", "Fireplace does not consume fuel", false, "fireplace no longer consumes fuel");
+            _recipesQuickCook = Config.Bind("Recipes", "Quick Crafting", -1, "Sets the maximum time recipeis tae to craft in minutes; set to -1 to disable");
         }
 
         private void Awake()
@@ -155,10 +157,22 @@ namespace RestfulTweaks
             if (_dumpRecipeListOnStart.Value) Log.LogInfo(string.Format("id, name, fuel, recipeFragments, time"));
             for (int i = 0; i < allRecipes.Length; i++)
             {
+                int craftTime = allRecipes[i].time.weeks * 7 * 24 * 60 + allRecipes[i].time.days * 24 * 60 + allRecipes[i].time.hours * 60 + allRecipes[i].time.mins;
                 if (_recipesNoFuel.Value) allRecipes[i].fuel = 0;
                 if (_recipesNoFragments.Value && allRecipes[i].recipeFragments > 0) allRecipes[i].recipeFragments = 1;
+                if (_recipesQuickCook.Value > -1 && craftTime > _recipesQuickCook.Value)
+                {
+                    craftTime = _recipesQuickCook.Value;
+                    int newMin = (craftTime) % 60;
+                    int newHr  = (craftTime - newMin)/(60) % 24;
+                    int newDay = (craftTime - newMin - 60 * newHr) / (60*24) % 7;
+                    int newWk  = (craftTime - newMin - 60 * newHr - 60 * 24 * newDay) / (60 * 24 * 7) % 16; //16 weeks in a year
+                    int newYr  = (craftTime - newMin - 60 * newHr - 60 * 24 * newDay - 60 * 24 * 7 * newWk) / (60 * 24 * 7  *16); 
+                    allRecipes[i].time = new GameDate.Time(newYr, newWk, newDay, newHr, newMin);
+                    
+                }
 
-                DebugLog(String.Format("Recipe: {0}, {1}, {2}, {3}, {4}", allRecipes[i].id, allRecipes[i].name, allRecipes[i].fuel, allRecipes[i].recipeFragments, allRecipes[i].time.weeks * 7 * 24 * 60 + allRecipes[i].time.days * 24 * 60 + allRecipes[i].time.hours * 60 + allRecipes[i].time.mins));
+                DebugLog(String.Format("Recipe: {0}, {1}, {2}, {3}, {4}", allRecipes[i].id, allRecipes[i].name, allRecipes[i].fuel, allRecipes[i].recipeFragments, craftTime));
             }
 
         }
