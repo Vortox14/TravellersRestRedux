@@ -55,8 +55,8 @@ namespace RestfulTweaks
             _fireplaceNoFuelUse = Config.Bind("Misc", "Fireplace does not consume fuel", false, "fireplace no longer consumes fuel");
             _recipesQuickCook = Config.Bind("Recipes", "Quick Crafting", -1, "Sets the maximum time recipes take to craft in minutes; set to -1 to disable");
             _dumpCropListOnStart = Config.Bind("Database", "List Crops on start", false, "set to true to print a list of all crops to console on startup");
-            _CropFastGrow = Config.Bind("Farming", "Fast Growing Crops", false, "All crops mature in one day");
-            _CropFastRegrow = Config.Bind("Farming", "Fast Rerowing Crops", false, "Crops that allow mutliple harvests acan be harvested every day");
+            _CropFastGrow = Config.Bind("Farming", "Fast Growing Crops", false, "All crops advance one growth stage per day");
+            _CropFastRegrow = Config.Bind("Farming", "Fast Regrowing Crops", false, "Crops that allow multiple harvests can be harvested every day");
         }
 
         private void Awake()
