@@ -1,6 +1,6 @@
 # TravellersRest-RestfulTweaks
 
-A Traveller's Rest mod with a lot of small tweaks. Each option can be configred seperately in the config file.
+A Traveller's Rest mod with a lot of small tweaks. Each option can be configured separately in the config file.
 
 * Change the stack size from the default of 99
 * Change the amount of items that can be places in a keg/tap (either to a fixed value or matching stack size)
@@ -10,7 +10,7 @@ A Traveller's Rest mod with a lot of small tweaks. Each option can be configred 
 * All recipes require no fuel
 * All recipes purchased in the cave cost only one fragment.
 * Quick crafting 
-* Crops comeplete a full stage of growth each night (including tree crops)
+* Crops compelete a full stage of growth each night (including tree crops)
 * Reusable crops (grapes etc) can be harvested every day
 * Dump a list of items, crops or recipies to the console on startup.
 
