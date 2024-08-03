@@ -54,6 +54,8 @@ namespace RestfulTweaks
             // Plugin startup logic
             Log = Logger;
             initDBs();
+            recipeChanges();
+            setPlayerSpeed();
             _harmony = Harmony.CreateAndPatchAll(typeof(Plugin));
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         }
@@ -63,6 +65,18 @@ namespace RestfulTweaks
             _harmony.UnpatchSelf();
         }
         
+
+        private static void setPlayerSpeed()
+        {
+            if (_moveRunMult.Value != 1.6f && _moveSpeed.Value != 2.5f)
+            {
+                PlayerController x = UnityEngine.Object.FindObjectOfType<PlayerController>();
+                x.speed = _moveSpeed.Value;
+                x.sprintMultiplier = _moveRunMult.Value;
+
+            }
+        }
+
         //private void Update()
         //{
         //    if (Input.GetKeyDown(_itemDumphotKey.Value))
@@ -83,6 +97,24 @@ namespace RestfulTweaks
             //}
 
         }
+
+        private static void recipeChanges()
+        {
+            RecipeDatabase reflectedRecipes = Traverse.Create(RecipeDatabaseAccessor.GetInstance()).Field("recipeDatabaseSO").GetValue<RecipeDatabase>();
+            if (reflectedRecipes != null)
+            {
+                for (int i =0;i< reflectedRecipes.recipes.Length;i++)
+                {
+                    DebugLog(reflectedRecipes.recipes[i].name);
+                }
+
+            } 
+            else
+            {
+                DebugLog("recipeChanges: could not find recipeDatabaseSO");
+            }
+        }
+
         private static void DumpItems()
         {
             
@@ -126,9 +158,9 @@ namespace RestfulTweaks
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Soil Stays Watered
 
-        [HarmonyPatch(typeof(FertileSoil), "Update")]
+        [HarmonyPatch(typeof(FertileSoil), "CheckWater")]
         [HarmonyPrefix]
-        static bool FertileSoilUpdatePrefix(FertileSoil __instance)
+        static bool FertileSoilCheckWaterPrefix(FertileSoil __instance)
         {
             if (_soilStaysWatered.Value)
             {
