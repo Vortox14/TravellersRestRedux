@@ -29,6 +29,7 @@ namespace RestfulTweaks
         private static ConfigEntry<bool> _recipesNoFragments;
         private static ConfigEntry<bool> _fireplaceNoFuelUse;
         private static ConfigEntry<bool> _dumpRecipeListOnStart;
+        private static ConfigEntry<bool> _dumpCropListOnStart;
 
         private static List<Item> itemDB = new List<Item>();
 
@@ -39,18 +40,19 @@ namespace RestfulTweaks
         {
             // bind to config settings
             _debugLogging = Config.Bind("Debug", "Debug Logging", false, "Logs additional information to console");
-            _dispensorStackSize = Config.Bind("Stacks", "Tap/Keg Stack Size", 0, "Change the amount of drinks you can store in taps/kegs; set to -1 to disable, set to 0 to use item stack size");
-            _agingBarrelStackSize = Config.Bind("Stacks", "Aging Barrel Stack Size", 0, "NOT WORKING Change the amount of drinks you can store in aging barrels; set to -1 to disable, set to 0 to use item stack size");
-            _itemStackSize = Config.Bind("Stacks", "Item Stack Size", 999, "Change the stack size of any item that normally stacks to 99; set to -1 to disable");
+            _dispensorStackSize = Config.Bind("Stacks", "Tap/Keg Stack Size", -1, "Change the amount of drinks you can store in taps/kegs; set to -1 to disable, set to 0 to use item stack size");
+            _agingBarrelStackSize = Config.Bind("Stacks", "Aging Barrel Stack Size", -1, "NOT WORKING Change the amount of drinks you can store in aging barrels; set to -1 to disable, set to 0 to use item stack size");
+            _itemStackSize = Config.Bind("Stacks", "Item Stack Size", -1, "Change the stack size of any item that normally stacks to 99; set to -1 to disable");
             _dumpItemListOnStart= Config.Bind("Database", "List Items on start", false, "set to true to print a list of all items to console on startup");
             _dumpRecipeListOnStart = Config.Bind("Database", "List Recipes on start", false, "set to true to print a list of all recipes to console on startup");
             _moveSpeed = Config.Bind("Movement", "Walking Speed", 2.5f, "walking speed; set to 2.5 for default speed ");
             _moveRunMult = Config.Bind("Movement", "Run Speed Multiplier", 1.6f, "run speed multiplier; set to 1.6 for default speed ");
             _soilStaysWatered = Config.Bind("Farming", "Soil Stays Wet", false, "Soil stays watered");
-            _recipesNoFuel = Config.Bind("Recipes", "No Fuel", true, "Recipes no longer require fuel");
-            _recipesNoFragments = Config.Bind("Recipes", "No Fragment Cost", true, "Cave Recipies only cost one fragment");
+            _recipesNoFuel = Config.Bind("Recipes", "No Fuel", false, "Recipes no longer require fuel");
+            _recipesNoFragments = Config.Bind("Recipes", "No Fragment Cost", false, "Cave Recipies only cost one fragment");
             _fireplaceNoFuelUse = Config.Bind("Misc", "Fireplace does not consume fuel", false, "fireplace no longer consumes fuel");
-            _recipesQuickCook = Config.Bind("Recipes", "Quick Crafting", -1, "Sets the maximum time recipeis tae to craft in minutes; set to -1 to disable");
+            _recipesQuickCook = Config.Bind("Recipes", "Quick Crafting", -1, "Sets the maximum time recipes take to craft in minutes; set to -1 to disable");
+            _dumpCropListOnStart Config.Bind("Database", "List Crops on start", false, "set to true to print a list of all crops to console on startup");
         }
 
         private void Awake()
@@ -145,6 +147,30 @@ namespace RestfulTweaks
         }
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Crops Stuff
+        // The Recipe database is not accessible during Plugin.Awake(), so we attach to the Accessor Awake() function
+
+        [HarmonyPatch(typeof(CropDatabaseAccessor), "Awake")]
+        [HarmonyPostfix]
+        private static void CropDatabaseAccessorAwakePostFix(CropDatabaseAccessor __instance)
+        {
+            DebugLog("CropDatabaseAccessor.Awake.PostFix");
+            Crop[] allCrops = CropDatabaseAccessor.GetInstance().allCrops;
+            DebugLog(String.Format("Found {0} crops", allCrops.Length));
+            if (_dumpCropListOnStart.Value) Log.LogInfo(string.Format("id, nameId, name, daysToGrow, daysUntilNewHarvest, reusable"));
+
+            for (int i = 0; i < allCrops.Length; i++)
+            {
+                if (_dumpCropListOnStart.Value)
+                {
+                    Log.LogInfo(String.Format("Recipe: {0}, {1}, {2}, {3}, {4}, {5}", allCrops[i].id, allCrops[i].nameId, allCrops[i].name, allCrops[i].daysToGrow, allCrops[i].daysUntilNewHarvest, allCrops[i].reusable));
+                }
+
+            }
+        }
+
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Recipe Stuff
         // The Recipe database is not accessible during Plugin.Awake(), so we attach to the Accessor Awake() function
 
@@ -154,6 +180,7 @@ namespace RestfulTweaks
         {
             DebugLog("RecipeDatabaseAccessor.Awake.PostFix");
             Recipe[] allRecipes = RecipeDatabaseAccessor.GetAllRecipes();
+            DebugLog(String.Format("Found {0} recipes", allRecipes.Length));
             if (_dumpRecipeListOnStart.Value) Log.LogInfo(string.Format("id, name, fuel, recipeFragments, time"));
             for (int i = 0; i < allRecipes.Length; i++)
             {
@@ -172,7 +199,7 @@ namespace RestfulTweaks
                     
                 }
 
-                DebugLog(String.Format("Recipe: {0}, {1}, {2}, {3}, {4}", allRecipes[i].id, allRecipes[i].name, allRecipes[i].fuel, allRecipes[i].recipeFragments, craftTime));
+                if (_dumpRecipeListOnStart.Value) Log.LogInfo(String.Format("Recipe: {0}, {1}, {2}, {3}, {4}", allRecipes[i].id, allRecipes[i].name, allRecipes[i].fuel, allRecipes[i].recipeFragments, craftTime));
             }
 
         }
