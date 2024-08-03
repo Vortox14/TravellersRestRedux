@@ -47,7 +47,7 @@ namespace RestfulTweaks
             _moveRunMult = Config.Bind("Movement", "Run Speed Multiplier", 1.6f, "run speed multiplier; set to 1.6 for default speed ");
             _soilStaysWatered = Config.Bind("Farming", "Soil Stays Wet", false, "Soil stays watered");
             _recipesNoFuel = Config.Bind("Recipes", "No Fuel", true, "Recipes no longer require fuel");
-            _recipesNoFragments= Config.Bind("Recipes", "No Fragment Cost", true, "Recipes No longer cost recipe Fragment to purchase");
+            _recipesNoFragments= Config.Bind("Recipes", "No Fragment Cost", true, "Cave recipies only cost one fragment");
             _fireplaceNoFuelUse = Config.Bind("Misc", "Fireplace does not consume fuel", false, "fireplace no longer consumes fuel");
         }
 
@@ -156,7 +156,7 @@ namespace RestfulTweaks
             for (int i = 0; i < allRecipes.Length; i++)
             {
                 if (_recipesNoFuel.Value) allRecipes[i].fuel = 0;
-                if (_recipesNoFragments.Value) allRecipes[i].recipeFragments = 0;
+                if (_recipesNoFragments.Value && allRecipes[i].recipeFragments > 0) allRecipes[i].recipeFragments = 1;
 
                 DebugLog(String.Format("Recipe: {0}, {1}, {2}, {3}, {4}", allRecipes[i].id, allRecipes[i].name, allRecipes[i].fuel, allRecipes[i].recipeFragments, allRecipes[i].time.weeks * 7 * 24 * 60 + allRecipes[i].time.days * 24 * 60 + allRecipes[i].time.hours * 60 + allRecipes[i].time.mins));
             }
