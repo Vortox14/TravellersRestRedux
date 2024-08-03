@@ -30,6 +30,8 @@ namespace RestfulTweaks
         private static ConfigEntry<bool> _fireplaceNoFuelUse;
         private static ConfigEntry<bool> _dumpRecipeListOnStart;
         private static ConfigEntry<bool> _dumpCropListOnStart;
+        private static ConfigEntry<bool> _CropFastGrow;
+        private static ConfigEntry<bool> _CropFastRegrow;
 
         private static List<Item> itemDB = new List<Item>();
 
@@ -53,6 +55,8 @@ namespace RestfulTweaks
             _fireplaceNoFuelUse = Config.Bind("Misc", "Fireplace does not consume fuel", false, "fireplace no longer consumes fuel");
             _recipesQuickCook = Config.Bind("Recipes", "Quick Crafting", -1, "Sets the maximum time recipes take to craft in minutes; set to -1 to disable");
             _dumpCropListOnStart = Config.Bind("Database", "List Crops on start", false, "set to true to print a list of all crops to console on startup");
+            _CropFastGrow = Config.Bind("Farming", "Fast Growing Crops", false, "All crops mature in one day");
+            _CropFastRegrow = Config.Bind("Farming", "Fast Rerowing Crops", false, "Crops that allow mutliple harvests acan be harvested every day");
         }
 
         private void Awake()
@@ -155,12 +159,17 @@ namespace RestfulTweaks
         private static void CropDatabaseAccessorAwakePostFix(CropDatabaseAccessor __instance)
         {
             DebugLog("CropDatabaseAccessor.Awake.PostFix");
-            Crop[] allCrops = CropDatabaseAccessor.GetInstance().allCrops;
+            //Crop[] allCrops = CropDatabaseAccessor.GetInstance().allCrops;
+            //CropsDatabase reflectedCropDatabaseSO = Traverse.Create(__instance).Field("CropDatabaseSO").GetValue<CropsDatabase>().Crops;
+            Crop[] allCrops = Traverse.Create(__instance).Field("CropDatabaseSO").GetValue<CropsDatabase>().Crops;
+            
             DebugLog(String.Format("Found {0} crops", allCrops.Length));
             if (_dumpCropListOnStart.Value) Log.LogInfo(string.Format("id, nameId, name, daysToGrow, daysUntilNewHarvest, reusable"));
 
             for (int i = 0; i < allCrops.Length; i++)
             {
+                if (_CropFastGrow.Value && allCrops[i].daysToGrow > 0) allCrops[i].daysToGrow = 1;
+                if (_CropFastRegrow.Value && allCrops[i].reusable) allCrops[i].daysUntilNewHarvest = 1;
                 if (_dumpCropListOnStart.Value)
                 {
                     Log.LogInfo(String.Format("Recipe: {0}, {1}, {2}, {3}, {4}, {5}", allCrops[i].id, allCrops[i].nameId, allCrops[i].name, allCrops[i].daysToGrow, allCrops[i].daysUntilNewHarvest, allCrops[i].reusable));
