@@ -67,7 +67,7 @@ namespace RestfulTweaks
             _staffNoNeg = Config.Bind("Staff", "No Negative Perks", false, "New Staff will not have any negative perks");
             _staffRefreshOnOpen = Config.Bind("Staff", "Refresh Applicants on Open", false, "Refresh the list of new staff available to hire every time the hiring interface is opened");
             _staffAlways3Perks = Config.Bind("Staff", "Always Three Perks", false, "New hires will always have three positive perks");
-            _staffLevel = Config.Bind("Staff", "Staring Level", -1, "Starting level for new hires; set to -1 to disable, set to 31 for all three skills at level 5");
+            _staffLevel = Config.Bind("Staff", "Starting Level", -1, "Starting level for new hires; set to -1 to disable, set to 31 for all three skills at level 5");
 
         }
 
@@ -180,7 +180,7 @@ namespace RestfulTweaks
                 {
                     q[i].prob1Perk = 0; q[i].prob2Perk = 0;
                 }
-                if (_staffLevel.Value > 0)
+                if (_staffLevel.Value >= 0)
                 {
                     q[i].lvlRangePerk1.x = _staffLevel.Value; q[i].lvlRangePerk1.y = _staffLevel.Value;
                     q[i].lvlRangePerk2.x = _staffLevel.Value; q[i].lvlRangePerk2.y = _staffLevel.Value;
