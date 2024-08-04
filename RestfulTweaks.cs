@@ -38,6 +38,9 @@ namespace RestfulTweaks
         private static ConfigEntry<bool> _staffAlways3Perks;
         private static ConfigEntry<int> _staffLevel;
         private static ConfigEntry<bool> _dumpStaffGenData;
+        private static ConfigEntry<bool> _catNeverGetsAngry; //CatNPC.MinusRelationship
+
+
 
         private static List<Item> itemDB = new List<Item>();
 
@@ -68,6 +71,7 @@ namespace RestfulTweaks
             _staffRefreshOnOpen = Config.Bind("Staff", "Refresh Applicants on Open", false, "Refresh the list of new staff available to hire every time the hiring interface is opened");
             _staffAlways3Perks = Config.Bind("Staff", "Always Three Perks", false, "New hires will always have three positive perks");
             _staffLevel = Config.Bind("Staff", "Starting Level", -1, "Starting level for new hires; set to -1 to disable, set to 31 for all three skills at level 5");
+            _catNeverGetsAngry = Config.Bind("Misc", "Cat Never Gets Upset", false, "prevents your cat from lowering its opinion of you");
 
         }
 
@@ -150,6 +154,17 @@ namespace RestfulTweaks
                 Log.LogInfo(string.Format("DEBUG: {0}", message));
             }
         }
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Cat Opinion
+        [HarmonyPatch(typeof(CatNPC), "MinusRelationship")]
+        [HarmonyPrefix]
+        private static bool CatNPCMinusRelationshipPrefix()
+        {
+            DebugLog("CatNPC.MinusRelationship.Prefix");
+            return !_catNeverGetsAngry.Value; //skip the original function when this option is enabled
+        }
+
 
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
