@@ -13,7 +13,7 @@ A Traveller's Rest mod with a lot of small tweaks. Each option can be configured
 * Crops compelete a full stage of growth each night (including tree crops)
 * Reusable crops (grapes etc) can be harvested every day
 * Dump a list of items, crops or recipes to the console on startup.
-
+* NEW in 1.1.0: Several modifiers that are applied when new staff are available for hire: refresh on open, no negatives, always 3 perks, starting level.
 
 
 ## Downloading the mod
