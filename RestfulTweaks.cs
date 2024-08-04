@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.UIElements.UIRAtlasAllocator;
 
 namespace RestfulTweaks
 {
@@ -32,6 +33,7 @@ namespace RestfulTweaks
         private static ConfigEntry<bool> _dumpCropListOnStart;
         private static ConfigEntry<bool> _CropFastGrow;
         private static ConfigEntry<bool> _CropFastRegrow;
+        private static ConfigEntry<bool> _staffNoNeg;
 
         private static List<Item> itemDB = new List<Item>();
 
@@ -57,6 +59,7 @@ namespace RestfulTweaks
             _dumpCropListOnStart = Config.Bind("Database", "List Crops on start", false, "set to true to print a list of all crops to console on startup");
             _CropFastGrow = Config.Bind("Farming", "Fast Growing Crops", false, "All crops advance one growth stage per day");
             _CropFastRegrow = Config.Bind("Farming", "Fast Regrowing Crops", false, "Crops that allow multiple harvests can be harvested every day");
+            _staffNoNeg = Config.Bind("Staff", "No Negative Perks", false, "New Staff will not have any negative perks");
         }
 
         private void Awake()
@@ -137,6 +140,27 @@ namespace RestfulTweaks
             {
                 Log.LogInfo(string.Format("DEBUG: {0}", message));
             }
+        }
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // No Negative Perks on Staff
+
+        [HarmonyPatch(typeof(StaffManager), "CreateRandomOptionsWorkers")]
+        [HarmonyPostfix]
+        private static void StaffManagerCreateRandomOptionsWorkersPostFix()
+        {
+            DebugLog("StaffManager.CreateRandomOptionsWorkers.PostFix");
+            StaffManager s = StaffManager.GetInstance();
+            if (_staffNoNeg.Value)
+            {
+                foreach (EmployeeInfo w in s.barworkerOptions) w.perksInfo.RemoveAt(w.perksInfo.Count - 1);
+
+                foreach (EmployeeInfo x in s.bouncerOptions) x.perksInfo.RemoveAt(x.perksInfo.Count - 1);
+                foreach (EmployeeInfo y in s.waiterOptions) y.perksInfo.RemoveAt(y.perksInfo.Count - 1);
+                foreach (EmployeeInfo z in s.houseKeeperOptions) z.perksInfo.RemoveAt(z.perksInfo.Count - 1);
+                
+            }
+
         }
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
