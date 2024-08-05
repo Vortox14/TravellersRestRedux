@@ -38,6 +38,12 @@ namespace RestfulTweaks
         private static ConfigEntry<bool> _staffAlways3Perks;
         private static ConfigEntry<int> _staffLevel;
         private static ConfigEntry<bool> _dumpStaffGenData;
+        private static ConfigEntry<bool> _dumpReputationListOnStart;
+        private static ConfigEntry<int> _moreTiles;
+        private static ConfigEntry<int> _moreZones;
+        private static ConfigEntry<int> _moreRooms;
+        private static ConfigEntry<int> _moreCustomers;
+        private static ConfigEntry<int> _moreDisponible;
         //private static ConfigEntry<bool> _catNeverGetsAngry; //CatNPC.MinusRelationship
 
 
@@ -56,6 +62,7 @@ namespace RestfulTweaks
             _itemStackSize = Config.Bind("Stacks", "Item Stack Size", -1, "Change the stack size of any item that normally stacks to 99; set to -1 to disable");
             _dumpItemListOnStart= Config.Bind("Database", "List Items on start", false, "set to true to print a list of all items to console on startup");
             _dumpRecipeListOnStart = Config.Bind("Database", "List Recipes on start", false, "set to true to print a list of all recipes to console on startup");
+            _dumpReputationListOnStart = Config.Bind("Database", "List Reputation milestones on start", false, "set to true to print a list of all reputation milestones to console on startup"); 
             _dumpStaffGenData = Config.Bind("Database", "List staff generation data on start", false, "set to true to print a list of staff generation data on startup");
             _moveSpeed = Config.Bind("Movement", "Walking Speed", 2.5f, "walking speed; set to 2.5 for default speed ");
             _moveRunMult = Config.Bind("Movement", "Run Speed Multiplier", 1.6f, "run speed multiplier; set to 1.6 for default speed ");
@@ -69,9 +76,15 @@ namespace RestfulTweaks
             _CropFastRegrow = Config.Bind("Farming", "Fast Regrowing Crops", false, "Crops that allow multiple harvests can be harvested every day");
             _staffNoNeg = Config.Bind("Staff", "No Negative Perks", false, "New Staff will not have any negative perks");
             _staffRefreshOnOpen = Config.Bind("Staff", "Refresh Applicants on Open", false, "Refresh the list of new staff available to hire every time the hiring interface is opened");
-            _staffAlways3Perks = Config.Bind("Staff", "Always Three Perks", false, "New hires will always have three positive perks");
+            _staffAlways3Perks = Config.Bind("Staff", "Always Three Perks", false, "NOT WORKING New hires will always have three positive perks");
             _staffLevel = Config.Bind("Staff", "Starting Level", -1, "Starting level for new hires; set to -1 to disable, set to 31 for all three skills at level 5");
             //_catNeverGetsAngry = Config.Bind("Misc", "Cat Never Gets Upset", false, "NOT WORKING prevents your cat from lowering its opinion of you");
+            _moreTiles = Config.Bind("Milestones", "More Zone Tiles", -1, "increase number of tiles for crafting/dining zone; set to -1 to disable");
+            _moreZones = Config.Bind("Milestones", "More Crafting Zones", -1, "NOT WELL TESTED! increase number of zones for crafting; set to -1 to disable");
+            _moreRooms = Config.Bind("Milestones", "More Rentable Rooms", -1, "increase number of rooms for rent; set to -1 to disable");
+            _moreCustomers = Config.Bind("Milestones", "More Customer", -1, "increase customer capacity; set to -1 to disable");
+            _moreDisponible = Config.Bind("Milestones", "More Floor Tiles", -1, "increase total number of floor tiles allowed; set to -1 to disable");
+
 
         }
 
@@ -155,7 +168,37 @@ namespace RestfulTweaks
             }
         }
 
-        /*
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Reputation Milestone Stuff
+
+        [HarmonyPatch(typeof(ReputationDBAccessor), "Awake")]
+        [HarmonyPrefix] //Has to be a prefix so our changes are done before this.SetUpDatabase(); 
+
+        private static void ReputationDBAccessorAwakePrefix(ReputationDBAccessor __instance)
+        {
+            DebugLog("ReputationDBAccessor.Awake.Prefix");
+            ReputationInfo[] repDB = ReputationDBAccessor.GetAllReputations();
+            if(_dumpReputationListOnStart.Value) Log.LogInfo("repNumber, craftingTiles, craftingZonesNumber, customersCapacity, diningTiles, diningZonesNumber, floorDisponible, rentedRoomsNumber, repMax");
+
+                         
+            for (int i = 0; i < repDB.Length; i++)
+            {
+                if (_moreTiles.Value > 0) {repDB[i].craftingTiles += _moreTiles.Value; repDB[i].diningTiles += _moreTiles.Value;}
+                if (_moreZones.Value > 0) repDB[i].craftingZonesNumber += _moreZones.Value;
+                if (_moreRooms.Value > 0) repDB[i].rentedRoomsNumber += _moreRooms.Value;
+                if (_moreCustomers.Value > 0) repDB[i].customersCapacity += _moreCustomers.Value;
+                if (_moreDisponible.Value > 0) repDB[i].floorDisponible += _moreDisponible.Value;
+
+                if (_dumpReputationListOnStart.Value) Log.LogInfo(String.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}",
+                    repDB[i].repNumber, repDB[i].craftingTiles, repDB[i].craftingZonesNumber, repDB[i].customersCapacity, repDB[i].diningTiles, 
+                    repDB[i].diningZonesNumber, repDB[i].floorDisponible, repDB[i].rentedRoomsNumber, repDB[i].repMax));
+            }
+        }
+
+
+
+        /*   The cat hates me and nothing I do will make it not hate me, so I'm ignoring it for now
+         
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Cat Opinion
         [HarmonyPatch(typeof(CatNPC), "MinusRelationship")]
@@ -173,9 +216,10 @@ namespace RestfulTweaks
         private static void CatNPCset_RelationshopPrefix(ref float __value)
         {
             DebugLog(String.Format("CatNPC.set_Relationshop.Prefix: {0}",__value));
-            
         }
         */
+
+
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Staff Generation Stuff
@@ -233,8 +277,8 @@ namespace RestfulTweaks
             
         }
 
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            // No Negative Perks on Staff
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // No Negative Perks on Staff
 
             [HarmonyPatch(typeof(StaffManager), "CreateRandomOptionsWorkers")]
         [HarmonyPostfix]
