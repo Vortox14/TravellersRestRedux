@@ -25,6 +25,7 @@ namespace RestfulTweaks
         private static ConfigEntry<float> _moveSpeed;
         private static ConfigEntry<float> _moveRunMult;
         private static ConfigEntry<bool> _soilStaysWatered;
+        private static ConfigEntry<bool> _soilWet3DaysRain;
         private static ConfigEntry<bool> _recipesNoFuel;
         private static ConfigEntry<int> _recipesQuickCook;
         private static ConfigEntry<bool> _recipesNoFragments;
@@ -67,6 +68,7 @@ namespace RestfulTweaks
             _moveSpeed = Config.Bind("Movement", "Walking Speed", 2.5f, "walking speed; set to 2.5 for default speed ");
             _moveRunMult = Config.Bind("Movement", "Run Speed Multiplier", 1.6f, "run speed multiplier; set to 1.6 for default speed ");
             _soilStaysWatered = Config.Bind("Farming", "Soil Stays Wet", false, "Soil stays watered");
+            _soilWet3DaysRain = Config.Bind("Farming", "Rain Fully waters woil", false, "rain will make soil wet for the next 3 days, like watering");
             _recipesNoFuel = Config.Bind("Recipes", "No Fuel", false, "Recipes no longer require fuel");
             _recipesNoFragments = Config.Bind("Recipes", "No Fragment Cost", false, "Cave Recipies only cost one fragment");
             _fireplaceNoFuelUse = Config.Bind("Misc", "Fireplace does not consume fuel", false, "fireplace no longer consumes fuel");
@@ -383,8 +385,13 @@ namespace RestfulTweaks
             {
                 return false; //just disable the update so water level is not changed
             }
-            else
+            else if (_soilWet3DaysRain.Value)
             {
+                if (Weather.IsWeatherActive(Weather.WeatherType.Rain) && __instance.daysUntilDry <= 3) __instance.daysUntilDry = 3;
+                return true; // so the "do stuff when soil changes wetness state" routine will still run
+            }
+            else
+            {                
                 return true; // flow thorugh to normal Update
             }
         }

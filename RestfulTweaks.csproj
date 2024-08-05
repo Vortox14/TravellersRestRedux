@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>net.nep.bepinex.restfultweaks</AssemblyName>
     <Description>Restful Tweaks</Description>
-    <Version>1.2.0</Version>
+    <Version>1.3.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
