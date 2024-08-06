@@ -27,6 +27,12 @@ PArrot
 		More Cookies: BirdNPC.canGiveCookieTime == min time between cookeis
 		BirdNPC.cookiesGivenPerDay = check for >=2, so reset to 0 on... BirdNPC.MouseUp?
 		BirdInstance.commentsQuality == trianing level?
+Juice -> Any Juice: look for ingredient 1325 and remove the modifer 
+[All vege types] -> -9 any type of vegetable
+	Somewhere they has to be a way to tell what items match a "wildcard" item!
+	CraftingInventory?
+	
+
 		
 
 

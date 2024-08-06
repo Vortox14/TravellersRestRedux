@@ -156,9 +156,30 @@ namespace RestfulTweaks
             }
         }
 
+        public static string RecipeIngredients2String(RecipeIngredient[] x)
+        {
+            string result = string.Empty;
+            for (int i = 0; i < x.Length; i++)
+            {
+                int id= Traverse.Create(x[i].item).Field("id").GetValue<int>();
+                int modId = Traverse.Create(x[i].mod).Field("id").GetValue<int>();
+                result += String.Format("[{0}:{1}:{2}]", id, x[i].amount, modId);
+            }
+            return result;
+        }
+        public static string IngredientTypes2String(IngredientType[] x)
+        {
+            string result = string.Empty;
+            for (int i = 0; i < x.Length; i++)
+            {
+                result += String.Format("[{0}]", x[i]);
+            }
+            return result;
+        }
+
         ////////////////////////////////////////////////////////////////////////////////////////
-        // Dump comma seperated list of items to console
-        // Call manually from Unity Explorer Console with RestfulTweaks.Plugin.DumpRecipeList();
+        // Dump comma seperated list of recipes to console
+        // Cam call manually from Unity Explorer Console with RestfulTweaks.Plugin.DumpRecipeList();
 
         public static void DumpRecipeList()
         {
@@ -171,18 +192,13 @@ namespace RestfulTweaks
                 int outputId = Traverse.Create(r[i].output.item).Field("id").GetValue<int>();
                 Log.LogInfo(String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11}",
                     r[i].id, r[i].name, outputId, r[i].output.amount, craftTime, r[i].fuel, r[i].recipeFragments, r[i].cannotRepeatIngredients,
-                    "#ingredientsNeeded#", "#modiferNeeded#", "#modiferTypes#", r[i].recipeGroup));
-
-                    
+                    RecipeIngredients2String(r[i].ingredientsNeeded), IngredientTypes2String(r[i].modiferNeeded), IngredientTypes2String(r[i].modiferTypes), r[i].recipeGroup));  
             }
-
-
-
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////
         // Dump comma seperated list of items to console
-        // Call manually from Unity Explorer Console with RestfulTweaks.Plugin.DumpItemList();
+        // Can call manually from Unity Explorer Console with RestfulTweaks.Plugin.DumpItemList();
 
         public static void DumpItemList()
         {
@@ -397,7 +413,7 @@ namespace RestfulTweaks
             DebugLog("RecipeDatabaseAccessor.Awake.PostFix");
             Recipe[] allRecipes = RecipeDatabaseAccessor.GetAllRecipes();
             DebugLog(String.Format("Found {0} recipes", allRecipes.Length));
-            if (_dumpRecipeListOnStart.Value) Log.LogInfo(string.Format("id, name, fuel, recipeFragments, time"));
+      
             for (int i = 0; i < allRecipes.Length; i++)
             {
                 int craftTime = allRecipes[i].time.weeks * 7 * 24 * 60 + allRecipes[i].time.days * 24 * 60 + allRecipes[i].time.hours * 60 + allRecipes[i].time.mins;
@@ -414,10 +430,8 @@ namespace RestfulTweaks
                     allRecipes[i].time = new GameDate.Time(newYr, newWk, newDay, newHr, newMin);
                     
                 }
-
-                if (_dumpRecipeListOnStart.Value) Log.LogInfo(String.Format("Recipe: {0}, {1}, {2}, {3}, {4}", allRecipes[i].id, allRecipes[i].name, allRecipes[i].fuel, allRecipes[i].recipeFragments, craftTime));
             }
-
+            if (_dumpRecipeListOnStart.Value) DumpRecipeList();
         }
 
 
