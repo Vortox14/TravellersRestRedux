@@ -5,7 +5,7 @@ Faster Aging
 Transfer to existing stacks (can I add a UI element?)
 Sort (by what metric? probably not worth doing without a better plan)
 Increase fish prices
-Forced sleep hour
+Forced sleep hour - no pass out at all?
 Candles never run out
 Auto-fireplace on/ff
 Change weather
@@ -31,6 +31,25 @@ Juice -> Any Juice: look for ingredient 1325 and remove the modifer
 [All vege types] -> -9 any type of vegetable
 	Somewhere they has to be a way to tell what items match a "wildcard" item!
 	CraftingInventory?
+Endless Buckets
+	CommonReferences.bucketItem anf CommonReferences.bucketOfWaterItem
+	Can I call CommonReferences.get_instance instead of CommonReferences.LLFCHIEGKBE ? Probably not.
+	So make my own with an accessor
+Free Crafting:
+	Crafter.ChargeRecipeCost ? That's also where Buckets of water get 
+
+	
+public static CommonReferences LLFCHIEGKBE
+{
+	get
+	{
+		if (CommonReferences.HBIMADMGONO == null)
+		{
+			CommonReferences.HBIMADMGONO = UnityEngine.Object.FindObjectOfType<CommonReferences>();
+		}
+		return CommonReferences.HBIMADMGONO;
+	}
+}	
 	
 
 		

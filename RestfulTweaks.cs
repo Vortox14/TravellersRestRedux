@@ -213,7 +213,7 @@ namespace RestfulTweaks
             string itemShop;
             string itemCategory;
 
-            Log.LogInfo(string.Format("id, name, desc, price, sellPrice, amountStack, shop, category, tags, wilsonCoins, wilsonCoinsPrice"));
+            Log.LogInfo(string.Format("id, name, desc, price, sellPrice, amountStack, shop, category, tags, wilsonCoins, wilsonCoinsPrice, getType()"));
             for (int i = 0; i < reflectedItemDatabaseSO.items.Length; i++)
             {
                 x = reflectedItemDatabaseSO.items[i];
@@ -226,9 +226,9 @@ namespace RestfulTweaks
                 itemDesc = "\"" + itemDesc + "\"";
                 itemShop = "\"" + x.shop + "\"";
                 itemCategory =  "\"" + x.category + "\"";
-                Log.LogInfo(String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}",
+                Log.LogInfo(String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11}",
                     reflectedItemId, itemName, itemDesc, Price2Copper(x.price), Price2Copper(x.sellPrice), x.amountStack, itemShop, itemCategory, Tags2String(x.tags),
-                     x.wilsonCoins, x.wilsonCoinsPrice));
+                     x.wilsonCoins, x.wilsonCoinsPrice, x.GetType()));
 
 
             }
