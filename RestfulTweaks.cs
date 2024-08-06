@@ -19,6 +19,7 @@ namespace RestfulTweaks
 
         private static ConfigEntry<bool> _debugLogging;
         private static ConfigEntry<bool> _dumpItemListOnStart;
+        //private readonly ConfigEntry<KeyCode> _dumpItemHotkey;
         private static ConfigEntry<int>  _dispensorStackSize;
         private static ConfigEntry<int> _itemStackSize;
         private static ConfigEntry<int> _agingBarrelStackSize;
@@ -45,11 +46,10 @@ namespace RestfulTweaks
         private static ConfigEntry<int> _moreRooms;
         private static ConfigEntry<int> _moreCustomers;
         private static ConfigEntry<int> _moreDisponible;
-        //private static ConfigEntry<bool> _catNeverGetsAngry; //CatNPC.MinusRelationship
+        //private static ConfigEntry<bool> _catNeverGetsAngry; //Cat hates me and will not stop getting angry!
+        private static ConfigEntry<bool> _wilsonOneCoin;
+        //private static ConfigEntry<float> _moreValuableFish;
 
-
-
-        private static List<Item> itemDB = new List<Item>();
 
 
         public static ItemDatabaseAccessor itemDatabaseAccessor;
@@ -65,6 +65,7 @@ namespace RestfulTweaks
             _dumpRecipeListOnStart = Config.Bind("Database", "List Recipes on start", false, "set to true to print a list of all recipes to console on startup");
             _dumpReputationListOnStart = Config.Bind("Database", "List Reputation milestones on start", false, "set to true to print a list of all reputation milestones to console on startup"); 
             _dumpStaffGenData = Config.Bind("Database", "List staff generation data on start", false, "set to true to print a list of staff generation data on startup");
+            //_dumpItemHotkey = Config.Bind("Database", "Item DumpHotKey", KeyCode.None, "Press to activate mod");
             _moveSpeed = Config.Bind("Movement", "Walking Speed", 2.5f, "walking speed; set to 2.5 for default speed ");
             _moveRunMult = Config.Bind("Movement", "Run Speed Multiplier", 1.6f, "run speed multiplier; set to 1.6 for default speed ");
             _soilStaysWatered = Config.Bind("Farming", "Soil Stays Wet", false, "Soil stays watered");
@@ -86,7 +87,8 @@ namespace RestfulTweaks
             _moreRooms = Config.Bind("Milestones", "More Rentable Rooms", -1, "increase number of rooms for rent; set to -1 to disable");
             _moreCustomers = Config.Bind("Milestones", "More Customer", -1, "increase customer capacity; set to -1 to disable");
             _moreDisponible = Config.Bind("Milestones", "More Floor Tiles", -1, "increase total number of floor tiles allowed; set to -1 to disable");
-
+            _wilsonOneCoin = Config.Bind("Misc", "Wilson Price Reduction", false, "Wilson only charges 1 coin per item");
+            //_moreValuableFish = Config.Bind("Misc", "Fish price increase", 1.0f, "increase the value of fish; set to 1.0 to disable");
 
         }
 
@@ -98,7 +100,13 @@ namespace RestfulTweaks
             _harmony = Harmony.CreateAndPatchAll(typeof(Plugin));
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         }
-
+        //private void Update()
+        //{
+        //    if (Input.GetKeyDown(_dumpItemHotkey.Value))
+        //    {
+        //        DumpItemList();
+        //    }
+        //}
         private void OnDestroy()
         {
             _harmony.UnpatchSelf();
@@ -129,28 +137,6 @@ namespace RestfulTweaks
         }
 
 
-
-        private static void DumpItems()
-        {
-            
-            int reflectedItemId;
-            string reflectedItemIDesc;
-
-            
-            Log.LogInfo(string.Format("~~~~~~~~~~~~~~~~"));
-            Log.LogInfo(string.Format("id, name, price, sellPrice, amountStack, shop, category, tags, description"));
-            foreach (Item x in Plugin.itemDB)
-            {
-                reflectedItemId = Traverse.Create(x).Field("id").GetValue<int>();                 //Protected
-                reflectedItemIDesc = Traverse.Create(x).Field("description").GetValue<string>();  //Protected
-
-                //translationByID
-
-                Log.LogInfo(String.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}",
-                    reflectedItemId, x.nameId, Price2Copper(x.price), Price2Copper(x.sellPrice), x.amountStack, x.shop, x.category, Tags2String(x.tags), LocalisationSystem.Get(reflectedItemIDesc)));
-            }
-            Log.LogInfo(string.Format("~~~~~~~~~~~~~~~~"));
-        }
         public static int Price2Copper(Price x)
         {
             return x.gold * 100000 + x.silver * 100 + x.copper;
@@ -169,6 +155,67 @@ namespace RestfulTweaks
                 Log.LogInfo(string.Format("DEBUG: {0}", message));
             }
         }
+
+        ////////////////////////////////////////////////////////////////////////////////////////
+        // Dump comma seperated list of items to console
+        // Call manually from Unity Explorer Console with RestfulTweaks.Plugin.DumpRecipeList();
+
+        public static void DumpRecipeList()
+        {
+            //RecipeDatabaseAccessor db = RecipeDatabaseAccessor.GetInstance();
+            Recipe[] r = RecipeDatabaseAccessor.GetAllRecipes();
+            Log.LogInfo("id, name, outputItemId, outputAmount, crafTime, fuel, recipeFragments, cannotRepeat, ingredientsNeeded, modiferNeeded, modiferTypes, recipeGroup");
+            for (int i = 0; i < r.Length; i++)
+            {
+                int craftTime = r[i].time.weeks * 7 * 24 * 60 + r[i].time.days * 24 * 60 + r[i].time.hours * 60 + r[i].time.mins;
+                int outputId = Traverse.Create(r[i].output.item).Field("id").GetValue<int>();
+                Log.LogInfo(String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11}",
+                    r[i].id, r[i].name, outputId, r[i].output.amount, craftTime, r[i].fuel, r[i].recipeFragments, r[i].cannotRepeatIngredients,
+                    "#ingredientsNeeded#", "#modiferNeeded#", "#modiferTypes#", r[i].recipeGroup));
+
+                    
+            }
+
+
+
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////
+        // Dump comma seperated list of items to console
+        // Call manually from Unity Explorer Console with RestfulTweaks.Plugin.DumpItemList();
+
+        public static void DumpItemList()
+        {
+            ItemDatabaseAccessor db = ItemDatabaseAccessor.GetInstance();
+            ItemDatabase reflectedItemDatabaseSO = Traverse.Create(db).Field("itemDatabaseSO").GetValue<ItemDatabase>();
+
+            Item x;
+            string itemName;
+            string itemDesc;
+            string itemShop;
+            string itemCategory;
+
+            Log.LogInfo(string.Format("id, name, desc, price, sellPrice, amountStack, shop, category, tags, wilsonCoins, wilsonCoinsPrice"));
+            for (int i = 0; i < reflectedItemDatabaseSO.items.Length; i++)
+            {
+                x = reflectedItemDatabaseSO.items[i];
+                int reflectedItemId = Traverse.Create(x).Field("id").GetValue<int>();                 //Protected
+                string reflectedItemIDesc = Traverse.Create(x).Field("description").GetValue<string>();  //Protected
+
+                itemName = (x.translationByID) ? LocalisationSystem.Get("Items/item_name_" + reflectedItemId.ToString()) : x.nameId;
+                itemName = "\"" + itemName + "\"";
+                itemDesc = (x.translationByID) ? LocalisationSystem.Get("Items/item_description_" + reflectedItemId.ToString()) : reflectedItemIDesc;
+                itemDesc = "\"" + itemDesc + "\"";
+                itemShop = "\"" + x.shop + "\"";
+                itemCategory =  "\"" + x.category + "\"";
+                Log.LogInfo(String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}",
+                    reflectedItemId, itemName, itemDesc, Price2Copper(x.price), Price2Copper(x.sellPrice), x.amountStack, itemShop, itemCategory, Tags2String(x.tags),
+                     x.wilsonCoins, x.wilsonCoinsPrice));
+
+
+            }
+        }
+
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Reputation Milestone Stuff
@@ -428,6 +475,7 @@ namespace RestfulTweaks
 
             int x = __instance.maxStack;
             if (_dispensorStackSize.Value >= 0) { __instance.maxStack = _dispensorStackSize.Value; }
+
             DebugLog(String.Format("DrinkDispenser.Awake.Postfix maxstack: {0} -> {1}", x, __instance.maxStack));
         }
 
@@ -476,10 +524,8 @@ namespace RestfulTweaks
 
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Adjust stack size for items
+        // Item database stuff 
         //
-        // While we're at it, populate Plugin.itemDB with all the items that are in ItemDatabaseAccessor.itemDatabaseSO
-        // Because I can't figure out how to access objects in unity scene via C# or I would just use access
         // Scene:DontDestoryOnLoad, GameObject: Databases, Component: ItemDatabaseAccessor, Field: itemDatabaseSO
 
         [HarmonyPatch(typeof(ItemDatabaseAccessor), "SetUpDatabase")]
@@ -489,17 +535,20 @@ namespace RestfulTweaks
             ItemDatabase reflectedItemDatabaseSO = Traverse.Create(__instance).Field("itemDatabaseSO").GetValue<ItemDatabase>();
 
             Item x;
-            
+ 
+            if (_dumpItemListOnStart.Value) DumpItemList();
             for (int i = 0; i < reflectedItemDatabaseSO.items.Length; i++)
             {
                 x = reflectedItemDatabaseSO.items[i];
-                Plugin.itemDB.Add(x); //put a copy in there for later access
-                if (_itemStackSize.Value > 0 && x.amountStack == 99 ) { x.amountStack = _itemStackSize.Value; } //Only change items with default stack size of 99
+
+                if (_itemStackSize.Value > 0 && x.amountStack == 99) { x.amountStack = _itemStackSize.Value; } //Only change items with default stack size of 99
+                if (_wilsonOneCoin.Value && x.wilsonCoins && x.wilsonCoinsPrice > 0) x.wilsonCoinsPrice = 1;
 
             }
-            DebugLog(String.Format("SetUpDatabase.Postfix {0} Items in Plugin.itemDB", Plugin.itemDB.Count));
 
-            if (_dumpItemListOnStart.Value) Plugin.DumpItems();
+            if (_dumpItemListOnStart.Value) DumpItemList();
+
+
         }
 
     }
