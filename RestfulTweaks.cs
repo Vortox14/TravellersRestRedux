@@ -48,9 +48,10 @@ namespace RestfulTweaks
         private static ConfigEntry<int> _moreDisponible;
         //private static ConfigEntry<bool> _catNeverGetsAngry; //Cat hates me and will not stop getting angry!
         private static ConfigEntry<bool> _wilsonOneCoin;
+        private static ConfigEntry<bool> _allJuiceIsJuice;
         //private static ConfigEntry<float> _moreValuableFish;
 
-
+        public static int itemIdJuice = 1325;
 
         public static ItemDatabaseAccessor itemDatabaseAccessor;
         //public static RecipeDatabaseAccessor recipeDatabaseAccessor; //Not needed since RecipeDatabaseAccessor is full of useful static functions
@@ -72,6 +73,7 @@ namespace RestfulTweaks
             _soilWet3DaysRain = Config.Bind("Farming", "Rain Fully waters woil", false, "rain will make soil wet for the next 3 days, like watering");
             _recipesNoFuel = Config.Bind("Recipes", "No Fuel", false, "Recipes no longer require fuel");
             _recipesNoFragments = Config.Bind("Recipes", "No Fragment Cost", false, "Cave Recipies only cost one fragment");
+            _allJuiceIsJuice = Config.Bind("Recipes", "All juice is juice", false, "Recipies using juice can use any type of juice");
             _fireplaceNoFuelUse = Config.Bind("Misc", "Fireplace does not consume fuel", false, "fireplace no longer consumes fuel");
             _recipesQuickCook = Config.Bind("Recipes", "Quick Crafting", -1, "Sets the maximum time recipes take to craft in minutes; set to -1 to disable");
             _dumpCropListOnStart = Config.Bind("Database", "List Crops on start", false, "set to true to print a list of all crops to console on startup");
@@ -429,6 +431,21 @@ namespace RestfulTweaks
                     int newYr  = (craftTime - newMin - 60 * newHr - 60 * 24 * newDay - 60 * 24 * 7 * newWk) / (60 * 24 * 7  *16); 
                     allRecipes[i].time = new GameDate.Time(newYr, newWk, newDay, newHr, newMin);
                     
+                }
+                if (_allJuiceIsJuice.Value)
+                {
+                    //Step through each RecipeIngredient in ingredientsNeeded[]
+                    for (int j = 0; j < allRecipes[i].ingredientsNeeded.Length; j++)
+                    {
+                        //steal the private ids
+                        int ingrediantId = Traverse.Create(allRecipes[i].ingredientsNeeded[j].item).Field("id").GetValue<int>();
+                        int ingrediantmodId = Traverse.Create(allRecipes[i].ingredientsNeeded[j].mod).Field("id").GetValue<int>();
+                        if (ingrediantId == itemIdJuice)
+                        {
+                            allRecipes[i].ingredientsNeeded[j].mod = null; //should be an empty item, not null? GetItem(0) get null though...
+                        }
+                        
+                    }
                 }
             }
             if (_dumpRecipeListOnStart.Value) DumpRecipeList();
