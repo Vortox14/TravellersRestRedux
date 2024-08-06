@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.UIElements.UIRAtlasAllocator;
+using System.Diagnostics;
 
 namespace RestfulTweaks
 {
@@ -49,7 +50,8 @@ namespace RestfulTweaks
         //private static ConfigEntry<bool> _catNeverGetsAngry; //Cat hates me and will not stop getting angry!
         private static ConfigEntry<bool> _wilsonOneCoin;
         private static ConfigEntry<bool> _allJuiceIsJuice;
-        //private static ConfigEntry<float> _moreValuableFish;
+        private static ConfigEntry<float> _moreValuableFish;
+        private static ConfigEntry<bool> _easyBirdTraining;
 
         public static int itemIdJuice = 1325;
 
@@ -90,7 +92,8 @@ namespace RestfulTweaks
             _moreCustomers = Config.Bind("Milestones", "More Customer", -1, "increase customer capacity; set to -1 to disable");
             _moreDisponible = Config.Bind("Milestones", "More Floor Tiles", -1, "increase total number of floor tiles allowed; set to -1 to disable");
             _wilsonOneCoin = Config.Bind("Misc", "Wilson Price Reduction", false, "Wilson only charges 1 coin per item");
-            //_moreValuableFish = Config.Bind("Misc", "Fish price increase", 1.0f, "increase the value of fish; set to 1.0 to disable");
+            _moreValuableFish = Config.Bind("Misc", "Fish price increase", 1.0f, "increase the value of fish; set to 1.0 to disable");
+            _easyBirdTraining = Config.Bind("Misc", "Easy Bird Training", false, "More benefit from crackers, giving cracker at wrong time results in less benefit instead of loss");
 
         }
 
@@ -137,18 +140,6 @@ namespace RestfulTweaks
             //}
 
         }
-
-
-        public static int Price2Copper(Price x)
-        {
-            return x.gold * 100000 + x.silver * 100 + x.copper;
-        }
-        public static string Tags2String(Tag[] x)
-        {
-            return string.Join(":", x);
-        }
-
-
         public static void DebugLog(string message)
         {
             // Log a message to console only if debug is enabled in console
@@ -157,6 +148,36 @@ namespace RestfulTweaks
                 Log.LogInfo(string.Format("DEBUG: {0}", message));
             }
         }
+
+        public static int Price2Copper(Price x)
+        {
+            return x.gold * 100000 + x.silver * 100 + x.copper;
+        }
+
+        public static Price Copper2Price(int x)
+        {
+            Price p = new Price();
+            p.gold = Mathf.FloorToInt((float)(x / 10000));
+            x -= p.gold * 10000;
+            p.silver = Mathf.FloorToInt((float)(x / 100));
+            x -= p.silver * 100;
+            p.copper = x;
+            return p;
+        }
+
+        public static Price PriceXFloat(Price p, float x)
+        {
+            return Copper2Price(Mathf.FloorToInt(x * Price2Copper(p)));
+        }
+
+
+        public static string Tags2String(Tag[] x)
+        {
+            return string.Join(":", x);
+        }
+
+
+
 
         public static string RecipeIngredients2String(RecipeIngredient[] x)
         {
@@ -233,6 +254,25 @@ namespace RestfulTweaks
 
             }
         }
+
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Bird Stuff
+
+
+        [HarmonyPatch(typeof(BirdNPC), "MouseUP")]
+        [HarmonyPrefix]
+        private static void BirdNPCMouseUPPrefix(BirdNPC __instance)
+        {
+            DebugLog("BirdNPC.MouseUP.Prefix");
+            if (_easyBirdTraining.Value)
+            {
+                __instance.canGiveCookieTime = 0f;
+                __instance.cookieDecrement = -0.1f;
+                __instance.cookieIncrement = 0.25f;
+            }
+        }
+
 
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -574,13 +614,13 @@ namespace RestfulTweaks
 
                 if (_itemStackSize.Value > 0 && x.amountStack == 99) { x.amountStack = _itemStackSize.Value; } //Only change items with default stack size of 99
                 if (_wilsonOneCoin.Value && x.wilsonCoins && x.wilsonCoinsPrice > 0) x.wilsonCoinsPrice = 1;
-
+                if (_moreValuableFish.Value != 1.0f && x.GetType() == typeof(Fish))
+                {
+                    x.price = PriceXFloat(x.price, _moreValuableFish.Value);
+                    x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableFish.Value);
+                }
             }
-
             if (_dumpItemListOnStart.Value) DumpItemList();
-
-
         }
-
     }
 }
