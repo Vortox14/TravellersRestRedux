@@ -49,7 +49,6 @@ namespace RestfulTweaks
         private static ConfigEntry<int> _moreDisponible;
         //private static ConfigEntry<bool> _catNeverGetsAngry; //Cat hates me and will not stop getting angry!
         private static ConfigEntry<bool> _wilsonOneCoin;
-        private static ConfigEntry<bool> _allJuiceIsJuice;
         private static ConfigEntry<float> _moreValuableFish;
         private static ConfigEntry<bool> _easyBirdTraining;
 
@@ -68,14 +67,12 @@ namespace RestfulTweaks
             _dumpRecipeListOnStart = Config.Bind("Database", "List Recipes on start", false, "set to true to print a list of all recipes to console on startup");
             _dumpReputationListOnStart = Config.Bind("Database", "List Reputation milestones on start", false, "set to true to print a list of all reputation milestones to console on startup"); 
             _dumpStaffGenData = Config.Bind("Database", "List staff generation data on start", false, "set to true to print a list of staff generation data on startup");
-            //_dumpItemHotkey = Config.Bind("Database", "Item DumpHotKey", KeyCode.None, "Press to activate mod");
             _moveSpeed = Config.Bind("Movement", "Walking Speed", 2.5f, "walking speed; set to 2.5 for default speed ");
             _moveRunMult = Config.Bind("Movement", "Run Speed Multiplier", 1.6f, "run speed multiplier; set to 1.6 for default speed ");
             _soilStaysWatered = Config.Bind("Farming", "Soil Stays Wet", false, "Soil stays watered");
             _soilWet3DaysRain = Config.Bind("Farming", "Rain Fully waters woil", false, "rain will make soil wet for the next 3 days, like watering");
             _recipesNoFuel = Config.Bind("Recipes", "No Fuel", false, "Recipes no longer require fuel");
             _recipesNoFragments = Config.Bind("Recipes", "No Fragment Cost", false, "Cave Recipies only cost one fragment");
-            _allJuiceIsJuice = Config.Bind("Recipes", "All juice is juice", false, "Recipies using juice can use any type of juice");
             _fireplaceNoFuelUse = Config.Bind("Misc", "Fireplace does not consume fuel", false, "fireplace no longer consumes fuel");
             _recipesQuickCook = Config.Bind("Recipes", "Quick Crafting", -1, "Sets the maximum time recipes take to craft in minutes; set to -1 to disable");
             _dumpCropListOnStart = Config.Bind("Database", "List Crops on start", false, "set to true to print a list of all crops to console on startup");
@@ -455,7 +452,7 @@ namespace RestfulTweaks
             DebugLog("RecipeDatabaseAccessor.Awake.PostFix");
             Recipe[] allRecipes = RecipeDatabaseAccessor.GetAllRecipes();
             DebugLog(String.Format("Found {0} recipes", allRecipes.Length));
-      
+            if (_dumpRecipeListOnStart.Value) DumpRecipeList();
             for (int i = 0; i < allRecipes.Length; i++)
             {
                 int craftTime = allRecipes[i].time.weeks * 7 * 24 * 60 + allRecipes[i].time.days * 24 * 60 + allRecipes[i].time.hours * 60 + allRecipes[i].time.mins;
@@ -472,23 +469,9 @@ namespace RestfulTweaks
                     allRecipes[i].time = new GameDate.Time(newYr, newWk, newDay, newHr, newMin);
                     
                 }
-                if (_allJuiceIsJuice.Value)
-                {
-                    //Step through each RecipeIngredient in ingredientsNeeded[]
-                    for (int j = 0; j < allRecipes[i].ingredientsNeeded.Length; j++)
-                    {
-                        //steal the private ids
-                        int ingrediantId = Traverse.Create(allRecipes[i].ingredientsNeeded[j].item).Field("id").GetValue<int>();
-                        int ingrediantmodId = Traverse.Create(allRecipes[i].ingredientsNeeded[j].mod).Field("id").GetValue<int>();
-                        if (ingrediantId == itemIdJuice)
-                        {
-                            allRecipes[i].ingredientsNeeded[j].mod = null; //should be an empty item, not null? GetItem(0) get null though...
-                        }
-                        
-                    }
-                }
+
             }
-            if (_dumpRecipeListOnStart.Value) DumpRecipeList();
+
         }
 
 
