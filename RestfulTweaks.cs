@@ -51,6 +51,7 @@ namespace RestfulTweaks
         private static ConfigEntry<bool> _wilsonOneCoin;
         private static ConfigEntry<float> _moreValuableFish;
         private static ConfigEntry<bool> _easyBirdTraining;
+        private static ConfigEntry<bool> _badBirdIsFunny;
 
         public static int itemIdJuice = 1325;
 
@@ -84,13 +85,14 @@ namespace RestfulTweaks
             _staffLevel = Config.Bind("Staff", "Starting Level", -1, "Starting level for new hires; set to -1 to disable, set to 31 for all three skills at level 5");
             //_catNeverGetsAngry = Config.Bind("Misc", "Cat Never Gets Upset", false, "NOT WORKING prevents your cat from lowering its opinion of you");
             _moreTiles = Config.Bind("Milestones", "More Zone Tiles", -1, "increase number of tiles for crafting/dining zone; set to -1 to disable");
-            _moreZones = Config.Bind("Milestones", "More Crafting Zones", -1, "NOT WELL TESTED! increase number of zones for crafting; set to -1 to disable");
+            _moreZones = Config.Bind("Milestones", "More Crafting Zones", -1, "NOT WELL TESTED increase number of zones for crafting; set to -1 to disable");
             _moreRooms = Config.Bind("Milestones", "More Rentable Rooms", -1, "increase number of rooms for rent; set to -1 to disable");
             _moreCustomers = Config.Bind("Milestones", "More Customer", -1, "increase customer capacity; set to -1 to disable");
             _moreDisponible = Config.Bind("Milestones", "More Floor Tiles", -1, "increase total number of floor tiles allowed; set to -1 to disable");
             _wilsonOneCoin = Config.Bind("Misc", "Wilson Price Reduction", false, "Wilson only charges 1 coin per item");
             _moreValuableFish = Config.Bind("Misc", "Fish price increase", 1.0f, "increase the value of fish; set to 1.0 to disable");
-            _easyBirdTraining = Config.Bind("Misc", "Easy Bird Training", false, "More benefit from crackers, giving cracker at wrong time results in less benefit instead of loss");
+            _easyBirdTraining = Config.Bind("Misc", "Easy Bird Training", false, "NOT WORKING More benefit from crackers, giving cracker at wrong time results in less benefit instead of loss");
+            _badBirdIsFunny = Config.Bind("Misc", "Naughty Bird is Funny", false, "Patrons like a naughty bird, so everything your bird says causes reputation gain instead of loss");
 
         }
 
@@ -257,9 +259,9 @@ namespace RestfulTweaks
         // Bird Stuff
 
 
-        [HarmonyPatch(typeof(BirdNPC), "MouseUP")]
+        [HarmonyPatch(typeof(BirdNPC), "MouseUp")]
         [HarmonyPrefix]
-        private static void BirdNPCMouseUPPrefix(BirdNPC __instance)
+        private static void BirdNPCMouseUpPrefix(BirdNPC __instance)
         {
             DebugLog("BirdNPC.MouseUP.Prefix");
             if (_easyBirdTraining.Value)
@@ -267,6 +269,17 @@ namespace RestfulTweaks
                 __instance.canGiveCookieTime = 0f;
                 __instance.cookieDecrement = -0.1f;
                 __instance.cookieIncrement = 0.25f;
+            }
+        }
+
+        [HarmonyPatch(typeof(BirdSpeech), "ChangeReputation")]
+        [HarmonyPrefix]
+        private static void BirdSpeechChangeReputation(BirdSpeech __instance)
+        {
+            DebugLog("BirdNPC.ChangeReputation.Prefix");
+            if (_badBirdIsFunny.Value)
+            {
+                __instance.lastCommentWasPositive = true;
             }
         }
 
