@@ -541,7 +541,8 @@ namespace RestfulTweaks
             
 
             int x = __instance.maxStack;
-            if (_dispensorStackSize.Value >= 0) { __instance.maxStack = _dispensorStackSize.Value; }
+            if (_dispensorStackSize.Value >= 0) { __instance.maxStack = (_dispensorStackSize.Value == 0) ? _itemStackSize.Value : _dispensorStackSize.Value; }  //if this is set to actual 0 it causes issues with buckets of water, so set to match the stack size
+
 
             DebugLog(String.Format("DrinkDispenser.Awake.Postfix maxstack: {0} -> {1}", x, __instance.maxStack));
         }
