@@ -51,6 +51,12 @@ public static CommonReferences LLFCHIEGKBE
 	}
 }	
 	
+IngredientType[] IngredientGroup.ingredientsTypes and List<ItemMod> IngredientGrouppossibleItems are the things that go into an ingrediant vategory
+
+IDEA: these extend item, so they are in the item database - probably all the items with negative numbers since that matches the item list & Unity Explorer!
+Check exact type: https://stackoverflow.com/questions/3561202/check-if-instance-is-of-a-type
+Exact type: if (c.GetType() == typeof(TForm))
+Type or subtype: if (c is TForm)
 
 		
 
