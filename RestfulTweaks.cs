@@ -614,15 +614,11 @@ namespace RestfulTweaks
         [HarmonyPostfix]
         static void SetUpDatabasePostfix(ItemDatabaseAccessor __instance)
         {
-            ItemDatabase reflectedItemDatabaseSO = Traverse.Create(__instance).Field("itemDatabaseSO").GetValue<ItemDatabase>();
-
             Item x;
- 
             if (_dumpItemListOnStart.Value) DumpItemList();
-            for (int i = 0; i < reflectedItemDatabaseSO.items.Length; i++)
+            for (int i = 0; i < itemDatabaseSO.items.Length; i++)
             {
-                x = reflectedItemDatabaseSO.items[i];
-
+                x = itemDatabaseSO.items[i];
                 if (_itemStackSize.Value > 0 && x.amountStack == 99) { x.amountStack = _itemStackSize.Value; } //Only change items with default stack size of 99
                 if (_wilsonOneCoin.Value && x.wilsonCoins && x.wilsonCoinsPrice > 0) x.wilsonCoinsPrice = 1;
                 if (_moreValuableFish.Value != 1.0f && x.GetType() == typeof(Fish))
