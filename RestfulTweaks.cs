@@ -52,7 +52,7 @@ namespace RestfulTweaks
         private static ConfigEntry<float> _moreValuableFish;
         private static ConfigEntry<bool> _easyBirdTraining;
         private static ConfigEntry<bool> _badBirdIsFunny;
-
+        private static ConfigEntry<bool> _walkThroughCrops;
         public static int itemIdJuice = 1325;
 
 
@@ -114,6 +114,7 @@ namespace RestfulTweaks
             _dumpCropListOnStart = Config.Bind("Database", "List Crops on start", false, "set to true to print a list of all crops to console on startup");
             _CropFastGrow = Config.Bind("Farming", "Fast Growing Crops", false, "All crops advance one growth stage per day");
             _CropFastRegrow = Config.Bind("Farming", "Fast Regrowing Crops", false, "Crops that allow multiple harvests can be harvested every day");
+            _walkThroughCrops = Config.Bind("Farming", "Walk Through Crops", false, "Lets you walk through your crops.");
             _staffNoNeg = Config.Bind("Staff", "No Negative Perks", false, "New Staff will not have any negative perks");
             _staffRefreshOnOpen = Config.Bind("Staff", "Refresh Applicants on Open", false, "Refresh the list of new staff available to hire every time the hiring interface is opened");
             _staffAlways3Perks = Config.Bind("Staff", "Always Three Perks", false, "NOT WORKING New hires will always have three positive perks");
@@ -268,10 +269,28 @@ namespace RestfulTweaks
             }
         }
 
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // CropSetter Stuff
+
+        [HarmonyPatch(typeof(CropSetter), "Awake")]
+        [HarmonyPostfix]
+        private static void CropSetterAwakePostfix(CropSetter __instance)
+        {
+            //DebugLog("CropSetter.awake.Postfix");
+            if (__instance.cropCollider != null && !__instance.IsTreeCrop() && _walkThroughCrops.Value) __instance.cropCollider.enabled = false;
+            //DebugLog(String.Format("collisionDetection: {0} cutDetection: {1} cropCollider: {2}", (__instance.collisionDetection == null) ? "null" : "active", (__instance.cutDetection == null) ? "null" : "active", __instance.cropCollider.enabled));
+        }
+        [HarmonyPatch(typeof(CropSetter), "UpdateCropVisual")]
+        [HarmonyPostfix]
+        private static void CropSetterUpdateCropVisualPostfix(CropSetter __instance)
+        {
+            //DebugLog("UpdateCropVisual.awake.Postfix");
+            if (__instance.cropCollider != null && !__instance.IsTreeCrop() && _walkThroughCrops.Value) __instance.cropCollider.enabled = false;
+        }
+
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Bird Stuff
-
 
         [HarmonyPatch(typeof(BirdNPC), "MouseUp")]
         [HarmonyPrefix]

@@ -15,7 +15,7 @@ A Traveller's Rest mod with a lot of small tweaks. Each option can be configured
 * Dump a list of items, crops or recipes to the console on startup.
 * NEW in 1.1.0: Several modifiers that are applied when new staff are available for hire: refresh on open, no negatives, always 3 perks, starting level.
 * NEW in 1.2.0: Increase customer capacity, number of rented rooms, placable floor tiles, dining/crafting zone size and number of crafting zones.
-* NEW in 1.3.0: Wilson sells items for 1 coin, Fish value multiplier, easier Bird training, bad bird is funny
+* NEW in 1.3.0: Wilson sells items for 1 coin, Fish value multiplier, bad bird is funny, walk through crops
 
 
 ## Downloading the mod
