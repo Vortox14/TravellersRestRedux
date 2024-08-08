@@ -3,31 +3,21 @@ To-Do
 Aging Barrel Stack size (if I can find it!)
 Faster Aging
 Transfer to existing stacks (can I add a UI element?)
-Sort (by what metric? probably not worth doing without a better plan)
-Increase fish prices
 Forced sleep hour - no pass out at all?
 Candles never run out
-Auto-fireplace on/ff
+Auto-fireplace on/off
 Change weather
 better haggling
 Cat opinion fix
 Digging options? HoleInGround class IN PROGRESS
-harvest sith scythe (CropSetter cutDetection/cutDetectionActiveAge ?)
+harvest with scythe (CropSetter cutDetection/cutDetectionActiveAge ?)
 walk through crops (CropSetter cropCollider/collisionDetection/collisionDetectionActiveAge ?)
 Wilson coins - everything costs 1 coin
 No Mess
+More items in shops
 Trigger halloween/christmas
-Tavern/craftin/etc tile allowance
-	ReputationDBAccessor.reputationDatabaseSO.reputations[]
-	ReputationInfo.[lots of fields]
-	Note: SetUpDatabase() puts that info in a Dictionary?
 Free Building (TavernConstructionManager?)
 	TavernConstructionModifications->apply changes -> MoneyMaterials eepfpdahifg = ConstructionUI.current.playerInfo.EEPFPDAHIFG.HLBNMAGMCON();
-PArrot
-		More Cookies: BirdNPC.canGiveCookieTime == min time between cookeis
-		BirdNPC.cookiesGivenPerDay = check for >=2, so reset to 0 on... BirdNPC.MouseUp?
-		BirdInstance.commentsQuality == trianing level?
-Juice -> Any Juice: look for ingredient 1325 and remove the modifer 
 [All vege types] -> -9 any type of vegetable
 	Somewhere they has to be a way to tell what items match a "wildcard" item!
 	CraftingInventory?

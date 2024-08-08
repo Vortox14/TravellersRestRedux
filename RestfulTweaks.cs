@@ -55,7 +55,42 @@ namespace RestfulTweaks
 
         public static int itemIdJuice = 1325;
 
-        public static ItemDatabaseAccessor itemDatabaseAccessor;
+
+
+        // ----------------------------------------------------
+        // Some Accessor objects
+        private static CommonReferences myCommonReferences;
+        public static CommonReferences commonReferences
+        {
+            get
+            {
+                if (myCommonReferences == null) myCommonReferences = UnityEngine.Object.FindObjectOfType<CommonReferences>();
+                return myCommonReferences;
+            }
+        }
+        // -------------
+        private static ItemDatabaseAccessor myItemDatabaseAccessor;
+        public static ItemDatabaseAccessor itemDatabaseAccessor
+        {
+            get
+            {
+                if (myItemDatabaseAccessor == null) myItemDatabaseAccessor = UnityEngine.Object.FindObjectOfType<ItemDatabaseAccessor>();
+                return myItemDatabaseAccessor;
+            }
+        }
+        private static ItemDatabase myitemDatabaseSO;
+        public static ItemDatabase itemDatabaseSO
+        {
+            get
+            {
+                if (myitemDatabaseSO == null) myitemDatabaseSO = Traverse.Create(itemDatabaseAccessor).Field("itemDatabaseSO").GetValue<ItemDatabase>();
+                return myitemDatabaseSO;
+            }
+        }
+
+        // ----------------------------------------------------
+
+
         //public static RecipeDatabaseAccessor recipeDatabaseAccessor; //Not needed since RecipeDatabaseAccessor is full of useful static functions
         public Plugin()
         {
@@ -100,7 +135,6 @@ namespace RestfulTweaks
         {
             // Plugin startup logic
             Log = Logger;
-            initDBs();
             _harmony = Harmony.CreateAndPatchAll(typeof(Plugin));
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         }
@@ -119,26 +153,7 @@ namespace RestfulTweaks
 
 
 
-        //private void Update()
-        //{
-        //    if (Input.GetKeyDown(_itemDumphotKey.Value))
-        //    {
-        //        Plugin.DumpItems();
-        //    }
-        //}
-        private static void initDBs()
-        {
-            if (itemDatabaseAccessor == null)
-            {
-                itemDatabaseAccessor = UnityEngine.Object.FindObjectOfType<ItemDatabaseAccessor>();
-            }
-            //Not needed since RecipeDatabaseAccessor is full of useful static functions
-            //if (recipeDatabaseAccessor == null)
-            //{
-            //    recipeDatabaseAccessor = RecipeDatabaseAccessor.GetInstance();
-            //}
 
-        }
         public static void DebugLog(string message)
         {
             // Log a message to console only if debug is enabled in console
@@ -224,8 +239,7 @@ namespace RestfulTweaks
 
         public static void DumpItemList()
         {
-            ItemDatabaseAccessor db = ItemDatabaseAccessor.GetInstance();
-            ItemDatabase reflectedItemDatabaseSO = Traverse.Create(db).Field("itemDatabaseSO").GetValue<ItemDatabase>();
+            
 
             Item x;
             string itemName;
@@ -234,9 +248,9 @@ namespace RestfulTweaks
             string itemCategory;
 
             Log.LogInfo(string.Format("id, name, desc, price, sellPrice, amountStack, shop, category, tags, wilsonCoins, wilsonCoinsPrice, getType()"));
-            for (int i = 0; i < reflectedItemDatabaseSO.items.Length; i++)
+            for (int i = 0; i < itemDatabaseSO.items.Length; i++)
             {
-                x = reflectedItemDatabaseSO.items[i];
+                x = itemDatabaseSO.items[i];
                 int reflectedItemId = Traverse.Create(x).Field("id").GetValue<int>();                 //Protected
                 string reflectedItemIDesc = Traverse.Create(x).Field("description").GetValue<string>();  //Protected
 
