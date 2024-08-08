@@ -388,9 +388,6 @@ namespace RestfulTweaks
                 }
                 if (_dumpStaffGenData.Value) Log.LogInfo(string.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}",i, q[i].reputation, q[i].prob1Perk, q[i].prob2Perk, q[i].lvlRangePerk1, q[i].lvlRangePerk2, q[i].lvlRangePerk3));
             }
-
-
-
         }
 
 
@@ -526,7 +523,6 @@ namespace RestfulTweaks
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Fireplace does not consume fuel
-
 
         [HarmonyPatch(typeof(Fireplace), "Update")]
         [HarmonyPrefix]
