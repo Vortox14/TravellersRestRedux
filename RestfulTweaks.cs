@@ -53,8 +53,6 @@ namespace RestfulTweaks
         private static ConfigEntry<bool> _easyBirdTraining;
         private static ConfigEntry<bool> _badBirdIsFunny;
         private static ConfigEntry<bool> _walkThroughCrops;
-        public static int itemIdJuice = 1325;
-
 
 
         // ----------------------------------------------------
