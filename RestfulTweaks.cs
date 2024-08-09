@@ -270,6 +270,51 @@ namespace RestfulTweaks
             }
         }
 
+        ////////////////////////////////////////////////////////////////////////////////////////
+        // Dump comma seperated list of items to console
+        // Can call manually from Unity Explorer Console with RestfulTweaks.Plugin.DumpIngredientGroupList();
+
+        public static void DumpIngredientGroupList()
+        {
+
+
+            Item y;
+            IngredientGroup x;
+            string itemName;
+            string itemDesc;
+
+
+            Log.LogInfo(string.Format("id, name, desc, ingredientsTypes, PossibleItems, itemModAux, cheapestIngredient"));
+            for (int i = 0; i < itemDatabaseSO.items.Length; i++)
+            {
+                y = itemDatabaseSO.items[i];                           // there has to be a better way to do this but _shrugs_
+                if (y.GetType() != typeof(IngredientGroup)) continue;
+                x = itemDatabaseSO.items[i] as IngredientGroup;
+
+                int reflectedItemId = Traverse.Create(x).Field("id").GetValue<int>();                 //Protected
+                string reflectedItemIDesc = Traverse.Create(x).Field("description").GetValue<string>();  //Protected
+                itemName = (x.translationByID) ? LocalisationSystem.Get("Items/item_name_" + reflectedItemId.ToString()) : x.nameId;
+                itemName = "\"" + itemName + "\"";
+                itemDesc = (x.translationByID) ? LocalisationSystem.Get("Items/item_description_" + reflectedItemId.ToString()) : reflectedItemIDesc;
+                itemDesc = "\"" + itemDesc + "\"";
+                //get private fields
+                List<ItemMod> xPossibleItems = Traverse.Create(x).Field("possibleItems").GetValue<List<ItemMod>>();
+                ItemMod xCheapestIngredient = Traverse.Create(x).Field("cheapestIngredient").GetValue<ItemMod>();
+                ItemMod xItemModAux = Traverse.Create(x).Field("itemModAux").GetValue<ItemMod>();
+                // We need itemMod2String helper function 
+
+                Log.LogInfo(String.Format("{0},{1},{2},{3},{4},{5},{6}",
+                    reflectedItemId, itemName, itemDesc, 
+                    "\"" + string.Join(",", x.ingredientsTypes) + "\"",
+                    "xPossibleItems", "xItemModAux", "xCheapestIngredient"
+
+                    ));
+
+
+            }
+        }
+
+
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // CropSetter Stuff
 
@@ -301,8 +346,8 @@ namespace RestfulTweaks
             if (_easyBirdTraining.Value)
             {
                 __instance.canGiveCookieTime = 0f;
-                __instance.cookieDecrement = -0.1f;
-                __instance.cookieIncrement = 0.25f;
+                __instance.cookieDecrement = 0.0f;
+                __instance.cookieIncrement = 0.2f;
             }
         }
 
