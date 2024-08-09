@@ -219,7 +219,6 @@ namespace RestfulTweaks
             
         }
 
-
         public static string RecipeIngredients2String(RecipeIngredient[] x)
         {
             string result = string.Empty;
@@ -266,15 +265,16 @@ namespace RestfulTweaks
 
         public static void DumpItemList()
         {
-            
+
 
             Item x;
             string itemName;
             string itemDesc;
             string itemShop;
             string itemCategory;
+            string itemSubType;
 
-            Log.LogInfo(string.Format("id, name, desc, price, sellPrice, amountStack, shop, category, tags, wilsonCoins, wilsonCoinsPrice, getType()"));
+            Log.LogInfo(string.Format("id, name, desc, price, sellPrice, amountStack, shop, category, tags, wilsonCoins, wilsonCoinsPrice, getType(), subType"));
             for (int i = 0; i < itemDatabaseSO.items.Length; i++)
             {
                 x = itemDatabaseSO.items[i];
@@ -286,10 +286,17 @@ namespace RestfulTweaks
                 itemDesc = (x.translationByID) ? LocalisationSystem.Get("Items/item_description_" + reflectedItemId.ToString()) : reflectedItemIDesc;
                 itemDesc = "\"" + itemDesc + "\"";
                 itemShop = "\"" + x.shop + "\"";
-                itemCategory =  "\"" + x.category + "\"";
-                Log.LogInfo(String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11}",
+                itemCategory = "\"" + x.category + "\"";
+
+                // For food and fish, look at the subtype.
+                if (x.GetType() == typeof(Food))      itemSubType = (x as Food).ingredientType.ToString();
+                else if (x.GetType() == typeof(Fish)) itemSubType = (x as Fish).fishType.ToString();
+                else                                  itemSubType = "";
+
+
+                Log.LogInfo(String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12}",
                     reflectedItemId, itemName, itemDesc, Price2Copper(x.price), Price2Copper(x.sellPrice), x.amountStack, itemShop, itemCategory, Tags2String(x.tags),
-                     x.wilsonCoins, x.wilsonCoinsPrice, x.GetType()));
+                     x.wilsonCoins, x.wilsonCoinsPrice, x.GetType(), itemSubType));
 
 
             }
