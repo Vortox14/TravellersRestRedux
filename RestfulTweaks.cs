@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.UIElements.UIRAtlasAllocator;
 using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Xml.Linq;
 
 namespace RestfulTweaks
 {
@@ -34,14 +36,15 @@ namespace RestfulTweaks
         private static ConfigEntry<bool> _fireplaceNoFuelUse;
         private static ConfigEntry<bool> _dumpRecipeListOnStart;
         private static ConfigEntry<bool> _dumpCropListOnStart;
+        private static ConfigEntry<bool> _dumpStaffGenDataOnStart;
+        private static ConfigEntry<bool> _dumpReputationListOnStart;
+        private static ConfigEntry<bool> _dumpIngredientGroupListOnStart;
         private static ConfigEntry<bool> _CropFastGrow;
         private static ConfigEntry<bool> _CropFastRegrow;
         private static ConfigEntry<bool> _staffNoNeg;
         private static ConfigEntry<bool> _staffRefreshOnOpen;
         private static ConfigEntry<bool> _staffAlways3Perks;
         private static ConfigEntry<int> _staffLevel;
-        private static ConfigEntry<bool> _dumpStaffGenData;
-        private static ConfigEntry<bool> _dumpReputationListOnStart;
         private static ConfigEntry<int> _moreTiles;
         private static ConfigEntry<int> _moreZones;
         private static ConfigEntry<int> _moreRooms;
@@ -103,7 +106,8 @@ namespace RestfulTweaks
             _dumpItemListOnStart= Config.Bind("Database", "List Items on start", false, "set to true to print a list of all items to console on startup");
             _dumpRecipeListOnStart = Config.Bind("Database", "List Recipes on start", false, "set to true to print a list of all recipes to console on startup");
             _dumpReputationListOnStart = Config.Bind("Database", "List Reputation milestones on start", false, "set to true to print a list of all reputation milestones to console on startup"); 
-            _dumpStaffGenData = Config.Bind("Database", "List staff generation data on start", false, "set to true to print a list of staff generation data on startup");
+            _dumpStaffGenDataOnStart = Config.Bind("Database", "List staff generation data on start", false, "set to true to print a list of staff generation data on startup");
+            _dumpIngredientGroupListOnStart = Config.Bind("Database", "List Ingredient Group data on start", false, "set to true to print a list of ingredient Groups on startup");
             _moveSpeed = Config.Bind("Movement", "Walking Speed", 2.5f, "walking speed; set to 2.5 for default speed ");
             _moveRunMult = Config.Bind("Movement", "Run Speed Multiplier", 1.6f, "run speed multiplier; set to 1.6 for default speed ");
             _soilStaysWatered = Config.Bind("Farming", "Soil Stays Wet", false, "Soil stays watered");
@@ -151,11 +155,7 @@ namespace RestfulTweaks
         {
             _harmony.UnpatchSelf();
         }
-        
-
-
-
-
+ 
         public static void DebugLog(string message)
         {
             // Log a message to console only if debug is enabled in console
@@ -165,6 +165,8 @@ namespace RestfulTweaks
             }
         }
 
+        // //////////////////////////////////////////////////////////////////////
+        // A bunch of functions for converting things to text to spit out 
         public static int Price2Copper(Price x)
         {
             return x.gold * 100000 + x.silver * 100 + x.copper;
@@ -186,13 +188,32 @@ namespace RestfulTweaks
             return Copper2Price(Mathf.FloorToInt(x * Price2Copper(p)));
         }
 
-
         public static string Tags2String(Tag[] x)
         {
             return string.Join(":", x);
         }
 
-
+        public static string Item2String(Item x)
+        {
+            int xId = Traverse.Create(x).Field("id").GetValue<int>();
+            string xName = (x.translationByID) ? LocalisationSystem.Get("Items/item_name_" + xId.ToString()) : x.nameId;
+            return String.Format("{0}:{1}",xId, xName);
+        }
+        public static string ItemMod2String(ItemMod x)
+        {
+            return String.Format("[{0},{1}]", Item2String(x.item), Item2String(x.mod)); 
+        }
+        public static string ItemModList2String(List<ItemMod> x)
+        {
+            string s = "\"";
+            foreach (ItemMod itemMod in x)
+            {
+                s += ItemMod2String(itemMod);
+            }
+            s += "\"";
+            return s;
+            
+        }
 
 
         public static string RecipeIngredients2String(RecipeIngredient[] x)
@@ -271,7 +292,7 @@ namespace RestfulTweaks
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////
-        // Dump comma seperated list of items to console
+        // Dump comma seperated list of IngredientGroups to console
         // Can call manually from Unity Explorer Console with RestfulTweaks.Plugin.DumpIngredientGroupList();
 
         public static void DumpIngredientGroupList()
@@ -306,7 +327,7 @@ namespace RestfulTweaks
                 Log.LogInfo(String.Format("{0},{1},{2},{3},{4},{5},{6}",
                     reflectedItemId, itemName, itemDesc, 
                     "\"" + string.Join(",", x.ingredientsTypes) + "\"",
-                    "xPossibleItems", "xItemModAux", "xCheapestIngredient"
+                    "xPossibleItems", ItemMod2String(xItemModAux), ItemMod2String(xCheapestIngredient)
 
                     ));
 
@@ -437,7 +458,7 @@ namespace RestfulTweaks
         {
             if (setupDoneStaffManager) return;
             DebugLog("StaffManager.Awake.Postfix");
-            if (_dumpStaffGenData.Value) Log.LogInfo("id, reputation, prob1Perk, prob2Perk, lvlRangePerk1, lvlRangePerk2, lvlRangePerk3");
+            if (_dumpStaffGenDataOnStart.Value) Log.LogInfo("id, reputation, prob1Perk, prob2Perk, lvlRangePerk1, lvlRangePerk2, lvlRangePerk3");
             StaffManager s = StaffManager.GetInstance();
             StaffManager.StaffGenerationValues[] q = s.staffGenerationTable;
             for (int i = 0; i < q.Length; i++)
@@ -452,7 +473,7 @@ namespace RestfulTweaks
                     q[i].lvlRangePerk2.x = _staffLevel.Value; q[i].lvlRangePerk2.y = _staffLevel.Value;
                     q[i].lvlRangePerk3.x = _staffLevel.Value; q[i].lvlRangePerk3.y = _staffLevel.Value;
                 }
-                if (_dumpStaffGenData.Value) Log.LogInfo(string.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}",i, q[i].reputation, q[i].prob1Perk, q[i].prob2Perk, q[i].lvlRangePerk1, q[i].lvlRangePerk2, q[i].lvlRangePerk3));
+                if (_dumpStaffGenDataOnStart.Value) Log.LogInfo(string.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}",i, q[i].reputation, q[i].prob1Perk, q[i].prob2Perk, q[i].lvlRangePerk1, q[i].lvlRangePerk2, q[i].lvlRangePerk3));
             }
             setupDoneStaffManager=true;
         }
@@ -696,6 +717,7 @@ namespace RestfulTweaks
                 }
             }
             if (_dumpItemListOnStart.Value) DumpItemList();
+            if (_dumpIngredientGroupListOnStart.Value) DumpIngredientGroupList();
             setupDoneItems = true;
         }
     }
