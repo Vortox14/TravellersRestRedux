@@ -54,7 +54,10 @@ namespace RestfulTweaks
         private static ConfigEntry<bool> _badBirdIsFunny;
         private static ConfigEntry<bool> _walkThroughCrops;
 
-
+        private static bool setupDoneItems = false;
+        private static bool setupDoneRecipes = false;
+        private static bool setupDoneCrops = false;
+        private static bool setupDoneStaffManager = false;
         // ----------------------------------------------------
         // Some Accessor objects
         private static CommonReferences myCommonReferences;
@@ -387,6 +390,7 @@ namespace RestfulTweaks
         [HarmonyPostfix]
         private static void StaffManagerAwakePostfix()
         {
+            if (setupDoneStaffManager) return;
             DebugLog("StaffManager.Awake.Postfix");
             if (_dumpStaffGenData.Value) Log.LogInfo("id, reputation, prob1Perk, prob2Perk, lvlRangePerk1, lvlRangePerk2, lvlRangePerk3");
             StaffManager s = StaffManager.GetInstance();
@@ -405,6 +409,7 @@ namespace RestfulTweaks
                 }
                 if (_dumpStaffGenData.Value) Log.LogInfo(string.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}",i, q[i].reputation, q[i].prob1Perk, q[i].prob2Perk, q[i].lvlRangePerk1, q[i].lvlRangePerk2, q[i].lvlRangePerk3));
             }
+            setupDoneStaffManager=true;
         }
 
 
@@ -423,9 +428,9 @@ namespace RestfulTweaks
         }
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // No Negative Perks on Staff
+        // No Negative Perks on new Staff
 
-            [HarmonyPatch(typeof(StaffManager), "CreateRandomOptionsWorkers")]
+        [HarmonyPatch(typeof(StaffManager), "CreateRandomOptionsWorkers")]
         [HarmonyPostfix]
         private static void StaffManagerCreateRandomOptionsWorkersPostFix()
         {
@@ -461,6 +466,7 @@ namespace RestfulTweaks
         [HarmonyPostfix]
         private static void CropDatabaseAccessorAwakePostFix(CropDatabaseAccessor __instance)
         {
+            if (setupDoneCrops) return;
             DebugLog("CropDatabaseAccessor.Awake.PostFix");
             //Crop[] allCrops = CropDatabaseAccessor.GetInstance().allCrops;
             //CropsDatabase reflectedCropDatabaseSO = Traverse.Create(__instance).Field("CropDatabaseSO").GetValue<CropsDatabase>().Crops;
@@ -479,6 +485,7 @@ namespace RestfulTweaks
                 }
 
             }
+            setupDoneCrops = true;
         }
 
 
@@ -490,6 +497,7 @@ namespace RestfulTweaks
         [HarmonyPostfix]
         private static void RecipeDatabaseAccessorAwakePostFix(RecipeDatabaseAccessor __instance)
         {
+            if (setupDoneRecipes) return;
             DebugLog("RecipeDatabaseAccessor.Awake.PostFix");
             Recipe[] allRecipes = RecipeDatabaseAccessor.GetAllRecipes();
             DebugLog(String.Format("Found {0} recipes", allRecipes.Length));
@@ -512,6 +520,7 @@ namespace RestfulTweaks
                 }
 
             }
+            setupDoneRecipes = true;
 
         }
 
@@ -627,6 +636,7 @@ namespace RestfulTweaks
         [HarmonyPostfix]
         static void SetUpDatabasePostfix(ItemDatabaseAccessor __instance)
         {
+            if (setupDoneItems) return;
             Item x;
             if (_dumpItemListOnStart.Value) DumpItemList();
             for (int i = 0; i < itemDatabaseSO.items.Length; i++)
@@ -641,6 +651,7 @@ namespace RestfulTweaks
                 }
             }
             if (_dumpItemListOnStart.Value) DumpItemList();
+            setupDoneItems = true;
         }
     }
 }
