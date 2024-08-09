@@ -11,6 +11,7 @@ using static UnityEngine.UIElements.UIRAtlasAllocator;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Xml.Linq;
+using System.Text;
 
 namespace RestfulTweaks
 {
@@ -195,22 +196,25 @@ namespace RestfulTweaks
 
         public static string Item2String(Item x)
         {
+            if (x == null) return "nullItem";
             int xId = Traverse.Create(x).Field("id").GetValue<int>();
             string xName = (x.translationByID) ? LocalisationSystem.Get("Items/item_name_" + xId.ToString()) : x.nameId;
             return String.Format("{0}:{1}",xId, xName);
         }
         public static string ItemMod2String(ItemMod x)
         {
-            return String.Format("[{0},{1}]", Item2String(x.item), Item2String(x.mod)); 
+            if (x.item == null) return "-";
+            string a = Item2String(x.item); //The base item
+            String b = (x.mod == null) ? "" : Item2String(x.mod); //the modifier item, or empty string if no modifier
+            return String.Format("[{0}({1})]", a,b ); 
         }
         public static string ItemModList2String(List<ItemMod> x)
         {
-            string s = "\"";
+            string s = "";
             foreach (ItemMod itemMod in x)
             {
                 s += ItemMod2String(itemMod);
             }
-            s += "\"";
             return s;
             
         }
@@ -308,12 +312,13 @@ namespace RestfulTweaks
             Log.LogInfo(string.Format("id, name, desc, ingredientsTypes, PossibleItems, itemModAux, cheapestIngredient"));
             for (int i = 0; i < itemDatabaseSO.items.Length; i++)
             {
-                y = itemDatabaseSO.items[i];                           // there has to be a better way to do this but _shrugs_
-                if (y.GetType() != typeof(IngredientGroup)) continue;
+                
+                y = itemDatabaseSO.items[i];                           // there has to be a better way to do this but this works ¯\_(ツ)_/¯
+                if (y.GetType() != typeof(IngredientGroup)) continue;  // actually this doesn't work :-(
                 x = itemDatabaseSO.items[i] as IngredientGroup;
-
                 int reflectedItemId = Traverse.Create(x).Field("id").GetValue<int>();                 //Protected
                 string reflectedItemIDesc = Traverse.Create(x).Field("description").GetValue<string>();  //Protected
+
                 itemName = (x.translationByID) ? LocalisationSystem.Get("Items/item_name_" + reflectedItemId.ToString()) : x.nameId;
                 itemName = "\"" + itemName + "\"";
                 itemDesc = (x.translationByID) ? LocalisationSystem.Get("Items/item_description_" + reflectedItemId.ToString()) : reflectedItemIDesc;
@@ -322,12 +327,11 @@ namespace RestfulTweaks
                 List<ItemMod> xPossibleItems = Traverse.Create(x).Field("possibleItems").GetValue<List<ItemMod>>();
                 ItemMod xCheapestIngredient = Traverse.Create(x).Field("cheapestIngredient").GetValue<ItemMod>();
                 ItemMod xItemModAux = Traverse.Create(x).Field("itemModAux").GetValue<ItemMod>();
-                // We need itemMod2String helper function 
 
                 Log.LogInfo(String.Format("{0},{1},{2},{3},{4},{5},{6}",
                     reflectedItemId, itemName, itemDesc, 
-                    "\"" + string.Join(",", x.ingredientsTypes) + "\"",
-                    "xPossibleItems", ItemMod2String(xItemModAux), ItemMod2String(xCheapestIngredient)
+                    string.Join(":", x.ingredientsTypes),
+                    ItemModList2String(xPossibleItems), ItemMod2String(xItemModAux), ItemMod2String(xCheapestIngredient)
 
                     ));
 
