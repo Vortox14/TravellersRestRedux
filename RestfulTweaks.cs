@@ -23,7 +23,6 @@ namespace RestfulTweaks
 
         private static ConfigEntry<bool> _debugLogging;
         private static ConfigEntry<bool> _dumpItemListOnStart;
-        //private readonly ConfigEntry<KeyCode> _dumpItemHotkey;
         private static ConfigEntry<int>  _dispensorStackSize;
         private static ConfigEntry<int> _itemStackSize;
         private static ConfigEntry<int> _agingBarrelStackSize;
@@ -51,12 +50,12 @@ namespace RestfulTweaks
         private static ConfigEntry<int> _moreRooms;
         private static ConfigEntry<int> _moreCustomers;
         private static ConfigEntry<int> _moreDisponible;
-        //private static ConfigEntry<bool> _catNeverGetsAngry; //Cat hates me and will not stop getting angry!
         private static ConfigEntry<bool> _wilsonOneCoin;
         private static ConfigEntry<float> _moreValuableFish;
         private static ConfigEntry<bool> _easyBirdTraining;
         private static ConfigEntry<bool> _badBirdIsFunny;
         private static ConfigEntry<bool> _walkThroughCrops;
+        private static ConfigEntry<foat> _xpMult;
 
         private static bool setupDoneItems = false;
         private static bool setupDoneRecipes = false;
@@ -122,40 +121,47 @@ namespace RestfulTweaks
         {
             // bind to config settings
             _debugLogging = Config.Bind("Debug", "Debug Logging", false, "Logs additional information to console");
+
             _dispensorStackSize = Config.Bind("Stacks", "Tap/Keg Stack Size", -1, "Change the amount of drinks you can store in taps/kegs; set to -1 to disable, set to 0 to use item stack size");
             _agingBarrelStackSize = Config.Bind("Stacks", "Aging Barrel Stack Size", -1, "NOT WORKING Change the amount of drinks you can store in aging barrels; set to -1 to disable, set to 0 to use item stack size");
             _itemStackSize = Config.Bind("Stacks", "Item Stack Size", -1, "Change the stack size of any item that normally stacks to 99; set to -1 to disable");
+
             _dumpItemListOnStart= Config.Bind("Database", "List Items on start", false, "set to true to print a list of all items to console on startup");
             _dumpRecipeListOnStart = Config.Bind("Database", "List Recipes on start", false, "set to true to print a list of all recipes to console on startup");
             _dumpReputationListOnStart = Config.Bind("Database", "List Reputation milestones on start", false, "set to true to print a list of all reputation milestones to console on startup"); 
             _dumpStaffGenDataOnStart = Config.Bind("Database", "List staff generation data on start", false, "set to true to print a list of staff generation data on startup");
             _dumpIngredientGroupListOnStart = Config.Bind("Database", "List Ingredient Group data on start", false, "set to true to print a list of ingredient Groups on startup");
+            _dumpCropListOnStart = Config.Bind("Database", "List Crops on start", false, "set to true to print a list of all crops to console on startup");
+
             _moveSpeed = Config.Bind("Movement", "Walking Speed", 2.5f, "walking speed; set to 2.5 for default speed ");
             _moveRunMult = Config.Bind("Movement", "Run Speed Multiplier", 1.6f, "run speed multiplier; set to 1.6 for default speed ");
+
             _soilStaysWatered = Config.Bind("Farming", "Soil Stays Wet", false, "Soil stays watered");
             _soilWet3DaysRain = Config.Bind("Farming", "Rain Fully waters woil", false, "rain will make soil wet for the next 3 days, like watering");
-            _recipesNoFuel = Config.Bind("Recipes", "No Fuel", false, "Recipes no longer require fuel");
-            _recipesNoFragments = Config.Bind("Recipes", "No Fragment Cost", false, "Cave Recipies only cost one fragment");
-            _fireplaceNoFuelUse = Config.Bind("Misc", "Fireplace does not consume fuel", false, "fireplace no longer consumes fuel");
-            _recipesQuickCook = Config.Bind("Recipes", "Quick Crafting", -1, "Sets the maximum time recipes take to craft in minutes; set to -1 to disable");
-            _dumpCropListOnStart = Config.Bind("Database", "List Crops on start", false, "set to true to print a list of all crops to console on startup");
             _CropFastGrow = Config.Bind("Farming", "Fast Growing Crops", false, "All crops advance one growth stage per day");
             _CropFastRegrow = Config.Bind("Farming", "Fast Regrowing Crops", false, "Crops that allow multiple harvests can be harvested every day");
             _walkThroughCrops = Config.Bind("Farming", "Walk Through Crops", false, "Lets you walk through your crops.");
+
+            _recipesNoFuel = Config.Bind("Recipes", "No Fuel", false, "Recipes no longer require fuel");
+            _recipesNoFragments = Config.Bind("Recipes", "No Fragment Cost", false, "Cave Recipies only cost one fragment");
+            _recipesQuickCook = Config.Bind("Recipes", "Quick Crafting", -1, "Sets the maximum time recipes take to craft in minutes; set to -1 to disable");
+
             _staffNoNeg = Config.Bind("Staff", "No Negative Perks", false, "New Staff will not have any negative perks");
             _staffRefreshOnOpen = Config.Bind("Staff", "Refresh Applicants on Open", false, "Refresh the list of new staff available to hire every time the hiring interface is opened");
             _staffAlways3Perks = Config.Bind("Staff", "Always Three Perks", false, "NOT WORKING New hires will always have three positive perks");
             _staffLevel = Config.Bind("Staff", "Starting Level", -1, "Starting level for new hires; set to -1 to disable, set to 31 for all three skills at level 5");
-            //_catNeverGetsAngry = Config.Bind("Misc", "Cat Never Gets Upset", false, "NOT WORKING prevents your cat from lowering its opinion of you");
+
             _moreTiles = Config.Bind("Milestones", "More Zone Tiles", -1, "increase number of tiles for crafting/dining zone; set to -1 to disable");
             _moreZones = Config.Bind("Milestones", "More Crafting Zones", -1, "NOT WELL TESTED increase number of zones for crafting; set to -1 to disable");
             _moreRooms = Config.Bind("Milestones", "More Rentable Rooms", -1, "increase number of rooms for rent; set to -1 to disable");
             _moreCustomers = Config.Bind("Milestones", "More Customer", -1, "increase customer capacity; set to -1 to disable");
             _moreDisponible = Config.Bind("Milestones", "More Floor Tiles", -1, "increase total number of floor tiles allowed; set to -1 to disable");
+
             _wilsonOneCoin = Config.Bind("Misc", "Wilson Price Reduction", false, "Wilson only charges 1 coin per item");
             _moreValuableFish = Config.Bind("Misc", "Fish price increase", 1.0f, "increase the value of fish; set to 1.0 to disable");
             _easyBirdTraining = Config.Bind("Misc", "Easy Bird Training", false, "NOT WORKING More benefit from crackers, giving cracker at wrong time results in less benefit instead of loss");
             _badBirdIsFunny = Config.Bind("Misc", "Naughty Bird is Funny", false, "Patrons like a naughty bird, so everything your bird says causes reputation gain instead of loss");
+            _fireplaceNoFuelUse = Config.Bind("Misc", "Fireplace does not consume fuel", false, "fireplace no longer consumes fuel");
 
         }
 
@@ -445,28 +451,6 @@ namespace RestfulTweaks
         }
 
 
-
-        /*   The cat hates me and nothing I do will make it not hate me, so I'm ignoring it for now
-         
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Cat Opinion
-        [HarmonyPatch(typeof(CatNPC), "MinusRelationship")]
-        [HarmonyPrefix]
-        private static bool CatNPCMinusRelationshipPrefix()
-        {
-            DebugLog("CatNPC.MinusRelationship.Prefix");
-            return !_catNeverGetsAngry.Value; //skip the original function when this option is enabled
-        }
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Cat Opinion
-        [HarmonyPatch(typeof(CatNPC))]
-        [HarmonyPatch("Relationshop", MethodType.Setter)]
-        [HarmonyPrefix]
-        private static void CatNPCset_RelationshopPrefix(ref float __value)
-        {
-            DebugLog(String.Format("CatNPC.set_Relationshop.Prefix: {0}",__value));
-        }
-        */
 
 
 
