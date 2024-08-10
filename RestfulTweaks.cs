@@ -395,19 +395,6 @@ namespace RestfulTweaks
 
         [HarmonyPatch(typeof(TavernReputation), "ChangeReputation")]
         [HarmonyPrefix]
-        private static bool TavernReputationChangeReputationPrefix(ref int NBDHKCAOABI)
-        {
-            if (_xpMult.Value != 1.0f)
-            {
-
-                int pre = NBDHKCAOABI;
-                int post = Mathf.FloorToInt(_xpMult.Value * NBDHKCAOABI);
-                NBDHKCAOABI = post;
-                DebugLog(String.Format("TavernReputation.ChangeReputation.Prefix: {0} -> {1}", pre, NBDHKCAOABI));
-            }
-            return true;
-        }
-        /*
         private static bool TavernReputationChangeReputationPrefix(TavernReputation __instance, object[] __args)
         {
             if (_xpMult.Value != 1.0f)
@@ -420,7 +407,7 @@ namespace RestfulTweaks
             }
             return true;
         }
-        */
+        
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // CropSetter Stuff
