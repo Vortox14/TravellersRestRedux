@@ -534,17 +534,13 @@ namespace RestfulTweaks
         {
             if (_soilStaysWatered.Value)
             {
-                return false; //just disable the update so water level is not changed
+                __instance.daysUntilDry = 3;
             }
-            else if (_soilWet3DaysRain.Value)
+            if (_soilWet3DaysRain.Value)
             {
                 if (Weather.IsWeatherActive(Weather.WeatherType.Rain) && __instance.daysUntilDry <= 3) __instance.daysUntilDry = 3;
-                return true; // so the "do stuff when soil changes wetness state" routine will still run
             }
-            else
-            {                
-                return true; // flow thorugh to normal Update
-            }
+            return true; // flow thorugh to normal Update
         }
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
