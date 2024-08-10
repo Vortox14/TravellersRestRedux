@@ -93,6 +93,27 @@ namespace RestfulTweaks
             }
         }
 
+        private static RecipeDatabaseAccessor myRecipeDatabaseAccessor;
+        public static RecipeDatabaseAccessor recipeDatabaseAccessor
+        {
+            get
+            {
+                if (myRecipeDatabaseAccessor == null) myRecipeDatabaseAccessor = RecipeDatabaseAccessor.GetInstance();
+                return myRecipeDatabaseAccessor;
+            }
+        }
+        private static RecipeDatabase myRecipeDatabaseSO;
+        public static RecipeDatabase recipeDatabaseSO
+        {
+            get
+            {
+                if (myRecipeDatabaseSO == null) myRecipeDatabaseSO = Traverse.Create(recipeDatabaseAccessor).Field("recipeDatabaseSO").GetValue<RecipeDatabase>();
+                return myRecipeDatabaseSO;
+            }
+        }
+
+
+
         // ----------------------------------------------------
 
 
