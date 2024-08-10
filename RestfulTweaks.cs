@@ -55,7 +55,8 @@ namespace RestfulTweaks
         private static ConfigEntry<bool> _easyBirdTraining;
         private static ConfigEntry<bool> _badBirdIsFunny;
         private static ConfigEntry<bool> _walkThroughCrops;
-        private static ConfigEntry<foat> _xpMult;
+        private static ConfigEntry<float> _xpMult;
+        private static ConfigEntry<KeyCode> _hotKeyBirdTalkTEMP;
 
         private static bool setupDoneItems = false;
         private static bool setupDoneRecipes = false;
@@ -123,7 +124,7 @@ namespace RestfulTweaks
             _debugLogging = Config.Bind("Debug", "Debug Logging", false, "Logs additional information to console");
 
             _dispensorStackSize = Config.Bind("Stacks", "Tap/Keg Stack Size", -1, "Change the amount of drinks you can store in taps/kegs; set to -1 to disable, set to 0 to use item stack size");
-            _agingBarrelStackSize = Config.Bind("Stacks", "Aging Barrel Stack Size", -1, "NOT WORKING Change the amount of drinks you can store in aging barrels; set to -1 to disable, set to 0 to use item stack size");
+            _agingBarrelStackSize = Config.Bind("Stacks", "Aging Barrel Stack Size", -1, "Change the amount of drinks you can store in aging barrels; set to -1 to disable, set to 0 to use item stack size");
             _itemStackSize = Config.Bind("Stacks", "Item Stack Size", -1, "Change the stack size of any item that normally stacks to 99; set to -1 to disable");
 
             _dumpItemListOnStart= Config.Bind("Database", "List Items on start", false, "set to true to print a list of all items to console on startup");
@@ -162,6 +163,8 @@ namespace RestfulTweaks
             _easyBirdTraining = Config.Bind("Misc", "Easy Bird Training", false, "NOT WORKING More benefit from crackers, giving cracker at wrong time results in less benefit instead of loss");
             _badBirdIsFunny = Config.Bind("Misc", "Naughty Bird is Funny", false, "Patrons like a naughty bird, so everything your bird says causes reputation gain instead of loss");
             _fireplaceNoFuelUse = Config.Bind("Misc", "Fireplace does not consume fuel", false, "fireplace no longer consumes fuel");
+            _xpMult = Config.Bind("Misc", "XP Multiplier", 1.0f, "increase the anout of reputation earned; set to 1.0 to disable");
+            _hotKeyBirdTalkTEMP = Config.Bind("Misc", "All Birds Talk", KeyCode.F8, "Make Birds talk WILL BREAK WITH EVERY PATCH, will maybe break if there are stored birds");
 
         }
 
@@ -172,13 +175,13 @@ namespace RestfulTweaks
             _harmony = Harmony.CreateAndPatchAll(typeof(Plugin));
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         }
-        //private void Update()
-        //{
-        //    if (Input.GetKeyDown(_dumpItemHotkey.Value))
-        //    {
-        //        DumpItemList();
-        //    }
-        //}
+        private void Update()
+        {
+            if (Input.GetKeyDown(_hotKeyBirdTalkTEMP.Value))
+            {
+                AllBirdsTalk();
+            }
+        }
         private void OnDestroy()
         {
             _harmony.UnpatchSelf();
@@ -265,6 +268,19 @@ namespace RestfulTweaks
                 result += String.Format("[{0}]", x[i]);
             }
             return result;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////
+        // Make All Birds Speak
+        // Cam call manually from Unity Explorer Console with RestfulTweaks.Plugin.AllBirdsTalk();
+
+        public static void AllBirdsTalk()
+        {
+            foreach (BirdNPC birdNPC in UnityEngine.Object.FindObjectsOfType<BirdNPC>())
+            {
+                Traverse.Create(birdNPC.birdSpeech).Method("APACANKHCJF").GetValue();                
+            }
+
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////
@@ -373,6 +389,24 @@ namespace RestfulTweaks
             }
         }
 
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // XP Mult
+
+        [HarmonyPatch(typeof(TavernReputation), "ChangeReputation")]
+        [HarmonyPrefix]
+        private static bool TavernReputationChangeReputationPrefix(TavernReputation __instance, object[] __args)
+        {
+            if (_xpMult.Value != 1.0f)
+            {
+
+                int pre = (int)__args[0];
+                int post = Mathf.FloorToInt(_xpMult.Value * pre);
+                __args[0] = post;
+                DebugLog(String.Format("TavernReputation.ChangeReputation.Prefix: {0} -> {1}", pre, post));
+            }
+            return true;
+        }
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // CropSetter Stuff
@@ -672,40 +706,19 @@ namespace RestfulTweaks
         // AgingRack, AgingBarrel - these inherit from MonoBehavior
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-        /*
         // Aging Barrel Stack Size
-        [HarmonyPatch(typeof(AgingBarrelUI), "Awake")]
+        [HarmonyPatch(typeof(AgingBarrel), "Awake")]
         [HarmonyPostfix]
-        static void AgingBarrelUIAwakePostfix(AgingBarrelUI __instance)
+        static void AgingBarrelAwakePostfix(AgingBarrel __instance)
         {
-            SlotUI[] reflectedInputSlot1 = Traverse.Create(__instance).Field("inputSlot").GetValue<SlotUI[]>();
-            SlotUI[] reflectedInputSlot3 = Traverse.Create(__instance).Field("inputSlot3").GetValue<SlotUI[]>();
-            SlotUI[] reflectedInputSlot5 = Traverse.Create(__instance).Field("inputSlot6").GetValue<SlotUI[]>();
-            Slot x;
-            int y;
-
-            for (int i = 0; i < reflectedInputSlot1.Length; i++)
+            for (int i = 0; i < __instance.inputSlot.Length; i++)
             {
-                x = Traverse.Create(reflectedInputSlot1[i]).Field("slot").GetValue<Slot>();
-                y = Traverse.Create(x).Field("stack").GetValue<int>();
-                DebugLog(String.Format("Slot:1 index:{0} maxStack:{1}",i, y));
-            }
-            for (int j = 0; j < reflectedInputSlot3.Length; j++)
-            {
-                x = Traverse.Create(reflectedInputSlot3[j]).Field("slot").GetValue<Slot>();
-                y = Traverse.Create(x).Field("stack").GetValue<int>();
-                DebugLog(String.Format("Slot:1 index:{0} maxStack:{1}", i, y));
-            }
-            for (int k = 0; k < reflectedInputSlot5.Length; k++)
-            {
-                x = Traverse.Create(reflectedInputSlot1[k]).Field("slot").GetValue<Slot>();
-                y = Traverse.Create(x).Field("stack").GetValue<int>();
-                DebugLog(String.Format("Slot:5 index:{0} maxStack:{1}", i, y));
-            }
+                int pre = __instance.inputSlot[i].maxStack;
+                __instance.inputSlot[i].maxStack = _agingBarrelStackSize.Value;
+                DebugLog(String.Format("AgingBarrel.Awake.Postfix maxstack[{0}]: {1} -> {2}", i, pre, __instance.inputSlot[i].maxStack));            }
 
         }
-        */
+
 
 
 
