@@ -711,12 +711,16 @@ namespace RestfulTweaks
         [HarmonyPostfix]
         static void AgingBarrelAwakePostfix(AgingBarrel __instance)
         {
-            for (int i = 0; i < __instance.inputSlot.Length; i++)
+            DebugLog(String.Format("AgingBarrel.Awake.Postfix"));
+            if (_agingBarrelStackSize.Value >= 0)
             {
-                int pre = __instance.inputSlot[i].maxStack;
-                __instance.inputSlot[i].maxStack = _agingBarrelStackSize.Value;
-                DebugLog(String.Format("AgingBarrel.Awake.Postfix maxstack[{0}]: {1} -> {2}", i, pre, __instance.inputSlot[i].maxStack));            }
-
+                for (int i = 0; i < __instance.inputSlot.Length; i++)
+                {
+                    int pre = __instance.inputSlot[i].maxStack;
+                    __instance.inputSlot[i].maxStack = _agingBarrelStackSize.Value;
+                    DebugLog(String.Format("AgingBarrel.Awake.Postfix maxstack[{0}]: {1} -> {2}", i, pre, __instance.inputSlot[i].maxStack));
+                }
+            }
         }
 
 
