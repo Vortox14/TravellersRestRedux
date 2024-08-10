@@ -655,7 +655,7 @@ namespace RestfulTweaks
         {
             if (_soilStaysWatered.Value)
             {
-                __instance.daysUntilDry++;                
+                __instance.daysUntilDry = 3;
             }
             if (_soilWet3DaysRain.Value)
             {
