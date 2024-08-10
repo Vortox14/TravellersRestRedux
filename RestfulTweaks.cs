@@ -395,6 +395,19 @@ namespace RestfulTweaks
 
         [HarmonyPatch(typeof(TavernReputation), "ChangeReputation")]
         [HarmonyPrefix]
+        private static bool TavernReputationChangeReputationPrefix(ref int NBDHKCAOABI)
+        {
+            if (_xpMult.Value != 1.0f)
+            {
+
+                int pre = NBDHKCAOABI;
+                int post = Mathf.FloorToInt(_xpMult.Value * NBDHKCAOABI);
+                NBDHKCAOABI = post;
+                DebugLog(String.Format("TavernReputation.ChangeReputation.Prefix: {0} -> {1}", pre, NBDHKCAOABI));
+            }
+            return true;
+        }
+        /*
         private static bool TavernReputationChangeReputationPrefix(TavernReputation __instance, object[] __args)
         {
             if (_xpMult.Value != 1.0f)
@@ -403,10 +416,11 @@ namespace RestfulTweaks
                 int pre = (int)__args[0];
                 int post = Mathf.FloorToInt(_xpMult.Value * pre);
                 __args[0] = post;
-                DebugLog(String.Format("TavernReputation.ChangeReputation.Prefix: {0} -> {1}", pre, post));
+                DebugLog(String.Format("TavernReputation.ChangeReputation.Prefix: {0} -> {1}", pre, __args[0]));
             }
             return true;
         }
+        */
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // CropSetter Stuff
@@ -713,14 +727,14 @@ namespace RestfulTweaks
         [HarmonyPostfix]
         static void AgingBarrelAwakePostfix(AgingBarrel __instance)
         {
-            DebugLog(String.Format("AgingBarrel.Awake.Postfix"));
+            //DebugLog(String.Format("AgingBarrel.Awake.Postfix"));
             if (_agingBarrelStackSize.Value >= 0)
             {
                 for (int i = 0; i < __instance.inputSlot.Length; i++)
                 {
                     int pre = __instance.inputSlot[i].maxStack;
                     __instance.inputSlot[i].maxStack = _agingBarrelStackSize.Value;
-                    DebugLog(String.Format("AgingBarrel.Awake.Postfix maxstack[{0}]: {1} -> {2}", i, pre, __instance.inputSlot[i].maxStack));
+                    //DebugLog(String.Format("AgingBarrel.Awake.Postfix maxstack[{0}]: {1} -> {2}", i, pre, __instance.inputSlot[i].maxStack));
                 }
             }
         }
