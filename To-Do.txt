@@ -1,6 +1,5 @@
 To-Do
 
-Aging Barrel Stack size (if I can find it!)
 Faster Aging
 Transfer to existing stacks (can I add a UI element?)
 Forced sleep hour - no pass out at all?
@@ -14,9 +13,6 @@ Trigger halloween/christmas
 
 Free Building (TavernConstructionManager?)
 	TavernConstructionModifications->apply changes -> MoneyMaterials eepfpdahifg = ConstructionUI.current.playerInfo.EEPFPDAHIFG.HLBNMAGMCON();
-[All vege types] -> -9 any type of vegetable
-	Somewhere they has to be a way to tell what items match a "wildcard" item!
-	CraftingInventory?
 Endless Buckets
 	CommonReferences.bucketItem anf CommonReferences.bucketOfWaterItem
 	Can I call CommonReferences.get_instance instead of CommonReferences.LLFCHIEGKBE ? Probably not.
