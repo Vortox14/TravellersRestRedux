@@ -55,12 +55,15 @@ namespace RestfulTweaks
         private static ConfigEntry<float> _moreValuableMeat;
         private static ConfigEntry<float> _moreValuableVege;
         private static ConfigEntry<float> _moreValuableAlcohol;
+        private static ConfigEntry<float> _moreValuableFruit;
+        private static ConfigEntry<float> _moreValuableCheese;
 
         private static ConfigEntry<bool> _easyBirdTraining;
         private static ConfigEntry<bool> _badBirdIsFunny;
         private static ConfigEntry<bool> _walkThroughCrops;
         private static ConfigEntry<float> _xpMult;
-        private static ConfigEntry<KeyCode> _hotKeyBirdTalkTEMP;
+        private static ConfigEntry<KeyCode> _hotkeyGrowCrops;
+        private static ConfigEntry<KeyCode> _hotKeyBirdTalk;
 
         private static bool setupDoneItems = false;
         private static bool setupDoneRecipes = false;
@@ -127,48 +130,56 @@ namespace RestfulTweaks
             // bind to config settings
             _debugLogging = Config.Bind("Debug", "Debug Logging", false, "Logs additional information to console");
 
-            _dispensorStackSize = Config.Bind("Stacks", "Tap/Keg Stack Size", -1, "Change the amount of drinks you can store in taps/kegs; set to -1 to disable, set to 0 to use item stack size");
+            _dispensorStackSize   = Config.Bind("Stacks", "Tap/Keg Stack Size", -1, "Change the amount of drinks you can store in taps/kegs; set to -1 to disable, set to 0 to use item stack size");
             _agingBarrelStackSize = Config.Bind("Stacks", "Aging Barrel Stack Size", -1, "Change the amount of drinks you can store in aging barrels; set to -1 to disable, set to 0 to use item stack size");
-            _itemStackSize = Config.Bind("Stacks", "Item Stack Size", -1, "Change the stack size of any item that normally stacks to 99; set to -1 to disable");
+            _itemStackSize        = Config.Bind("Stacks", "Item Stack Size", -1, "Change the stack size of any item that normally stacks to 99; set to -1 to disable");
 
-            _dumpItemListOnStart= Config.Bind("Database", "List Items on start", false, "set to true to print a list of all items to console on startup");
-            _dumpRecipeListOnStart = Config.Bind("Database", "List Recipes on start", false, "set to true to print a list of all recipes to console on startup");
-            _dumpReputationListOnStart = Config.Bind("Database", "List Reputation milestones on start", false, "set to true to print a list of all reputation milestones to console on startup"); 
-            _dumpStaffGenDataOnStart = Config.Bind("Database", "List staff generation data on start", false, "set to true to print a list of staff generation data on startup");
+            _dumpItemListOnStart            = Config.Bind("Database", "List Items on start", false, "set to true to print a list of all items to console on startup");
+            _dumpRecipeListOnStart          = Config.Bind("Database", "List Recipes on start", false, "set to true to print a list of all recipes to console on startup");
+            _dumpReputationListOnStart      = Config.Bind("Database", "List Reputation milestones on start", false, "set to true to print a list of all reputation milestones to console on startup"); 
+            _dumpStaffGenDataOnStart        = Config.Bind("Database", "List staff generation data on start", false, "set to true to print a list of staff generation data on startup");
             _dumpIngredientGroupListOnStart = Config.Bind("Database", "List Ingredient Group data on start", false, "set to true to print a list of ingredient Groups on startup");
-            _dumpCropListOnStart = Config.Bind("Database", "List Crops on start", false, "set to true to print a list of all crops to console on startup");
+            _dumpCropListOnStart            = Config.Bind("Database", "List Crops on start", false, "set to true to print a list of all crops to console on startup");
 
-            _moveSpeed = Config.Bind("Movement", "Walking Speed", 2.5f, "walking speed; set to 2.5 for default speed ");
+            _moveSpeed   = Config.Bind("Movement", "Walking Speed", 2.5f, "walking speed; set to 2.5 for default speed ");
             _moveRunMult = Config.Bind("Movement", "Run Speed Multiplier", 1.6f, "run speed multiplier; set to 1.6 for default speed ");
 
             _soilStaysWatered = Config.Bind("Farming", "Soil Stays Wet", false, "Soil stays watered");
-            _soilWet3DaysRain = Config.Bind("Farming", "Rain Fully waters woil", false, "rain will make soil wet for the next 3 days, like watering");
-            _CropFastGrow = Config.Bind("Farming", "Fast Growing Crops", false, "All crops advance one growth stage per day");
-            _CropFastRegrow = Config.Bind("Farming", "Fast Regrowing Crops", false, "Crops that allow multiple harvests can be harvested every day");
+            _soilWet3DaysRain = Config.Bind("Farming", "Rain Fully waters soil", false, "rain will make soil wet for the next 3 days, like watering");
+            _CropFastGrow     = Config.Bind("Farming", "Fast Growing Crops", false, "All crops advance one growth stage per day");
+            _CropFastRegrow   = Config.Bind("Farming", "Fast Regrowing Crops", false, "Crops that allow multiple harvests can be harvested every day");
             _walkThroughCrops = Config.Bind("Farming", "Walk Through Crops", false, "Lets you walk through your crops.");
+            _hotkeyGrowCrops  = Config.Bind("Farming", "grow all crops hotkey", KeyCode.None, "Press to instantly grow planted crops");
 
-            _recipesNoFuel = Config.Bind("Recipes", "No Fuel", false, "Recipes no longer require fuel");
+            _recipesNoFuel      = Config.Bind("Recipes", "No Fuel", false, "Recipes no longer require fuel");
             _recipesNoFragments = Config.Bind("Recipes", "No Fragment Cost", false, "Cave Recipies only cost one fragment");
-            _recipesQuickCook = Config.Bind("Recipes", "Quick Crafting", -1, "Sets the maximum time recipes take to craft in minutes; set to -1 to disable");
+            _recipesQuickCook   = Config.Bind("Recipes", "Quick Crafting", -1, "Sets the maximum time recipes take to craft in minutes; set to -1 to disable");
 
-            _staffNoNeg = Config.Bind("Staff", "No Negative Perks", false, "New Staff will not have any negative perks");
+            _staffNoNeg         = Config.Bind("Staff", "No Negative Perks", false, "New Staff will not have any negative perks");
             _staffRefreshOnOpen = Config.Bind("Staff", "Refresh Applicants on Open", false, "Refresh the list of new staff available to hire every time the hiring interface is opened");
-            _staffAlways3Perks = Config.Bind("Staff", "Always Three Perks", false, "NOT WORKING New hires will always have three positive perks");
-            _staffLevel = Config.Bind("Staff", "Starting Level", -1, "Starting level for new hires; set to -1 to disable, set to 31 for all three skills at level 5");
+            _staffAlways3Perks  = Config.Bind("Staff", "Always Three Perks", false, "NOT WORKING New hires will always have three positive perks");
+            _staffLevel         = Config.Bind("Staff", "Starting Level", -1, "Starting level for new hires; set to -1 to disable, set to 31 for all three skills at level 5");
 
-            _moreTiles = Config.Bind("Milestones", "More Zone Tiles", -1, "increase number of tiles for crafting/dining zone; set to -1 to disable");
-            _moreZones = Config.Bind("Milestones", "More Crafting Zones", -1, "NOT WELL TESTED increase number of zones for crafting; set to -1 to disable");
-            _moreRooms = Config.Bind("Milestones", "More Rentable Rooms", -1, "increase number of rooms for rent; set to -1 to disable");
-            _moreCustomers = Config.Bind("Milestones", "More Customer", -1, "increase customer capacity; set to -1 to disable");
+            _moreTiles      = Config.Bind("Milestones", "More Zone Tiles", -1, "increase number of tiles for crafting/dining zone; set to -1 to disable");
+            _moreZones      = Config.Bind("Milestones", "More Crafting Zones", -1, "NOT WELL TESTED increase number of zones for crafting; set to -1 to disable");
+            _moreRooms      = Config.Bind("Milestones", "More Rentable Rooms", -1, "increase number of rooms for rent; set to -1 to disable");
+            _moreCustomers  = Config.Bind("Milestones", "More Customer", -1, "increase customer capacity; set to -1 to disable");
             _moreDisponible = Config.Bind("Milestones", "More Floor Tiles", -1, "increase total number of floor tiles allowed; set to -1 to disable");
 
-            _wilsonOneCoin = Config.Bind("Misc", "Wilson Price Reduction", false, "Wilson only charges 1 coin per item");
-            _moreValuableFish = Config.Bind("Misc", "Fish price increase", 1.0f, "increase the value of fish; set to 1.0 to disable");
-            _easyBirdTraining = Config.Bind("Misc", "Easy Bird Training", false, "NOT WORKING More benefit from crackers, giving cracker at wrong time results in less benefit instead of loss");
-            _badBirdIsFunny = Config.Bind("Misc", "Naughty Bird is Funny", false, "Patrons like a naughty bird, so everything your bird says causes reputation gain instead of loss");
+
+            _easyBirdTraining   = Config.Bind("Misc", "Easy Bird Training", false, "NOT WORKING More benefit from crackers, giving cracker at wrong time results in less benefit instead of loss");
+            _badBirdIsFunny     = Config.Bind("Misc", "Naughty Bird is Funny", false, "Patrons like a naughty bird, so everything your bird says causes reputation gain instead of loss");
             _fireplaceNoFuelUse = Config.Bind("Misc", "Fireplace does not consume fuel", false, "fireplace no longer consumes fuel");
-            _xpMult = Config.Bind("Misc", "XP Multiplier", 1.0f, "increase the anout of reputation earned; set to 1.0 to disable");
-            _hotKeyBirdTalkTEMP = Config.Bind("Misc", "All Birds Talk", KeyCode.F8, "Make Birds talk WILL BREAK WITH EVERY PATCH, will maybe break if there are stored birds");
+            _xpMult             = Config.Bind("Misc", "XP Multiplier", 1.0f, "NOT WORKING increase the anout of reputation earned; set to 1.0 to disable");
+            _hotKeyBirdTalk     = Config.Bind("Misc", "All Birds Talk", KeyCode.None, "WILL BREAK WITH EVERY PATCH Make Birds talk, will maybe break if there are stored birds");
+
+            _wilsonOneCoin       = Config.Bind("Prices", "Wilson Price Reduction", false, "Wilson only charges 1 coin per item");
+            _moreValuableFish    = Config.Bind("Prices", "Fish price increase", 1.0f, "increase the value of fish/shellfish; set to 1.0 to disable");
+            _moreValuableMeat    = Config.Bind("Prices", "Meat price increase", 1.0f, "increase the value of meat; set to 1.0 to disable");
+            _moreValuableVege    = Config.Bind("Prices", "Vege price increase", 1.0f, "increase the value of Vegetables/Legumes; set to 1.0 to disable");
+            _moreValuableAlcohol = Config.Bind("Prices", "Alcohol price increase", 1.0f, "increase the value of Beer/Cocktails/Spirits/Liquer/Wine; set to 1.0 to disable");
+            _moreValuableFruit   = Config.Bind("Prices", "Fruit price increase", 1.0f, "increase the value of Fruit/Berries; set to 1.0 to disable");
+            _moreValuableCheese  = Config.Bind("Prices", "Cheese price increase", 1.0f, "increase the value of Cheese; set to 1.0 to disable");
 
         }
 
@@ -181,9 +192,13 @@ namespace RestfulTweaks
         }
         private void Update()
         {
-            if (Input.GetKeyDown(_hotKeyBirdTalkTEMP.Value))
+            if (Input.GetKeyDown(_hotKeyBirdTalk.Value))
             {
                 AllBirdsTalk();
+            }
+            else if (Input.GetKeyDown(_hotkeyGrowCrops.Value))
+            {
+                GrowAllCrops();
             }
         }
         private void OnDestroy()
@@ -288,10 +303,40 @@ namespace RestfulTweaks
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////
-        // Dump comma seperated list of recipes to console
-        // Cam call manually from Unity Explorer Console with RestfulTweaks.Plugin.DumpRecipeList();
+        // Grow all crops
+        // Can call manually from Unity Explorer Console with RestfulTweaks.Plugin.GrowAllCrops();
 
-        public static void DumpRecipeList()
+        public static void GrowAllCrops()
+        {
+            foreach (FertileSoil f in UnityEngine.Object.FindObjectsOfType<FertileSoil>())
+            {
+                if (f.plantedCropSetter != null && f.plantedCropSetter.growable != null)
+                {
+                    f.plantedCropSetter.growable.GrowPlant();
+                }
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////
+        // Grow all trees
+        // Can call manually from Unity Explorer Console with RestfulTweaks.Plugin.GrowAllTrees();
+
+        public static void GrowAllTrees()
+        {
+            foreach (Tree t in UnityEngine.Object.FindObjectsOfType<Tree>())
+            {
+                t.Grow();
+            }
+        }
+
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Dump comma seperated list of recipes to console
+    // Cam call manually from Unity Explorer Console with RestfulTweaks.Plugin.DumpRecipeList();
+
+    public static void DumpRecipeList()
         {
             //RecipeDatabaseAccessor db = RecipeDatabaseAccessor.GetInstance();
             Recipe[] r = RecipeDatabaseAccessor.GetAllRecipes();
@@ -750,6 +795,16 @@ namespace RestfulTweaks
                 {
                     x.price = PriceXFloat(x.price, _moreValuableFish.Value);
                     x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableFish.Value);
+                }
+                if (x.GetType() == typeof(Food))
+                {
+                    IngredientType subType = (x as Food).ingredientType;
+                    if ((_moreValuableFruit.Value != 1.0f)   && (subType == IngredientType.Fruit || subType == IngredientType.Berries)) x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableFruit.Value);
+                    if ((_moreValuableMeat.Value != 1.0f)    && (subType == IngredientType.Meat)) x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableMeat.Value);
+                    if ((_moreValuableVege.Value != 1.0f)    && (subType == IngredientType.Veg || subType == IngredientType.Legumes)) x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableVege.Value);
+                    if ((_moreValuableAlcohol.Value != 1.0f) && (subType == IngredientType.Beer || subType == IngredientType.Cocktail || subType == IngredientType.Distillate || subType == IngredientType.Liqueur || subType == IngredientType.Wine)) x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableAlcohol.Value);
+                    if ((_moreValuableCheese.Value != 1.0f)  && (subType == IngredientType.Cheese)) x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableCheese.Value);
+                    if ((_moreValuableFish.Value != 1.0f)    && (subType == IngredientType.Shellfish)) x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableFish.Value);
                 }
             }
             if (_dumpItemListOnStart.Value) DumpItemList();
