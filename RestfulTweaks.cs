@@ -1,4 +1,6 @@
-﻿using BepInEx;
+﻿#define CONSTRUCTIONFEATURES 
+
+using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
@@ -12,6 +14,7 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Xml.Linq;
 using System.Text;
+
 
 namespace RestfulTweaks
 {
@@ -64,8 +67,10 @@ namespace RestfulTweaks
         private static ConfigEntry<float> _xpMult;
         private static ConfigEntry<KeyCode> _hotkeyGrowCrops;
         private static ConfigEntry<KeyCode> _hotKeyBirdTalk;
+#if CONSTRUCTIONFEATURES
         private static ConfigEntry<bool> _buildNoMatsUsed;
         private static ConfigEntry<bool> _buildNoMatsUsedFarm;
+#endif
         private static bool setupDoneItems = false;
         private static bool setupDoneRecipes = false;
         private static bool setupDoneCrops = false;
@@ -182,9 +187,10 @@ namespace RestfulTweaks
             //Setting sellPrice doesn't work for objects where the price gets determined (at least partly) by the stuff it is made of.
             //_moreValuableAlcohol = Config.Bind("Prices", "Alcohol price increase", 1.0f, "increase the value of Beer/Cocktails/Spirits/Liquer/Wine; set to 1.0 to disable");
             //_moreValuableCheese  = Config.Bind("Prices", "Cheese price increase", 1.0f, "increase the value of Cheese; set to 1.0 to disable");
-
-            _buildNoMatsUsed     = Config.Bind("Building", "No Materials used", false, "Building materials not consumed by construction (you still need enough to do the construction)");
+#if CONSTRUCTIONFEATURES
+            _buildNoMatsUsed = Config.Bind("Building", "No Materials used", false, "Building materials not consumed by construction (you still need enough to do the construction)");
             _buildNoMatsUsedFarm = Config.Bind("Building", "Farm Construction No Materials used", false, "TEST WITH BARN/COOP CONSTRUCTION");
+#endif
         }
 
         private void Awake()
@@ -442,7 +448,7 @@ namespace RestfulTweaks
             }
         }
 
-
+#if CONSTRUCTIONFEATURES
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Free Building
 
@@ -471,7 +477,7 @@ namespace RestfulTweaks
             return (_buildNoMatsUsed.Value) ? false : true;
         }
         */
-
+#endif 
         [HarmonyPatch(typeof(ConstructionPlayerInfo), "CanPay")]  //Only used by FarmConstructionManager
         [HarmonyPrefix]
         private static bool ConstructionPlayerInfoCanPayPrefix(ref bool __result)
