@@ -39,7 +39,11 @@ RevertModifications() ->
 		moneyMaterials.CGBGCAIBGGN(this.MJGOMLDFKHK);
 	}
 		
-
+1. Multiplier for Animal Harvest (right now I think it's just the Cow/Sheep milk)
+2. Drops for Crabs/Turkeys/Farm Animals
+3. Multiplier for fishing (get multiple of the fish you just caught)
+5. Animals don't require Food and/or Food in Animal Dishes/Barns/Coops doesn't decrease
+6. Cows/Sheep provide Milk every day. 
 
 
 
