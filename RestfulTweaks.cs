@@ -67,6 +67,7 @@ namespace RestfulTweaks
         private static ConfigEntry<float> _xpMult;
         private static ConfigEntry<KeyCode> _hotkeyGrowCrops;
         private static ConfigEntry<KeyCode> _hotKeyBirdTalk;
+        private static ConfigEntry<KeyCode> _hotkeyGrowTrees;
 #if CONSTRUCTIONFEATURES
         private static ConfigEntry<bool> _buildNoMatsUsed;
         private static ConfigEntry<bool> _buildNoMatsUsedFarm;
@@ -156,6 +157,7 @@ namespace RestfulTweaks
             _CropFastRegrow   = Config.Bind("Farming", "Fast Regrowing Crops", false, "Crops that allow multiple harvests can be harvested every day");
             _walkThroughCrops = Config.Bind("Farming", "Walk Through Crops", false, "Lets you walk through your crops.");
             _hotkeyGrowCrops  = Config.Bind("Farming", "grow all crops hotkey", KeyCode.None, "Press to instantly grow planted crops");
+            _hotkeyGrowTrees  = Config.Bind("Farming", "grow all trees hotkey", KeyCode.None, "Press to instantly grow all trees");
 
             _recipesNoFuel      = Config.Bind("Recipes", "No Fuel", false, "Recipes no longer require fuel");
             _recipesNoFragments = Config.Bind("Recipes", "No Fragment Cost", false, "Cave Recipies only cost one fragment");
@@ -209,6 +211,10 @@ namespace RestfulTweaks
             else if (Input.GetKeyDown(_hotkeyGrowCrops.Value))
             {
                 GrowAllCrops();
+            }
+            else if (Input.GetKeyDown(_hotkeyGrowTrees.Value))
+            {
+                GrowAllTrees();
             }
         }
         private void OnDestroy()
