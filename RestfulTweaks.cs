@@ -54,9 +54,9 @@ namespace RestfulTweaks
         private static ConfigEntry<float> _moreValuableFish;
         private static ConfigEntry<float> _moreValuableMeat;
         private static ConfigEntry<float> _moreValuableVege;
-        private static ConfigEntry<float> _moreValuableAlcohol;
+        //private static ConfigEntry<float> _moreValuableAlcohol;
         private static ConfigEntry<float> _moreValuableFruit;
-        private static ConfigEntry<float> _moreValuableCheese;
+        //private static ConfigEntry<float> _moreValuableCheese;
 
         private static ConfigEntry<bool> _easyBirdTraining;
         private static ConfigEntry<bool> _badBirdIsFunny;
@@ -177,9 +177,10 @@ namespace RestfulTweaks
             _moreValuableFish    = Config.Bind("Prices", "Fish price increase", 1.0f, "increase the value of fish/shellfish; set to 1.0 to disable");
             _moreValuableMeat    = Config.Bind("Prices", "Meat price increase", 1.0f, "increase the value of meat; set to 1.0 to disable");
             _moreValuableVege    = Config.Bind("Prices", "Vege price increase", 1.0f, "increase the value of Vegetables/Legumes; set to 1.0 to disable");
-            _moreValuableAlcohol = Config.Bind("Prices", "Alcohol price increase", 1.0f, "increase the value of Beer/Cocktails/Spirits/Liquer/Wine; set to 1.0 to disable");
             _moreValuableFruit   = Config.Bind("Prices", "Fruit price increase", 1.0f, "increase the value of Fruit/Berries; set to 1.0 to disable");
-            _moreValuableCheese  = Config.Bind("Prices", "Cheese price increase", 1.0f, "increase the value of Cheese; set to 1.0 to disable");
+            //Setting sellPrice doesn't work for objects where the price gets determined (at least partly) by the stuff it is made of.
+            //_moreValuableAlcohol = Config.Bind("Prices", "Alcohol price increase", 1.0f, "increase the value of Beer/Cocktails/Spirits/Liquer/Wine; set to 1.0 to disable");
+            //_moreValuableCheese  = Config.Bind("Prices", "Cheese price increase", 1.0f, "increase the value of Cheese; set to 1.0 to disable");
 
         }
 
@@ -441,11 +442,13 @@ namespace RestfulTweaks
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // XP Mult
-
+        				
         [HarmonyPatch(typeof(TavernReputation), "ChangeReputation")]
         [HarmonyPrefix]
-        private static bool TavernReputationChangeReputationPrefix(TavernReputation __instance, object[] __args)
+        private static bool TavernReputationChangeReputationPrefix(object[] __args, MethodBase __originalMethod)
         {
+            var parameters = __originalMethod.GetParameters();
+            DebugLog(String.Format("{0}", parameters));
             if (_xpMult.Value != 1.0f)
             {
 
@@ -789,23 +792,39 @@ namespace RestfulTweaks
             for (int i = 0; i < itemDatabaseSO.items.Length; i++)
             {
                 x = itemDatabaseSO.items[i];
+
+                int preSellPrice = Price2Copper(x.sellPrice);
+                string xType = "";
                 if (_itemStackSize.Value > 0 && x.amountStack == 99) { x.amountStack = _itemStackSize.Value; } //Only change items with default stack size of 99
                 if (_wilsonOneCoin.Value && x.wilsonCoins && x.wilsonCoinsPrice > 0) x.wilsonCoinsPrice = 1;
                 if (_moreValuableFish.Value != 1.0f && x.GetType() == typeof(Fish))
                 {
+                    xType = "Fish:";
                     x.price = PriceXFloat(x.price, _moreValuableFish.Value);
                     x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableFish.Value);
                 }
                 if (x.GetType() == typeof(Food))
-                {
+                {                   
                     IngredientType subType = (x as Food).ingredientType;
+                    xType = String.Format("Food:{0}:", subType.ToString());
+                    // sellPrice only works for "base" items, not things made of other things.
                     if ((_moreValuableFruit.Value != 1.0f)   && (subType == IngredientType.Fruit || subType == IngredientType.Berries)) x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableFruit.Value);
                     if ((_moreValuableMeat.Value != 1.0f)    && (subType == IngredientType.Meat)) x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableMeat.Value);
                     if ((_moreValuableVege.Value != 1.0f)    && (subType == IngredientType.Veg || subType == IngredientType.Legumes)) x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableVege.Value);
-                    if ((_moreValuableAlcohol.Value != 1.0f) && (subType == IngredientType.Beer || subType == IngredientType.Cocktail || subType == IngredientType.Distillate || subType == IngredientType.Liqueur || subType == IngredientType.Wine)) x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableAlcohol.Value);
-                    if ((_moreValuableCheese.Value != 1.0f)  && (subType == IngredientType.Cheese)) x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableCheese.Value);
+                    //if ((_moreValuableAlcohol.Value != 1.0f) && (subType == IngredientType.Beer || subType == IngredientType.Cocktail || subType == IngredientType.Distillate || subType == IngredientType.Liqueur || subType == IngredientType.Wine)) x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableAlcohol.Value);
+                    //if ((_moreValuableCheese.Value != 1.0f)  && (subType == IngredientType.Cheese)) x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableCheese.Value);
                     if ((_moreValuableFish.Value != 1.0f)    && (subType == IngredientType.Shellfish)) x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableFish.Value);
                 }
+                if (preSellPrice != Price2Copper(x.sellPrice))
+                {
+                    int reflectedItemId = Traverse.Create(x).Field("id").GetValue<int>();
+                    DebugLog(String.Format("Price change: id {0}{1} {2} -> {3}", xType, reflectedItemId, preSellPrice, Price2Copper(x.sellPrice)));
+                } 
+
+
+
+
+
             }
             if (_dumpItemListOnStart.Value) DumpItemList();
             if (_dumpIngredientGroupListOnStart.Value) DumpIngredientGroupList();

@@ -1,9 +1,8 @@
 To-Do
 
 Faster Aging
-Transfer to existing stacks (can I add a UI element?)
+Transfer to existing stacks (can I add a UI element?) 
 Forced sleep hour - no pass out at all?
-Candles never run out
 Auto-fireplace on/off
 Change weather
 harvest with scythe (CropSetter cutDetection/cutDetectionActiveAge ?)
