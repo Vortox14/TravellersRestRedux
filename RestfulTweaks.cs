@@ -64,7 +64,8 @@ namespace RestfulTweaks
         private static ConfigEntry<float> _xpMult;
         private static ConfigEntry<KeyCode> _hotkeyGrowCrops;
         private static ConfigEntry<KeyCode> _hotKeyBirdTalk;
-
+        private static ConfigEntry<bool> _buildNoMatsUsed;
+        private static ConfigEntry<bool> _buildNoMatsUsedFarm;
         private static bool setupDoneItems = false;
         private static bool setupDoneRecipes = false;
         private static bool setupDoneCrops = false;
@@ -163,7 +164,7 @@ namespace RestfulTweaks
             _moreTiles      = Config.Bind("Milestones", "More Zone Tiles", -1, "increase number of tiles for crafting/dining zone; set to -1 to disable");
             _moreZones      = Config.Bind("Milestones", "More Crafting Zones", -1, "NOT WELL TESTED increase number of zones for crafting; set to -1 to disable");
             _moreRooms      = Config.Bind("Milestones", "More Rentable Rooms", -1, "increase number of rooms for rent; set to -1 to disable");
-            _moreCustomers  = Config.Bind("Milestones", "More Customer", -1, "increase customer capacity; set to -1 to disable");
+            _moreCustomers  = Config.Bind("Milestones", "More Customers", -1, "increase customer capacity; set to -1 to disable");
             _moreDisponible = Config.Bind("Milestones", "More Floor Tiles", -1, "increase total number of floor tiles allowed; set to -1 to disable");
 
 
@@ -182,6 +183,8 @@ namespace RestfulTweaks
             //_moreValuableAlcohol = Config.Bind("Prices", "Alcohol price increase", 1.0f, "increase the value of Beer/Cocktails/Spirits/Liquer/Wine; set to 1.0 to disable");
             //_moreValuableCheese  = Config.Bind("Prices", "Cheese price increase", 1.0f, "increase the value of Cheese; set to 1.0 to disable");
 
+            _buildNoMatsUsed     = Config.Bind("Building", "No Materials used", false, "Building materials not consumed by construction (you still need enough to do the construction)");
+            _buildNoMatsUsedFarm = Config.Bind("Building", "Farm Construction No Materials used", false, "TEST WITH BARN/COOP CONSTRUCTION");
         }
 
         private void Awake()
@@ -441,8 +444,54 @@ namespace RestfulTweaks
 
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Free Building
+
+        [HarmonyPatch(typeof(ConstructionPlayerInfo), "RemoveMaterialsUsed")]
+        [HarmonyPrefix]
+        private static bool ConstructionPlayerInfoRemoveMaterialsUsedPrefix()
+        {
+            DebugLog("ConstructionPlayerInfo.RemoveMaterialsUsed.Prefix");
+            return (_buildNoMatsUsed.Value) ? false : true;
+        }
+
+        [HarmonyPatch(typeof(ConstructionPlayerInfo), "RemoveMaterialsFromPlayer")]
+        [HarmonyPrefix]
+        private static bool ConstructionPlayerInfoRemoveMaterialsFromPlayerPrefix()
+        {
+            DebugLog("ConstructionPlayerInfo.RemoveMaterialsFromPlayer.Prefix");
+            return (_buildNoMatsUsed.Value) ? false : true;
+        }
+
+        /*
+        [HarmonyPatch(typeof(ConstructionPlayerInfo), "GetMaterialsFromContainer")]
+        [HarmonyPrefix]
+        private static bool ConstructionPlayerInfoGetMaterialsFromContainerPrefix()
+        {
+            DebugLog("ConstructionPlayerInfo.GetMaterialsFromContainer.Prefix");
+            return (_buildNoMatsUsed.Value) ? false : true;
+        }
+        */
+
+        [HarmonyPatch(typeof(ConstructionPlayerInfo), "CanPay")]  //Only used by FarmConstructionManager
+        [HarmonyPrefix]
+        private static bool ConstructionPlayerInfoCanPayPrefix(ref bool __result)
+        {
+            DebugLog("ConstructionPlayerInfo.CanPay.Prefix");
+            if (_buildNoMatsUsedFarm.Value)
+            {
+                __result = true;
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // XP Mult
-        				
+
         [HarmonyPatch(typeof(TavernReputation), "ChangeReputation")]
         [HarmonyPrefix]
         private static bool TavernReputationChangeReputationPrefix(object[] __args, MethodBase __originalMethod)

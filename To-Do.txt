@@ -18,10 +18,26 @@ Endless Buckets
 	So make my own with an accessor
 Free Crafting:
 	Crafter.ChargeRecipeCost ? That's also where Buckets of water get 
+	TavernConstructonAction extends ConstructionAction
+	ConstructionAction.costs
+	ConstructionPlayerInfo.CanPay() - make always true?
+	TavernConstructonUI.CloseUI -> this.playerInfo.RemoveMaterialsUsed();
 Double XP: TavernReputation.ChangeReputation(TavernReputation __instance, object[] __args)
 
 
+reverting items and gold on cancel: TavernConstructionModifications
 
+RevertModifications() ->
+
+	private void IFMOAPNOKPD()
+	{
+		MoneyMaterials moneyMaterials = ConstructionUI.current.playerInfo.FLBEKHMDDOH;
+		if (Application.isEditor)
+		{
+			Debug.Log("MinusMoneyMaterials " + this.MJGOMLDFKHK.DLMEJGKMNNA().OOCLMDHCHFL().ToString() + " / " + moneyMaterials.DLMEJGKMNNA().OOCLMDHCHFL().ToString());
+		}
+		moneyMaterials.CGBGCAIBGGN(this.MJGOMLDFKHK);
+	}
 		
 
 

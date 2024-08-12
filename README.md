@@ -16,7 +16,7 @@ A Traveller's Rest mod with a lot of small tweaks. Each option can be configured
 * NEW in 1.1.0: Several modifiers that are applied when new staff are available for hire: refresh on open, no negatives, always 3 perks, starting level.
 * NEW in 1.2.0: Increase customer capacity, number of rented rooms, placable floor tiles, dining/crafting zone size and number of crafting zones.
 * NEW in 1.3.0: Wilson sells items for 1 coin, Fish value multiplier, bad bird is funny, walk through crops
-* NEW in 1.4.0: more price adjustment options, hotkeys for make all birds talk, make all crops grow
+* NEW in 1.4.0: more price adjustment options, freen construction, hotkeys for make all birds talk, make all crops grow
 
 
 
