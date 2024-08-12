@@ -189,7 +189,7 @@ namespace RestfulTweaks
             // Plugin startup logic
             Log = Logger;
             _harmony = Harmony.CreateAndPatchAll(typeof(Plugin));
-            Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
+            Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} {PluginInfo.PLUGIN_VERSION} is loaded!");
         }
         private void Update()
         {
