@@ -57,6 +57,7 @@ namespace RestfulTweaks
         private static ConfigEntry<float> _moreValuableFish;
         private static ConfigEntry<float> _moreValuableMeat;
         private static ConfigEntry<float> _moreValuableVege;
+        private static ConfigEntry<float> _moreValuableGrain;
         //private static ConfigEntry<float> _moreValuableAlcohol;
         private static ConfigEntry<float> _moreValuableFruit;
         //private static ConfigEntry<float> _moreValuableCheese;
@@ -186,6 +187,7 @@ namespace RestfulTweaks
             _moreValuableMeat    = Config.Bind("Prices", "Meat price increase", 1.0f, "increase the value of meat; set to 1.0 to disable");
             _moreValuableVege    = Config.Bind("Prices", "Vege price increase", 1.0f, "increase the value of Vegetables/Legumes; set to 1.0 to disable");
             _moreValuableFruit   = Config.Bind("Prices", "Fruit price increase", 1.0f, "increase the value of Fruit/Berries; set to 1.0 to disable");
+            _moreValuableGrain   = Config.Bind("Prices", "Grain price increase", 1.0f, "increase the value of Grains; set to 1.0 to disable");
             //Setting sellPrice doesn't work for objects where the price gets determined (at least partly) by the stuff it is made of.
             //_moreValuableAlcohol = Config.Bind("Prices", "Alcohol price increase", 1.0f, "increase the value of Beer/Cocktails/Spirits/Liquer/Wine; set to 1.0 to disable");
             //_moreValuableCheese  = Config.Bind("Prices", "Cheese price increase", 1.0f, "increase the value of Cheese; set to 1.0 to disable");
@@ -875,6 +877,8 @@ namespace RestfulTweaks
                     //if ((_moreValuableAlcohol.Value != 1.0f) && (subType == IngredientType.Beer || subType == IngredientType.Cocktail || subType == IngredientType.Distillate || subType == IngredientType.Liqueur || subType == IngredientType.Wine)) x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableAlcohol.Value);
                     //if ((_moreValuableCheese.Value != 1.0f)  && (subType == IngredientType.Cheese)) x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableCheese.Value);
                     if ((_moreValuableFish.Value != 1.0f)    && (subType == IngredientType.Shellfish)) x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableFish.Value);
+                    if ((_moreValuableGrain.Value != 1.0f) && (subType == IngredientType.Grain)) x.sellPrice = PriceXFloat(x.sellPrice, _moreValuableGrain.Value);
+                    
                 }
                 if (preSellPrice != Price2Copper(x.sellPrice))
                 {
