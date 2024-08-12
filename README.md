@@ -16,13 +16,13 @@ A Traveller's Rest mod with a lot of small tweaks. Each option can be configured
 * NEW in 1.1.0: Several modifiers that are applied when new staff are available for hire: refresh on open, no negatives, always 3 perks, starting level.
 * NEW in 1.2.0: Increase customer capacity, number of rented rooms, placable floor tiles, dining/crafting zone size and number of crafting zones.
 * NEW in 1.3.0: Wilson sells items for 1 coin, Fish value multiplier, bad bird is funny, walk through crops
-* NEW in 1.4.0: more price adjustment options, freen construction, hotkeys for: make all birds talk, make all crops grow, make all trees grow
+* NEW in 1.4.0: aging barrel stack size adjustment now working, more price adjustment options, free construction, Reputation multiplier,  hotkeys for: make all birds talk, make all crops grow, make all trees grow
 
 
 
 ## Downloading the mod
 
-Adding Traveller's Rest to Nexus Mods is in progress, until that is complete you can download the mod from [compiled-releases](https://github.com/DrStalker/TravellersRest-ReastfulTweaks/tree/main/compiled-releases)
+Mods are available on [Nexus Mods](https://www.nexusmods.com/travellersrest) or you can download the mod from [compiled-releases](https://github.com/DrStalker/TravellersRest-ReastfulTweaks/tree/main/compiled-releases)
 
 
 ## How to install mods:
