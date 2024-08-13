@@ -44,6 +44,18 @@ RevertModifications() ->
 3. Multiplier for fishing (get multiple of the fish you just caught)
 5. Animals don't require Food and/or Food in Animal Dishes/Barns/Coops doesn't decrease
 6. Cows/Sheep provide Milk every day. 
+More harvests: Change worm item/change root item, add "only trash"
+Easy Fishing: no long pause after catch, fish multiplier
+Better Clocks: Xeno's Late Night Paradox
+
+AnimalNPcs: hadFood/hasWater/hasWalked auto-set.  Use AnimalNPC.Update()  for hasWalked, 
+see Barn.UpdateAnimalState() and HenHouse.UpdateAnimalState() for hasfood and hasWater
+water feeders are AnimalFeeder[]
+food feeders are BArn.annimalspac[].foodfeeder type AnimalFoodFeeder
+FoodFeeder.SetAnimalFoodRestriction() == gets list of food - override? AnimalFeeder.SetAllFarmAnimalsFoodRestriction?
+
+
+
 
 
 
