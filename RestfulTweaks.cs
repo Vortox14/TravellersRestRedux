@@ -1,4 +1,4 @@
-﻿#define CONSTRUCTIONFEATURES 
+﻿#undef CONSTRUCTIONFEATURES 
 
 using BepInEx;
 using BepInEx.Configuration;
@@ -500,7 +500,7 @@ namespace RestfulTweaks
             return (_buildNoMatsUsed.Value) ? false : true;
         }
         */
-#endif 
+
         [HarmonyPatch(typeof(ConstructionPlayerInfo), "CanPay")]  //Only used by FarmConstructionManager
         [HarmonyPrefix]
         private static bool ConstructionPlayerInfoCanPayPrefix(ref bool __result)
@@ -516,7 +516,7 @@ namespace RestfulTweaks
                 return true;
             }
         }
-
+#endif 
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // XP Mult
