@@ -10,13 +10,22 @@ A Traveller's Rest mod with a lot of small tweaks. Each option can be configured
 * All recipes require no fuel
 * All recipes purchased in the cave cost only one fragment.
 * Quick crafting 
-* Crops compelete a full stage of growth each night (including tree crops)
+* Crops compelete a full stage of growth each night (including tree crops - affects newly plated crops only)
 * Reusable crops (grapes etc) can be harvested every day
 * Dump a list of items, crops or recipes to the console on startup.
-* NEW in 1.1.0: Several modifiers that are applied when new staff are available for hire: refresh on open, no negatives, always 3 perks, starting level.
-* NEW in 1.2.0: Increase customer capacity, number of rented rooms, placable floor tiles, dining/crafting zone size and number of crafting zones.
-* NEW in 1.3.0: Wilson sells items for 1 coin, Fish value multiplier, bad bird is funny, walk through crops
-* NEW in 1.4.0: aging barrel stack size adjustment now working, more price adjustment options, free construction, Reputation multiplier,  hotkeys for: make all birds talk, make all crops grow, make all trees grow
+* Several modifiers for new staff: refresh list of staff on open, no negative perks, always 3 perks (does not always work), starting level.
+* Increase customer capacity, number of rented rooms, placable floor tiles, dining/crafting zone size and number of crafting zones.
+* Wilson sells items for 1 coin, 
+* Fish value multiplier 
+* Bad bird is funny; gain rep when customers laugh at your bird calling them ugly.
+* Walk through crops
+
+NEW in 1.4.0: 
+
+* aging barrel stack size adjustment now working, 
+* more price adjustment options
+* endless water buckets (NOTE: do not use during tutorial, and when enabled you can not fill empty buckets at the well so fill buckets before activating)
+* hotkeys for: make all birds talk, make all crops grow, make all trees grow
 
 
 

@@ -182,7 +182,7 @@ namespace RestfulTweaks
             _fireplaceNoFuelUse = Config.Bind("Misc", "Fireplace does not consume fuel", false, "fireplace no longer consumes fuel");
             //_xpMult             = Config.Bind("Misc", "XP Multiplier", 1.0f, "NOT WORKING increase the amopunt of reputation earned; set to 1.0 to disable");
             _endlessWater       = Config.Bind("Misc", "Endless Water", false, "DO NOT USE DURING TUTORIAL. PREVENTS FILLING BUCKETS AT WELL. Buckets of water do not empty when used");
-            _hotKeyBirdTalk     = Config.Bind("Misc", "All Birds Talk", KeyCode.None, "WILL BREAK WITH EVERY PATCH Make Birds talk, will maybe break if there are stored birds");
+            _hotKeyBirdTalk     = Config.Bind("Misc", "All Birds Talk", KeyCode.None, "Make your birds say something nice");
 
             _wilsonOneCoin       = Config.Bind("Prices", "Wilson Price Reduction", false, "Wilson only charges 1 coin per item");
             _moreValuableFish    = Config.Bind("Prices", "Fish price increase", 1.0f, "increase the value of fish/shellfish; set to 1.0 to disable");
@@ -315,9 +315,12 @@ namespace RestfulTweaks
 
         public static void AllBirdsTalk()
         {
-            foreach (BirdNPC birdNPC in UnityEngine.Object.FindObjectsOfType<BirdNPC>())
+            foreach (BirdNPC b in UnityEngine.Object.FindObjectsOfType<BirdNPC>())
             {
-                Traverse.Create(birdNPC.birdSpeech).Method("APACANKHCJF").GetValue();                
+                //Traverse.Create(b.birdSpeech).Method("APACANKHCJF").GetValue();                
+                // BirdInstance birdInstance = this.placeable.itemSetup.NBNDGFJBMMO as BirdInstance; <-- that's where the cookie count is, and some other training related stuff
+                b.birdSpeech.ChatBark("BirdPositiveComments");
+                b.birdSpeech.lastCommentWasPositive = true;
             }
 
         }
@@ -571,7 +574,7 @@ namespace RestfulTweaks
             {
                 __instance.canGiveCookieTime = 0f;
                 __instance.cookieDecrement = 0.0f;
-                __instance.cookieIncrement = 0.2f;
+                __instance.cookieIncrement = 1.0f;
             }
         }
 
