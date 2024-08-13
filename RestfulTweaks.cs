@@ -65,7 +65,7 @@ namespace RestfulTweaks
         private static ConfigEntry<bool> _easyBirdTraining;
         private static ConfigEntry<bool> _badBirdIsFunny;
         private static ConfigEntry<bool> _walkThroughCrops;
-        private static ConfigEntry<float> _xpMult;
+        //private static ConfigEntry<float> _xpMult;
         private static ConfigEntry<KeyCode> _hotkeyGrowCrops;
         private static ConfigEntry<KeyCode> _hotKeyBirdTalk;
         private static ConfigEntry<KeyCode> _hotkeyGrowTrees;
@@ -73,6 +73,7 @@ namespace RestfulTweaks
         private static ConfigEntry<bool> _buildNoMatsUsed;
         private static ConfigEntry<bool> _buildNoMatsUsedFarm;
 #endif
+        private static ConfigEntry<bool> _endlessWater;
         private static bool setupDoneItems = false;
         private static bool setupDoneRecipes = false;
         private static bool setupDoneCrops = false;
@@ -179,7 +180,8 @@ namespace RestfulTweaks
             _easyBirdTraining   = Config.Bind("Misc", "Easy Bird Training", false, "NOT WORKING More benefit from crackers, giving cracker at wrong time results in less benefit instead of loss");
             _badBirdIsFunny     = Config.Bind("Misc", "Naughty Bird is Funny", false, "Patrons like a naughty bird, so everything your bird says causes reputation gain instead of loss");
             _fireplaceNoFuelUse = Config.Bind("Misc", "Fireplace does not consume fuel", false, "fireplace no longer consumes fuel");
-            _xpMult             = Config.Bind("Misc", "XP Multiplier", 1.0f, "NOT WORKING increase the anout of reputation earned; set to 1.0 to disable");
+            //_xpMult             = Config.Bind("Misc", "XP Multiplier", 1.0f, "NOT WORKING increase the amopunt of reputation earned; set to 1.0 to disable");
+            _endlessWater       = Config.Bind("Misc", "Endless Water", false, "DO NOT USE DURING TUTORIAL. PREVENTS FILLING BUCKETS AT WELL. Buckets of water do not empty when used");
             _hotKeyBirdTalk     = Config.Bind("Misc", "All Birds Talk", KeyCode.None, "WILL BREAK WITH EVERY PATCH Make Birds talk, will maybe break if there are stored birds");
 
             _wilsonOneCoin       = Config.Bind("Prices", "Wilson Price Reduction", false, "Wilson only charges 1 coin per item");
@@ -456,6 +458,19 @@ namespace RestfulTweaks
             }
         }
 
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Endless Water
+
+        [HarmonyPatch(typeof(CommonReferences), "Awake")]
+        [HarmonyPostfix]
+        private static void CommonReferencesAwakePostfix(CommonReferences __instance)
+        {
+            if (_endlessWater.Value) __instance.bucketItem = __instance.bucketOfWaterItem; //So when the "empty" bucket is put in inventory after use it is actually a full bucket. Except that makes it impossible to fill a bucket.
+        }
+
+
+
 #if CONSTRUCTIONFEATURES
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Free Building
@@ -505,7 +520,7 @@ namespace RestfulTweaks
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // XP Mult
-
+        /*
         [HarmonyPatch(typeof(TavernReputation), "ChangeReputation")]
         [HarmonyPrefix]
         private static bool TavernReputationChangeReputationPrefix(object[] __args, MethodBase __originalMethod)
@@ -522,7 +537,7 @@ namespace RestfulTweaks
             }
             return true;
         }
-        
+        */
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // CropSetter Stuff
