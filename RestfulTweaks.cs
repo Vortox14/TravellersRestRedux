@@ -819,7 +819,7 @@ namespace RestfulTweaks
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Aging Barrel Stack Size
-        // Seems to set this a few times and everything else inherits from that?  Whatever, setting maxStacks to save value it already is doe not cause issues.
+        // Seems to set this a few times and everything else inherits from that?  Whatever, setting maxStacks to same value it already is does not cause issues.
 
         [HarmonyPatch(typeof(AgingBarrel), "Awake")]
         [HarmonyPostfix]
