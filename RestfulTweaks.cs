@@ -61,7 +61,7 @@ namespace RestfulTweaks
         //private static ConfigEntry<float> _moreValuableAlcohol;
         private static ConfigEntry<float> _moreValuableFruit;
         //private static ConfigEntry<float> _moreValuableCheese;
-
+        private static ConfigEntry<bool> _allSeasonCrops;
         private static ConfigEntry<bool> _easyBirdTraining;
         private static ConfigEntry<bool> _badBirdIsFunny;
         private static ConfigEntry<bool> _walkThroughCrops;
@@ -160,6 +160,7 @@ namespace RestfulTweaks
             _walkThroughCrops = Config.Bind("Farming", "Walk Through Crops", false, "Lets you walk through your crops.");
             _hotkeyGrowCrops  = Config.Bind("Farming", "grow all crops hotkey", KeyCode.None, "Press to instantly grow planted crops");
             _hotkeyGrowTrees  = Config.Bind("Farming", "grow all trees hotkey", KeyCode.None, "Press to instantly grow all trees");
+            _allSeasonCrops   = Config.Bind("Farming", "All-season crops", false, "All crops can be grown in any season.");            
 
             _recipesNoFuel      = Config.Bind("Recipes", "No Fuel", false, "Recipes no longer require fuel");
             _recipesNoFragments = Config.Bind("Recipes", "No Fragment Cost", false, "Cave Recipies only cost one fragment");
@@ -761,6 +762,7 @@ namespace RestfulTweaks
             {
                 if (_CropFastGrow.Value && allCrops[i].daysToGrow > 0) allCrops[i].daysToGrow = 1;
                 if (_CropFastRegrow.Value && allCrops[i].reusable) allCrops[i].daysUntilNewHarvest = 1;
+                if (_allSeasonCrops.Value) allCrops[i].avaliableSeasons = CropSeason.All;
                 if (_dumpCropListOnStart.Value)
                 {
                     Log.LogInfo(String.Format("Recipe: {0}, {1}, {2}, {3}, {4}, {5}", allCrops[i].id, allCrops[i].nameId, allCrops[i].name, allCrops[i].daysToGrow, allCrops[i].daysUntilNewHarvest, allCrops[i].reusable));
