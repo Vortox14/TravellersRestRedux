@@ -26,7 +26,8 @@ NEW in 1.4.0:
 * more price adjustment options
 * endless water buckets (NOTE: do not use during tutorial, and when enabled you can not fill empty buckets at the well so fill buckets before activating)
 * hotkeys for: make all birds talk, make all crops grow, make all trees grow
-
+* Crops grow in all seasons
+* Increased loot from slaughtering animals
 
 
 ## Downloading the mod

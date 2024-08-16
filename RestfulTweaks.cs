@@ -78,6 +78,12 @@ namespace RestfulTweaks
         private static bool setupDoneRecipes = false;
         private static bool setupDoneCrops = false;
         private static bool setupDoneStaffManager = false;
+
+        private static ConfigEntry<int> _cowLootExtra;
+        private static ConfigEntry<int> _chickenLootExtra;
+        private static ConfigEntry<int> _pigLootExtra;
+        private static ConfigEntry<int> _sheepLootExtra;
+
         // ----------------------------------------------------
         // Some Accessor objects
         private static CommonReferences myCommonReferences;
@@ -160,7 +166,12 @@ namespace RestfulTweaks
             _walkThroughCrops = Config.Bind("Farming", "Walk Through Crops", false, "Lets you walk through your crops.");
             _hotkeyGrowCrops  = Config.Bind("Farming", "grow all crops hotkey", KeyCode.None, "Press to instantly grow planted crops");
             _hotkeyGrowTrees  = Config.Bind("Farming", "grow all trees hotkey", KeyCode.None, "Press to instantly grow all trees");
-            _allSeasonCrops   = Config.Bind("Farming", "All-season crops", false, "All crops can be grown in any season.");            
+            _allSeasonCrops   = Config.Bind("Farming", "All-season crops", false, "All crops can be grown in any season.");
+
+            _cowLootExtra     = Config.Bind("Animals", "Cow Bonus Loot", 0, "Increase Cow loot by this amount; set to 0 to disable");
+            _pigLootExtra     = Config.Bind("Animals", "Pig Bonus Loot", 0, "Increase Pig loot by this amount; set to 0 to disable");
+            _chickenLootExtra = Config.Bind("Animals", "Chicken Bonus Loot", 0, "Increase Chicken loot by this amount; set to 0 to disable");
+            _sheepLootExtra   = Config.Bind("Animals", "Sheep Bonus Loot", 0, "Increase Sheep loot by this amount; set to 0 to disable");
 
             _recipesNoFuel      = Config.Bind("Recipes", "No Fuel", false, "Recipes no longer require fuel");
             _recipesNoFragments = Config.Bind("Recipes", "No Fragment Cost", false, "Cave Recipies only cost one fragment");
@@ -176,6 +187,7 @@ namespace RestfulTweaks
             _moreRooms      = Config.Bind("Milestones", "More Rentable Rooms", -1, "increase number of rooms for rent; set to -1 to disable");
             _moreCustomers  = Config.Bind("Milestones", "More Customers", -1, "increase customer capacity; set to -1 to disable");
             _moreDisponible = Config.Bind("Milestones", "More Floor Tiles", -1, "increase total number of floor tiles allowed; set to -1 to disable");
+
 
 
             _easyBirdTraining   = Config.Bind("Misc", "Easy Bird Training", false, "NOT WORKING More benefit from crackers, giving cracker at wrong time results in less benefit instead of loss");
@@ -461,7 +473,28 @@ namespace RestfulTweaks
 
             }
         }
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Animal  Loot increase
+        // Drop specific number extra of whatever the first item in the Animal's loot table is
 
+        [HarmonyPatch(typeof(AnimalNPC), "Hit")]
+        [HarmonyPostfix]
+        private static void AnimalNPCHitPostFix(AnimalNPC __instance)
+        {
+            DebugLog($"AnimalNPC.Hit.PostFix: {__instance.GetType().ToString()} with {__instance.lives} health remaining");
+            if (__instance.lives > 0) return; // Not dead
+            int extraItems = 0;
+            if (_cowLootExtra.Value     > 0 && __instance.GetType() == typeof(CowNPC))     extraItems = _cowLootExtra.Value;
+            if (_pigLootExtra.Value     > 0 && __instance.GetType() == typeof(PigNPC))     extraItems = _pigLootExtra.Value;
+            if (_sheepLootExtra.Value   > 0 && __instance.GetType() == typeof(SheepNPC))   extraItems = _sheepLootExtra.Value;
+            if (_chickenLootExtra.Value > 0 && __instance.GetType() == typeof(ChickenNPC)) extraItems = _chickenLootExtra.Value;            
+            if (extraItems == 0) return;
+            DebugLog($"AnimalNPC.Hit.PostFix: Spawning {extraItems} extra items");
+            Animal animalItem = __instance.placeable.itemSetup.item as Animal;
+            ItemProduction[] reflectedSacrificeItems = Traverse.Create(animalItem).Field("sacrificeItems").GetValue<ItemProduction[]>();
+            Food food = reflectedSacrificeItems[0].item as Food;
+            DroppedItem.SpawnDroppedItem(__instance.gameObject.transform.position, food, extraItems, false, false, 0);
+        }
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Endless Water
