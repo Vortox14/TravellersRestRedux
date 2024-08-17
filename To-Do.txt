@@ -46,7 +46,25 @@ RevertModifications() ->
 	}
 		
 1. Multiplier for Animal Harvest (right now I think it's just the Cow/Sheep milk)
-2. Drops for Crabs/Turkeys/Farm Animals
+Animal.productionItem is teh item to make,  AnimalNPC.productionProgress which is increased by AnimalNPC.IncrementProduction
+AnimalNPC.AAOLLIPJEKP(int FALFKEPOBBP, bool FGPPAOMIPAL = true) whows how this is used to see if milkable:
+
+		if (this.IsAvailableByProximity(FALFKEPOBBP) && !FGPPAOMIPAL && this.productionProgress >= 1f && !this.isSick)
+		{
+			ButtonsContext.AddButton(FALFKEPOBBP, ActionType.Interact, LocalisationSystem.Get("MilkAction"));
+			ButtonsContext.GetPlayer(FALFKEPOBBP).SetCrafterAction(new ItemInstanceAmount(this.GNFGMLHBPDE.productionItem.item.POHEKNPLNLC(), 1));
+		}
+FarmBuilding.Start() >  
+		CommonReferences instance = CommonReferences.HMKMBKPOBOM;
+		instance.OnPlayerSleep = (Action)Delegate.Combine(instance.OnPlayerSleep, new Action(this.JBOOGFCLLNC));
+		FarmBuilding.JBOOGFCLLNC() -> FarmBuilding.FAHHHNEMAGB() -> AnimalNPC.IncrementProduction()
+			this.productionProgress += this.GNFGMLHBPDE.productionItem.NJDKBLLKAAP(this.GetNumTasksDone());
+				Have to take a look at an itemProduction item (AnimalNPC.production Item) to see hos that Array handles levels 
+				also productionLimitedToOnce, which might apply to milk
+				If so override IncrementProduction() to just set productionProgres to 1.0f when called
+
+
+
 3. Multiplier for fishing (get multiple of the fish you just caught)
 5. Animals don't require Food and/or Food in Animal Dishes/Barns/Coops doesn't decrease
 6. Cows/Sheep provide Milk every day. 
