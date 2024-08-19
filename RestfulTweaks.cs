@@ -69,6 +69,8 @@ namespace RestfulTweaks
         private static ConfigEntry<KeyCode> _hotkeyGrowCrops;
         private static ConfigEntry<KeyCode> _hotKeyBirdTalk;
         private static ConfigEntry<KeyCode> _hotkeyGrowTrees;
+        private static ConfigEntry<KeyCode> _whatIsThatTree;
+        private static ConfigEntry<bool> _whatIsThatTreeCropOnly;
 #if CONSTRUCTIONFEATURES
         private static ConfigEntry<bool> _buildNoMatsUsed;
         private static ConfigEntry<bool> _buildNoMatsUsedFarm;
@@ -167,6 +169,8 @@ namespace RestfulTweaks
             _hotkeyGrowCrops  = Config.Bind("Farming", "grow all crops hotkey", KeyCode.None, "Press to instantly grow planted crops");
             _hotkeyGrowTrees  = Config.Bind("Farming", "grow all trees hotkey", KeyCode.None, "Press to instantly grow all trees");
             _allSeasonCrops   = Config.Bind("Farming", "All-season crops", false, "All crops can be grown in any season.");
+            _whatIsThatTree   = Config.Bind("Farming", "What is that tree", KeyCode.None, "For Troubleshooting - lists types of all Tree objects");
+            _whatIsThatTreeCropOnly = Config.Bind("Farming", "What is that tree crops only", false, "Only show tree crops");
 
             _cowLootExtra     = Config.Bind("Animals", "Cow Bonus Loot", 0, "Increase Cow loot by this amount; set to 0 to disable");
             _pigLootExtra     = Config.Bind("Animals", "Pig Bonus Loot", 0, "Increase Pig loot by this amount; set to 0 to disable");
@@ -365,14 +369,27 @@ namespace RestfulTweaks
             }
         }
 
+        ////////////////////////////////////////////////////////////////////////////////////////
+        // ListTreeTypes
+        // Can call manually from Unity Explorer Console with RestfulTweaks.Plugin.GrowAllTrees();
+
+        public static void WhatIsThatTree()
+        {
+            foreach (Tree t in UnityEngine.Object.FindObjectsOfType<Tree>())
+            {
+                CropSetter c = Traverse.Create(t).Field("cropSetter").GetValue<CropSetter>();
+                bool isCrop = Traverse.Create(t).Field("isCropTree").GetValue<bool>();
+                if (!(!isCrop && _whatIsThatTreeCropOnly.Value)) DebugLog($"name:{t.name} crop:{c.name} age:{t.currentAge} crop:{isCrop}");
+            }
+        }
 
 
 
-    ////////////////////////////////////////////////////////////////////////////////////////
-    // Dump comma seperated list of recipes to console
-    // Cam call manually from Unity Explorer Console with RestfulTweaks.Plugin.DumpRecipeList();
+        ////////////////////////////////////////////////////////////////////////////////////////
+        // Dump comma seperated list of recipes to console
+        // Cam call manually from Unity Explorer Console with RestfulTweaks.Plugin.DumpRecipeList();
 
-    public static void DumpRecipeList()
+        public static void DumpRecipeList()
         {
             //RecipeDatabaseAccessor db = RecipeDatabaseAccessor.GetInstance();
             Recipe[] r = RecipeDatabaseAccessor.GetAllRecipes();
