@@ -237,6 +237,10 @@ namespace RestfulTweaks
             {
                 GrowAllTrees();
             }
+            else if (Input.GetKeyDown(_whatIsThatTree.Value))
+            {
+                WhatIsThatTree();
+            }
         }
         private void OnDestroy()
         {
@@ -375,12 +379,15 @@ namespace RestfulTweaks
 
         public static void WhatIsThatTree()
         {
+            DebugLog("~~~~~ Trees ~~~~~");
+
             foreach (Tree t in UnityEngine.Object.FindObjectsOfType<Tree>())
             {
                 CropSetter c = Traverse.Create(t).Field("cropSetter").GetValue<CropSetter>();
                 bool isCrop = Traverse.Create(t).Field("isCropTree").GetValue<bool>();
                 if (!(!isCrop && _whatIsThatTreeCropOnly.Value)) DebugLog($"name:{t.name} crop:{c.name} age:{t.currentAge} crop:{isCrop}");
             }
+            DebugLog("~~~~~~~~~~~~~~~~~");
         }
 
 
