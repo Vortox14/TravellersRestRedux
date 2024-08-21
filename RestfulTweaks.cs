@@ -15,6 +15,7 @@ using System.Security.Cryptography;
 using System.Xml.Linq;
 using System.Text;
 using UnityEngine.Playables;
+using static CropsDatabase;
 
 
 namespace RestfulTweaks
@@ -71,7 +72,7 @@ namespace RestfulTweaks
         private static ConfigEntry<KeyCode> _hotKeyBirdTalk;
         private static ConfigEntry<KeyCode> _hotkeyGrowTrees;
         private static ConfigEntry<KeyCode> _whatIsThatTree;
-        private static ConfigEntry<bool> _whatIsThatTreeCropOnly;
+
 #if CONSTRUCTIONFEATURES
         private static ConfigEntry<bool> _buildNoMatsUsed;
         private static ConfigEntry<bool> _buildNoMatsUsedFarm;
@@ -86,6 +87,7 @@ namespace RestfulTweaks
         private static ConfigEntry<int> _chickenLootExtra;
         private static ConfigEntry<int> _pigLootExtra;
         private static ConfigEntry<int> _sheepLootExtra;
+        private static ConfigEntry<bool> _GrowTreesTypeFix;
 
         // ----------------------------------------------------
         // Some Accessor objects
@@ -168,10 +170,11 @@ namespace RestfulTweaks
             _CropFastRegrow   = Config.Bind("Farming", "Fast Regrowing Crops", false, "Crops that allow multiple harvests can be harvested every day");
             _walkThroughCrops = Config.Bind("Farming", "Walk Through Crops", false, "Lets you walk through your crops.");
             _hotkeyGrowCrops  = Config.Bind("Farming", "grow all crops hotkey", KeyCode.None, "Press to instantly grow planted crops");
-            _hotkeyGrowTrees  = Config.Bind("Farming", "grow all trees hotkey", KeyCode.None, "Press to instantly grow all trees");
+            _GrowTreesTypeFix = Config.Bind("Farming", "grow trees type fix", true, "workarpund for tree growth key changeing type");
+            _hotkeyGrowTrees = Config.Bind("Farming", "grow all trees hotkey", KeyCode.None, "Press to instantly grow all trees");
             _allSeasonCrops   = Config.Bind("Farming", "All-season crops", false, "All crops can be grown in any season.");
-            _whatIsThatTree   = Config.Bind("Farming", "What is that tree", KeyCode.None, "For Troubleshooting - lists types of all Tree objects");
-            _whatIsThatTreeCropOnly = Config.Bind("Farming", "What is that tree crops only", false, "Only show tree crops");
+            _whatIsThatTree   = Config.Bind("Farming", "What is that tree", KeyCode.None, "For Troubleshooting - lists details of crop trees");
+
 
             _cowLootExtra     = Config.Bind("Animals", "Cow Bonus Loot", 0, "Increase Cow loot by this amount; set to 0 to disable");
             _pigLootExtra     = Config.Bind("Animals", "Pig Bonus Loot", 0, "Increase Pig loot by this amount; set to 0 to disable");
@@ -375,33 +378,51 @@ namespace RestfulTweaks
                 CropSetter cSet = Traverse.Create(t).Field("cropSetter").GetValue<CropSetter>();
                 Crop crop = Traverse.Create(cSet).Field("_crop").GetValue<Crop>();
 
-                string cropSetNum = cSet.name.Substring(0, cSet.name.IndexOf(" "));
-                string cropNum =    crop.name.Substring(0, crop.name.IndexOf(" "));
-
-                int cropSetInt = cSet.uniqueID;
-                int cropInt = crop.id;
+                string cropSetNumStr = cSet.name.Substring(0, cSet.name.IndexOf(" "));
+                string cropNumStr =    crop.name.Substring(0, crop.name.IndexOf(" "));
 
 
-                if (cropSetNum != cropNum)
+
+                if (cropSetNumStr != cropNumStr)
                 {
-                    DebugLog($"GrowAllTrees(): ERROR: Cropsetter/Crop mismatch! (\"{cSet.name}\",\"{crop.name}\") (\"{cropSetNum}\", \"{cropNum}\") (numeric: {cropSetInt}, {cropInt}) ");
+                    DebugLog($"GrowAllTrees(): ERROR: Cropsetter/Crop mismatch! (\"{cSet.name}\",\"{crop.name}\") (\"{cropSetNumStr}\", \"{cropNumStr}\")");
+                    if (_GrowTreesTypeFix.Value)
+                    {
+                        int cropInt = crop.id;
+                        int cropSetInt;
+                        bool parsed = Int32.TryParse(cropSetNumStr, out cropSetInt);
+                        if (!parsed)
+                        {
+                            DebugLog($"GrowAllTrees(): ERROR count not get int from string \"{cropSetNumStr}\" that was taken from \"{cSet.name}\": skipping Crop Type Fix");
+                        }
+                        else
+                        {
+                            DebugLog($"GrowAllTrees(): changing Tree.cropsetter._crop.growablePrefabs from {cropInt} to {cropSetInt} before growing");
+
+                            // not suprising, this does not work.
+                            //crop = CropDatabaseAccessor.GetCrop(cropSetInt);
+                            //Try direct on the growable prefabs?
+                            Crop correctCrop = CropDatabaseAccessor.GetCrop(cropSetInt);
+                            crop.growablePrefabs = correctCrop.growablePrefabs;
+
+                        }
+
+                    }
                 }
 
                 string preName = t.name;
                 int preAge = t.currentAge;
-                int preCrop = crop.id;
-                // t.Grow();
                 t.SetCurrentAge(t.currentAge + 1);
-                string postName = t.name;
+                cSet.UpdateCropVisual(t.currentAge);
                 int postAge = t.currentAge;
-                int postCrop = crop.id;
-                string cropChange = (preCrop == postCrop) ? "" : " ###CROP ID CHANGED! ###";
-                DebugLog($"GrowAllTrees(): Age: {preAge} -> {postAge} Crop: {preCrop} -> {postCrop} Name: \"{preName}\" -> \"{postName}\"{cropChange}");
+
+
+                DebugLog($"GrowAllTrees(): Age: {preAge} -> {postAge} Name: \"{preName}\"");
             }
         }
         
         // ---------------------- Tree growth troubleshooting --------------------------------------
-
+        /*
         public static string Prefabs2String(Tree t, CropSetter c)
         {
             string s = "";
@@ -458,7 +479,7 @@ namespace RestfulTweaks
             //DebugLog(Prefabs2String(__instance, ___cropSetter));
         }
 
-        /*
+     
         [HarmonyPatch(typeof(Tree), "SetCurrentAge")]
         [HarmonyPrefix]
         public static void TreeSetCurrentAgePrefix(Tree __instance, CropSetter ___cropSetter)
@@ -491,9 +512,14 @@ namespace RestfulTweaks
 
             foreach (Tree t in UnityEngine.Object.FindObjectsOfType<Tree>())
             {
-                CropSetter c = Traverse.Create(t).Field("cropSetter").GetValue<CropSetter>();
+                
                 bool isCrop = Traverse.Create(t).Field("isCropTree").GetValue<bool>();
-                if (!(!isCrop && _whatIsThatTreeCropOnly.Value)) DebugLog($"name:{t.name} crop:{c.name} age:{t.currentAge} crop:{isCrop}");
+                if (isCrop)
+                {
+                    CropSetter cs = Traverse.Create(t).Field("cropSetter").GetValue<CropSetter>();
+                    Crop c = Traverse.Create(cs).Field("_crop").GetValue<Crop>();
+                    DebugLog($"name:{t.name} cropsetter:\"{cs.name}\" crop: \"{c.name}\" age:\"{t.currentAge}\"");
+                }
             }
             DebugLog("~~~~~~~~~~~~~~~~~");
         }
