@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Xml.Linq;
 using System.Text;
+using UnityEngine.Playables;
 
 
 namespace RestfulTweaks
@@ -369,9 +370,116 @@ namespace RestfulTweaks
         {
             foreach (Tree t in UnityEngine.Object.FindObjectsOfType<Tree>())
             {
-                t.Grow();
+                bool isCrop = Traverse.Create(t).Field("isCropTree").GetValue<bool>();                
+                if (!isCrop) continue;
+                CropSetter cSet = Traverse.Create(t).Field("cropSetter").GetValue<CropSetter>();
+                Crop crop = Traverse.Create(cSet).Field("_crop").GetValue<Crop>();
+
+                string cropSetNum = cSet.name.Substring(0, cSet.name.IndexOf(" "));
+                string cropNum =    crop.name.Substring(0, crop.name.IndexOf(" "));
+
+                int cropSetInt = cSet.uniqueID;
+                int cropInt = crop.id;
+
+
+                if (cropSetNum != cropNum)
+                {
+                    DebugLog($"GrowAllTrees(): ERROR: Cropsetter/Crop mismatch! (\"{cSet.name}\",\"{crop.name}\") (\"{cropSetNum}\", \"{cropNum}\") (numeric: {cropSetInt}, {cropInt}) ");
+                }
+
+                string preName = t.name;
+                int preAge = t.currentAge;
+                int preCrop = crop.id;
+                // t.Grow();
+                t.SetCurrentAge(t.currentAge + 1);
+                string postName = t.name;
+                int postAge = t.currentAge;
+                int postCrop = crop.id;
+                string cropChange = (preCrop == postCrop) ? "" : " ###CROP ID CHANGED! ###";
+                DebugLog($"GrowAllTrees(): Age: {preAge} -> {postAge} Crop: {preCrop} -> {postCrop} Name: \"{preName}\" -> \"{postName}\"{cropChange}");
             }
         }
+        
+        // ---------------------- Tree growth troubleshooting --------------------------------------
+
+        public static string Prefabs2String(Tree t, CropSetter c)
+        {
+            string s = "";
+            s += "Tree.cropsetter prefabs: ";
+            if (c is null || c.PNFPGNOALCI.growablePrefabs is null)
+            {
+                s += "NULL";
+            }
+            else if (c.PNFPGNOALCI.growablePrefabs.Length == 0)
+            {
+                s += "NONE";
+            }
+            else
+            {
+                for (int i = 0; i < c.PNFPGNOALCI.growablePrefabs.Length; i++)
+                {
+                    if (i > 0) s += "|";
+                    s += $"\"{c.PNFPGNOALCI.growablePrefabs[i].name}\"";
+
+                }
+            }
+
+            s += " Tree.placable prefabs: ";
+            if (t is null || t.placeable.itemSetup.item is null )
+            {
+                s += "NULL";
+            }
+            else if (t.placeable.itemSetup.item.growablePrefabs.Length == 0)
+            {
+                s += "NONE";
+            }
+            else
+            {
+                for (int i = 0; i < t.placeable.itemSetup.item.growablePrefabs.Length; i++)
+                {
+                    if (i > 0) s += "|";
+                    s += $"\"{t.placeable.itemSetup.item.growablePrefabs[i].name}\"";
+                }
+            }
+            return s;
+        }
+        [HarmonyPatch(typeof(Tree), "OnDestroy")]
+        [HarmonyPrefix]
+        public static void TreeOnDestroyPrefix(Tree __instance, CropSetter ___cropSetter, bool ___isCropTree)
+        {
+            if (___isCropTree) DebugLog($"Tree.OnDestroy.Prefix(): Age: {__instance.currentAge}, Name: \"{__instance.name}\" Crop: {___cropSetter.PNFPGNOALCI.id}:\"{___cropSetter.PNFPGNOALCI.name}");
+            //DebugLog(Prefabs2String(__instance, ___cropSetter));
+        }
+        [HarmonyPatch(typeof(Tree), "Awake")]
+        [HarmonyPostfix]
+        public static void TreeAwakePostfix(Tree __instance, CropSetter ___cropSetter, bool ___isCropTree)
+        {
+            if (___isCropTree)   DebugLog($"Tree.Awake.Postfix(): Age: {__instance.currentAge}, Name: \"{__instance.name}\" Crop: {___cropSetter.PNFPGNOALCI.id}:\"{___cropSetter.PNFPGNOALCI.name}");
+            //DebugLog(Prefabs2String(__instance, ___cropSetter));
+        }
+
+        /*
+        [HarmonyPatch(typeof(Tree), "SetCurrentAge")]
+        [HarmonyPrefix]
+        public static void TreeSetCurrentAgePrefix(Tree __instance, CropSetter ___cropSetter)
+        {
+            DebugLog($"Tree.SetCurrentAge.Prefix(): Age: {__instance.currentAge}, Name: \"{__instance.name}\" Crop: {___cropSetter.PNFPGNOALCI.id}:\"{___cropSetter.PNFPGNOALCI.name}");
+            DebugLog(Prefabs2String(__instance, ___cropSetter));
+
+            //return this.cropSetter.PNFPGNOALCI.growablePrefabs;, return this.placeable.itemSetup.item.growablePrefabs;
+        }
+
+
+        [HarmonyPatch(typeof(Tree), "SetCurrentAge")]
+        [HarmonyPostfix]
+        public static void TreeSetCurrentAgePostfix(Tree __instance, CropSetter ___cropSetter)
+        {
+            DebugLog($"Tree.SetCurrentAge.Postfix(): Age: {__instance.currentAge}, Name: \"{__instance.name}\" Crop: {___cropSetter.PNFPGNOALCI.id}:\"{___cropSetter.PNFPGNOALCI.name}");
+            DebugLog(Prefabs2String(__instance, ___cropSetter));
+        }
+        */
+        // ---------------------- End  growth troubleshooting --------------------------------------
+
 
         ////////////////////////////////////////////////////////////////////////////////////////
         // ListTreeTypes
