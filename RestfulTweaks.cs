@@ -378,11 +378,9 @@ namespace RestfulTweaks
                 CropSetter cSet = Traverse.Create(t).Field("cropSetter").GetValue<CropSetter>();
                 Crop crop = Traverse.Create(cSet).Field("_crop").GetValue<Crop>();
 
+                // Lets check if the Cropsetter and crop are different, using the number at the start of the cropsetter object name and the crop object name
                 string cropSetNumStr = cSet.name.Substring(0, cSet.name.IndexOf(" "));
                 string cropNumStr =    crop.name.Substring(0, crop.name.IndexOf(" "));
-
-
-
                 if (cropSetNumStr != cropNumStr)
                 {
                     DebugLog($"GrowAllTrees(): ERROR: Cropsetter/Crop mismatch! (\"{cSet.name}\",\"{crop.name}\") (\"{cropSetNumStr}\", \"{cropNumStr}\")");
@@ -399,14 +397,10 @@ namespace RestfulTweaks
                         {
                             DebugLog($"GrowAllTrees(): changing Tree.cropsetter._crop.growablePrefabs from {cropInt} to {cropSetInt} before growing");
 
-                            // not suprising, this does not work.
-                            //crop = CropDatabaseAccessor.GetCrop(cropSetInt);
-                            //Try direct on the growable prefabs?
+                            //copy growablePrefabs[] from the correct crop over Tree.cropSetter._crop.growablePrefabs[]
                             Crop correctCrop = CropDatabaseAccessor.GetCrop(cropSetInt);
                             crop.growablePrefabs = correctCrop.growablePrefabs;
-
                         }
-
                     }
                 }
 
