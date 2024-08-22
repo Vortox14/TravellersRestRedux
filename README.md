@@ -29,8 +29,10 @@ A Traveller's Rest mod with a lot of small tweaks. Each option can be configured
 1.5.0 goals:
 * [NOT STARTED] change: grow trees to max instead of one age level
 * [NOT STARTED] change: grow crops to max instead of one age level, update graphic right away (Cropsetter.UpdateCropVisual())
-* [NOT STARTED] re-harvestable crops all become ready to harvest
+* [NOT STARTED] hotkey: re-harvestable crops all become ready to harvest
 * [NOT STARTED] More milk from animals
+* [NOT STARTED] Animals no needs
+* [NOT STARTED] Animals Never Sick
 * [NOT STARTED] Rented rooms not messy ( RentedRoom.MessUpRoom() prefix to block function  )
 * [NOT STARTED] Tables never messy ( Table.AddFirtiness() prefix to block function )
 * [NOT STARTED] Customer do not mess up floor (Customer.Awake() Postfix -> Customer.customerInfo.floorDirtProbability change from  55 to 0;)

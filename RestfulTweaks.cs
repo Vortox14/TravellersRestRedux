@@ -72,6 +72,7 @@ namespace RestfulTweaks
         private static ConfigEntry<KeyCode> _hotKeyBirdTalk;
         private static ConfigEntry<KeyCode> _hotkeyGrowTrees;
         private static ConfigEntry<KeyCode> _whatIsThatTree;
+        private static ConfigEntry<KeyCode> _regrowRegrowables;
 
 #if CONSTRUCTIONFEATURES
         private static ConfigEntry<bool> _buildNoMatsUsed;
@@ -88,6 +89,17 @@ namespace RestfulTweaks
         private static ConfigEntry<int> _pigLootExtra;
         private static ConfigEntry<int> _sheepLootExtra;
         private static ConfigEntry<bool> _GrowTreesTypeFix;
+        private static ConfigEntry<int> _moreMilk;
+        private static ConfigEntry<bool> _custCleanRooms;
+        private static ConfigEntry<bool> _custCleanFloor;
+        private static ConfigEntry<bool> _custCleanTable;
+        private static ConfigEntry<float> _custFastEating;
+        private static ConfigEntry<bool> _custNeverAngry;
+        private static ConfigEntry<bool> _custCanCalm;
+        private static ConfigEntry<float> _custMorePatient;
+        private static ConfigEntry<float> _custTableOrder;
+        private static ConfigEntry<bool> _AnimalsNoNeeds;
+        private static ConfigEntry<bool> _AnimalsNoSick;
 
         // ----------------------------------------------------
         // Some Accessor objects
@@ -174,12 +186,16 @@ namespace RestfulTweaks
             _hotkeyGrowTrees = Config.Bind("Farming", "grow all trees hotkey", KeyCode.None, "Press to instantly grow all trees");
             _allSeasonCrops   = Config.Bind("Farming", "All-season crops", false, "All crops can be grown in any season.");
             _whatIsThatTree   = Config.Bind("Farming", "What is that tree", KeyCode.None, "For Troubleshooting - lists details of crop trees");
+            _regrowRegrowables = Config.Bind("Farming", "Regrow Regrowales", KeyCode.None, "NOT DONE makes re-harvestable crops & trees ready to harvest");
 
 
             _cowLootExtra     = Config.Bind("Animals", "Cow Bonus Loot", 0, "Increase Cow loot by this amount; set to 0 to disable");
             _pigLootExtra     = Config.Bind("Animals", "Pig Bonus Loot", 0, "Increase Pig loot by this amount; set to 0 to disable");
             _chickenLootExtra = Config.Bind("Animals", "Chicken Bonus Loot", 0, "Increase Chicken loot by this amount; set to 0 to disable");
             _sheepLootExtra   = Config.Bind("Animals", "Sheep Bonus Loot", 0, "Increase Sheep loot by this amount; set to 0 to disable");
+            _moreMilk         = Config.Bind("Animals", "More Milk", 0, "NOT DONE Higher Milk Yield");
+            _AnimalsNoNeeds   = Config.Bind("Animals", "No Needs", false, "NOT DONE Animals don't need food/water/walking");
+            _AnimalsNoSick    = Config.Bind("Animals", "No Sickness", false, "NOT DONE Animals never get sick");
 
             _recipesNoFuel      = Config.Bind("Recipes", "No Fuel", false, "Recipes no longer require fuel");
             _recipesNoFragments = Config.Bind("Recipes", "No Fragment Cost", false, "Cave Recipies only cost one fragment");
@@ -214,6 +230,21 @@ namespace RestfulTweaks
             //Setting sellPrice doesn't work for objects where the price gets determined (at least partly) by the stuff it is made of.
             //_moreValuableAlcohol = Config.Bind("Prices", "Alcohol price increase", 1.0f, "increase the value of Beer/Cocktails/Spirits/Liquer/Wine; set to 1.0 to disable");
             //_moreValuableCheese  = Config.Bind("Prices", "Cheese price increase", 1.0f, "increase the value of Cheese; set to 1.0 to disable");
+
+            _custCleanRooms = Config.Bind("Customers", "Clean Rooms", false, "NOT DONE rented rooms are kept clean");
+            _custCleanFloor = Config.Bind("Customers", "Clean Floors", false, "NOT DONE customers do not make mess on floor (NOTE: staff can still make a mess)");
+            _custCleanTable = Config.Bind("Customers", "Clean Rooms", false, "NOT DONE customers do not make mess on tables");
+            _custFastEating = Config.Bind("Customers", "Fast Eating", 1.0f, "NOT DONE customers eat faster - set to 1.0f to disable, higher to eat faster, lower to eat slower");
+            _custNeverAngry = Config.Bind("Customers", "Clean Rooms", false, "NOT DONE customer do not get angry");
+            _custCanCalm = Config.Bind("Customers", "Clean Rooms", false, "NOT DONE angry customers can always be calmed down");
+            _custMorePatient = Config.Bind("Customers", "More Patient", 1.0f, "NOT DONE customer willing to wait longer - set to 1.0f to disable, higher for more patience, lower for less");
+            _custTableOrder = Config.Bind("Customers", "Table Ordering Probability", 1.0f, "NOT DONE customers more likely to order again from the table, set to 1.0f to disable, may result in customer eating forever if it reaches a value of 2.0");
+
+
+
+
+
+
 #if CONSTRUCTIONFEATURES
             _buildNoMatsUsed = Config.Bind("Building", "No Materials used", false, "Building materials not consumed by construction (you still need enough to do the construction)");
             _buildNoMatsUsedFarm = Config.Bind("Building", "Farm Construction No Materials used", false, "TEST WITH BARN/COOP CONSTRUCTION");
