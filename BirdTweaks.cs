@@ -36,53 +36,6 @@ namespace RestfulTweaks
 
         }
 
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Bird Stuff
-
-        [HarmonyPatch(typeof(BirdNPC), "MouseUp")]
-        [HarmonyPrefix]
-        private static void BirdNPCMouseUpPrefix(BirdNPC __instance)
-        {
-            DebugLog("BirdNPC.MouseUP.Prefix");
-            if (_easyBirdTraining.Value)
-            {
-                __instance.canGiveCookieTime = 1f;
-                //__instance.cookieDecrement = 0.02f;
-                //__instance.cookieIncrement = 0.5f;
-                __instance.birdSpeech.lastCommentWasPositive = true;
-
-                ItemSetup isetupBird = __instance.placeable.itemSetup; //We need to find the Randomly named private field of type ItemInstance in this variable, and cast it as a BirdInstance
-                BirdInstance theBird = null;
-                DebugLog(String.Format("BirdNPC.MouseUP.Prefix name: {0}", isetupBird.name));
-
-
-                FieldInfo[] isBirdFieldInfo = isetupBird.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance); //all private fields.
-                //Could simplifiy this with .where, if I understood the syntax better. e.g.:
-                //var fields = this.GetType().GetFields().Where(field => Attribute.IsDefined(field, typeof(MyAttribute))).ToList();
-
-                foreach (FieldInfo fi in isBirdFieldInfo)
-                {
-                    if (fi.FieldType == typeof(ItemInstance))
-                    {
-                        theBird = (BirdInstance)fi.GetValue(isetupBird);
-                        break;
-
-                    }
-                }
-
-                if (theBird != null)
-                {
-                    float reflectedCommentsQuality = Traverse.Create(theBird).Field("_commentsQuality").GetValue<float>(); //private field
-                    DebugLog(String.Format("BirdNPC.MouseUP.Prefix: Name: {0} Qual: {1} CookiesPerDay: {2} LastCookieGiven:{3}", theBird.birdName, reflectedCommentsQuality, theBird.cookiesGivenPerDay, theBird.lastCookieGivenTime));
-                    theBird.cookiesGivenPerDay = 0;
-                    //theBird.lastCookieGivenTime = -100f;
-                }
-                else
-                {
-                    DebugLog("BirdNPC.MouseUP.Prefix: Sorry, cound not find BirdNPC.placeable.itemSetup.<BirdInstance field>");
-                }
-            }
-        }
 
         [HarmonyPatch(typeof(BirdSpeech), "ChangeReputation")]
         [HarmonyPrefix]

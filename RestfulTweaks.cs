@@ -60,11 +60,8 @@ namespace RestfulTweaks
         private static ConfigEntry<float> _moreValuableMeat;
         private static ConfigEntry<float> _moreValuableVege;
         private static ConfigEntry<float> _moreValuableGrain;
-        //private static ConfigEntry<float> _moreValuableAlcohol;
         private static ConfigEntry<float> _moreValuableFruit;
-        //private static ConfigEntry<float> _moreValuableCheese;
         private static ConfigEntry<bool> _allSeasonCrops;
-        private static ConfigEntry<bool> _easyBirdTraining;
         private static ConfigEntry<bool> _badBirdIsFunny;
         private static ConfigEntry<bool> _walkThroughCrops;
         //private static ConfigEntry<float> _xpMult;
@@ -215,7 +212,6 @@ namespace RestfulTweaks
 
 
 
-            _easyBirdTraining   = Config.Bind("Misc", "Easy Bird Training", false, "NOT WORKING More benefit from crackers, giving cracker at wrong time results in less benefit instead of loss");
             _badBirdIsFunny     = Config.Bind("Misc", "Naughty Bird is Funny", false, "Patrons like a naughty bird, so everything your bird says causes reputation gain instead of loss");
             _fireplaceNoFuelUse = Config.Bind("Misc", "Fireplace does not consume fuel", false, "fireplace no longer consumes fuel");
             //_xpMult             = Config.Bind("Misc", "XP Multiplier", 1.0f, "NOT WORKING increase the amopunt of reputation earned; set to 1.0 to disable");
@@ -223,18 +219,18 @@ namespace RestfulTweaks
             _hotKeyBirdTalk     = Config.Bind("Misc", "All Birds Talk", KeyCode.None, "Make your birds say something nice");
 
             _wilsonOneCoin       = Config.Bind("Prices", "Wilson Price Reduction", false, "Wilson only charges 1 coin per item");
-            _moreValuableFish    = Config.Bind("Prices", "Fish price increase", 1.0f, "increase the value of fish/shellfish; set to 1.0 to disable");
+            //Setting sellPrice doesn't work for objects where the price gets determined (at least partly) by the stuff it is made of.
+            _moreValuableFish = Config.Bind("Prices", "Fish price increase", 1.0f, "increase the value of fish/shellfish; set to 1.0 to disable");
             _moreValuableMeat    = Config.Bind("Prices", "Meat price increase", 1.0f, "increase the value of meat; set to 1.0 to disable");
             _moreValuableVege    = Config.Bind("Prices", "Vege price increase", 1.0f, "increase the value of Vegetables/Legumes; set to 1.0 to disable");
             _moreValuableFruit   = Config.Bind("Prices", "Fruit price increase", 1.0f, "increase the value of Fruit/Berries; set to 1.0 to disable");
             _moreValuableGrain   = Config.Bind("Prices", "Grain price increase", 1.0f, "increase the value of Grains; set to 1.0 to disable");
-            //Setting sellPrice doesn't work for objects where the price gets determined (at least partly) by the stuff it is made of.
-            //_moreValuableAlcohol = Config.Bind("Prices", "Alcohol price increase", 1.0f, "increase the value of Beer/Cocktails/Spirits/Liquer/Wine; set to 1.0 to disable");
-            //_moreValuableCheese  = Config.Bind("Prices", "Cheese price increase", 1.0f, "increase the value of Cheese; set to 1.0 to disable");
+
+
 
             _custCleanRooms = Config.Bind("Customers", "Clean Rooms", false, "rented rooms are kept clean");
             _custCleanFloor = Config.Bind("Customers", "Clean Floors", false, "customers do not make mess on floor (NOTE: staff can still make a mess)");
-            _custCleanTable = Config.Bind("Customers", "Clean Rooms", false, "customers do not make mess on tables");
+            _custCleanTable = Config.Bind("Customers", "Clean Tables", false, "customers do not make mess on tables");
             _custFastEating = Config.Bind("Customers", "Fast Eating", 1.0f, "customers eat faster - set to 1.0f to disable, higher to eat faster, lower to eat slower");
             _custNeverAngry = Config.Bind("Customers", "Clean Rooms", false, "customer do not get angry");
             _custCanCalm = Config.Bind("Customers", "Clean Rooms", false, "angry customers can always be calmed down");

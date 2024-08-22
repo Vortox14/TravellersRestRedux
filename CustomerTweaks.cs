@@ -63,7 +63,7 @@ namespace RestfulTweaks
         [HarmonyPostfix]
         public static void CustomerAwakePostfix(Customer __instance)
         {
-            //Changing CustomerInfo changes it for *every* customer, so needs a check or static base values
+            //Changing CustomerInfo changes it for *every* customer, so only do it once
             if (!setupDoneCustomerInfo)
             {
                 Plugin.DebugLog("CustomerAwakePostfix(): ------ Pre change data -----");
