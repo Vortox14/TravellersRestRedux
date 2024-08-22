@@ -276,6 +276,10 @@ namespace RestfulTweaks
             {
                 WhatIsThatTree();
             }
+            else if (Input.GetKeyDown(_regrowRegrowables.Value))
+            {
+                RegrowRegrowables();
+            }
         }
         private void OnDestroy()
         {
@@ -341,7 +345,6 @@ namespace RestfulTweaks
                 s += ItemMod2String(itemMod);
             }
             return s;
-            
         }
 
         public static string RecipeIngredients2String(RecipeIngredient[] x)
@@ -355,6 +358,7 @@ namespace RestfulTweaks
             }
             return result;
         }
+
         public static string IngredientTypes2String(IngredientType[] x)
         {
             string result = string.Empty;
@@ -365,9 +369,19 @@ namespace RestfulTweaks
             return result;
         }
 
+
+        ////////////////////////////////////////////////////////////////////////////////////////
+        // Make all crop trees/reharvestable crops insantly ready to harvest again.
+        // Can call manually from Unity Explorer Console with RestfulTweaks.Plugin.RegrowRegrowables();
+        public static void RegrowRegrowables()
+        {
+            DebugLog("RegrowRegrowables(): This is where my code would go, IF I HAD ANY!");
+        }
+
+
         ////////////////////////////////////////////////////////////////////////////////////////
         // Make All Birds Speak
-        // Cam call manually from Unity Explorer Console with RestfulTweaks.Plugin.AllBirdsTalk();
+        // Can call manually from Unity Explorer Console with RestfulTweaks.Plugin.AllBirdsTalk();
 
         public static void AllBirdsTalk()
         {
