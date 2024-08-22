@@ -78,8 +78,11 @@ water feeders are AnimalFeeder[]
 food feeders are BArn.annimalspac[].foodfeeder type AnimalFoodFeeder
 FoodFeeder.SetAnimalFoodRestriction() == gets list of food - override? AnimalFeeder.SetAllFarmAnimalsFoodRestriction?
 
+Customer now mess on floor - 
+Utils.FLEAICOANPF(Vector3 HBPKMHFDPMF) outs dirt on floor
+That is called (indirectly) by Housekeepr Update(), Waiter.Update(), Customer.Update
 
-
+Customer.customerInfo.floorDirtProbability = 55;
 
 
 

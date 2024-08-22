@@ -19,9 +19,6 @@ A Traveller's Rest mod with a lot of small tweaks. Each option can be configured
 * Fish value multiplier 
 * Bad bird is funny; gain rep when customers laugh at your bird calling them ugly.
 * Walk through crops
-
-NEW in 1.4.0: 
-
 * aging barrel stack size adjustment now working, 
 * more price adjustment options
 * endless water buckets (NOTE: do not use during tutorial, and when enabled you can not fill empty buckets at the well so fill buckets before activating)
@@ -29,6 +26,19 @@ NEW in 1.4.0:
 * Crops grow in all seasons
 * Increased loot from slaughtering animals
 
+1.5.0 goals:
+* [NOT STARTED] change: grow trees to max instead of one age level
+* [NOT STARTED] change: grow crops to max instead of one age level, update graphic right away (Cropsetter.UpdateCropVisual())
+* [NOT STARTED] re-harvestable crops all become ready to harvest
+* [NOT STARTED] More milk from animals
+* [NOT STARTED] Rented rooms not messy ( RentedRoom.MessUpRoom() prefix to block function  )
+* [NOT STARTED] Tables never messy ( Table.AddFirtiness() prefix to block function )
+* [NOT STARTED] Customer do not mess up floor (Customer.Awake() Postfix -> Customer.customerInfo.floorDirtProbability change from  55 to 0;)
+* [NOT STARTED] Customer fast eating  (Customer.Awake() Postfix -> Customer.Awake() Postfix -> Customer.customerInfo.timeEatingMin, timeEatingMax)
+* [NOT STARTED] Customer never angry (Customer.Awake() Postfix -> Customer.Awake() Postfix -> Customer.customerInfo.testRateRowdyCustomers, rowdyCustomersProbability , )
+* [NOT STARTED] Customer always calm down (Customer.Awake() Postfix -> Customer.Awake() Postfix -> Customer.customerInfo.calmRowdyCustomersProbability =100
+* [NOT STARTED] Customer more patient (Customer.Awake() Postfix -> Customer.Awake() Postfix -> Customer.customerInfo.requestOrderPatience, requestRoomPatience
+* [NOT STARTED] Customer more likely to re-order (Customer.Awake() Postfix -> Customer.Awake() Postfix -> Customer.customerInfo.requestAgainProbability
 
 ## Downloading the mod
 
