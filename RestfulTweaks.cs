@@ -21,7 +21,7 @@ using static CropsDatabase;
 namespace RestfulTweaks
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-    public class Plugin : BaseUnityPlugin
+    public partial class Plugin : BaseUnityPlugin
     {
         private static Harmony _harmony;
         internal static ManualLogSource Log; // static copy of the BaseUnityPligin.Logger object so it can be accessed in static methods, initilized in constructor
@@ -83,6 +83,7 @@ namespace RestfulTweaks
         private static bool setupDoneRecipes = false;
         private static bool setupDoneCrops = false;
         private static bool setupDoneStaffManager = false;
+        private static bool setupDoneCustomerInfo = false;
 
         private static ConfigEntry<int> _cowLootExtra;
         private static ConfigEntry<int> _chickenLootExtra;
@@ -90,14 +91,14 @@ namespace RestfulTweaks
         private static ConfigEntry<int> _sheepLootExtra;
         private static ConfigEntry<bool> _GrowTreesTypeFix;
         private static ConfigEntry<int> _moreMilk;
-        private static ConfigEntry<bool> _custCleanRooms;
-        private static ConfigEntry<bool> _custCleanFloor;
-        private static ConfigEntry<bool> _custCleanTable;
-        private static ConfigEntry<float> _custFastEating;
-        private static ConfigEntry<bool> _custNeverAngry;
-        private static ConfigEntry<bool> _custCanCalm;
-        private static ConfigEntry<float> _custMorePatient;
-        private static ConfigEntry<float> _custTableOrder;
+        public static ConfigEntry<bool> _custCleanRooms;
+        public static ConfigEntry<bool> _custCleanFloor;
+        public static ConfigEntry<bool> _custCleanTable;
+        public static ConfigEntry<float> _custFastEating;
+        public static ConfigEntry<bool> _custNeverAngry;
+        public static ConfigEntry<bool> _custCanCalm;
+        public static ConfigEntry<bool> _custMorePatient;
+        public static ConfigEntry<bool> _custNeverLeave;
         private static ConfigEntry<bool> _AnimalsNoNeeds;
         private static ConfigEntry<bool> _AnimalsNoSick;
 
@@ -231,14 +232,14 @@ namespace RestfulTweaks
             //_moreValuableAlcohol = Config.Bind("Prices", "Alcohol price increase", 1.0f, "increase the value of Beer/Cocktails/Spirits/Liquer/Wine; set to 1.0 to disable");
             //_moreValuableCheese  = Config.Bind("Prices", "Cheese price increase", 1.0f, "increase the value of Cheese; set to 1.0 to disable");
 
-            _custCleanRooms = Config.Bind("Customers", "Clean Rooms", false, "NOT DONE rented rooms are kept clean");
-            _custCleanFloor = Config.Bind("Customers", "Clean Floors", false, "NOT DONE customers do not make mess on floor (NOTE: staff can still make a mess)");
-            _custCleanTable = Config.Bind("Customers", "Clean Rooms", false, "NOT DONE customers do not make mess on tables");
-            _custFastEating = Config.Bind("Customers", "Fast Eating", 1.0f, "NOT DONE customers eat faster - set to 1.0f to disable, higher to eat faster, lower to eat slower");
-            _custNeverAngry = Config.Bind("Customers", "Clean Rooms", false, "NOT DONE customer do not get angry");
-            _custCanCalm = Config.Bind("Customers", "Clean Rooms", false, "NOT DONE angry customers can always be calmed down");
-            _custMorePatient = Config.Bind("Customers", "More Patient", 1.0f, "NOT DONE customer willing to wait longer - set to 1.0f to disable, higher for more patience, lower for less");
-            _custTableOrder = Config.Bind("Customers", "Table Ordering Probability", 1.0f, "NOT DONE customers more likely to order again from the table, set to 1.0f to disable, may result in customer eating forever if it reaches a value of 2.0");
+            _custCleanRooms = Config.Bind("Customers", "Clean Rooms", false, "rented rooms are kept clean");
+            _custCleanFloor = Config.Bind("Customers", "Clean Floors", false, "customers do not make mess on floor (NOTE: staff can still make a mess)");
+            _custCleanTable = Config.Bind("Customers", "Clean Rooms", false, "customers do not make mess on tables");
+            _custFastEating = Config.Bind("Customers", "Fast Eating", 1.0f, "customers eat faster - set to 1.0f to disable, higher to eat faster, lower to eat slower");
+            _custNeverAngry = Config.Bind("Customers", "Clean Rooms", false, "customer do not get angry");
+            _custCanCalm = Config.Bind("Customers", "Clean Rooms", false, "angry customers can always be calmed down");
+            _custMorePatient = Config.Bind("Customers", "More Patience", false, "customers don't mind waiting");
+            _custNeverLeave = Config.Bind("Customers", "Customers never leave", false, "customers just keep ordering more food/drink until last call  ");
 
 
 

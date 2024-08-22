@@ -33,14 +33,14 @@ A Traveller's Rest mod with a lot of small tweaks. Each option can be configured
 * [NOT STARTED] More milk from animals
 * [NOT STARTED] Animals no needs
 * [NOT STARTED] Animals Never Sick
-* [NOT STARTED] Rented rooms not messy ( RentedRoom.MessUpRoom() prefix to block function  )
-* [NOT STARTED] Tables never messy ( Table.AddFirtiness() prefix to block function )
-* [NOT STARTED] Customer do not mess up floor (Customer.Awake() Postfix -> Customer.customerInfo.floorDirtProbability change from  55 to 0;)
-* [NOT STARTED] Customer fast eating  (Customer.Awake() Postfix -> Customer.Awake() Postfix -> Customer.customerInfo.timeEatingMin, timeEatingMax)
-* [NOT STARTED] Customer never angry (Customer.Awake() Postfix -> Customer.Awake() Postfix -> Customer.customerInfo.testRateRowdyCustomers, rowdyCustomersProbability , )
-* [NOT STARTED] Customer always calm down (Customer.Awake() Postfix -> Customer.Awake() Postfix -> Customer.customerInfo.calmRowdyCustomersProbability =100
-* [NOT STARTED] Customer more patient (Customer.Awake() Postfix -> Customer.Awake() Postfix -> Customer.customerInfo.requestOrderPatience, requestRoomPatience
-* [NOT STARTED] Customer more likely to re-order (Customer.Awake() Postfix -> Customer.Awake() Postfix -> Customer.customerInfo.requestAgainProbability
+* Rented rooms do not get  messy 
+* Tables never get messy
+* Customers do not mess up floor (note: staff can still make mess)
+* Customer fast eating
+* Customer never angry
+* Customer always calm down 
+* Customer wait longer 
+* Customer never leave (until last call)
 
 ## Downloading the mod
 
