@@ -195,12 +195,11 @@ namespace RestfulTweaks
 
         // ----------------------------------------------------
         // Some Accessor objects
-
+        // -------------
         // This horendous pile of jank is because TavernReputation has three private int fields and the one with the repvalue has a random name.  
         private static FieldInfo myRepLocation;
         private static bool foundRepLocation=false;
-
-        public static int rep
+        public static int repAccessor
         {
             get
             {
@@ -233,16 +232,15 @@ namespace RestfulTweaks
                     {
                         DebugLog($"Still Looking for TavernReputation rep value, unable to set to {value}"); ;
                     }
-
                 }
             }
         }
-        public static bool TryFindTavernReputationValue()
+        public static bool TryFindTavernReputationValue() //RestfulTweaks.Plugin.TryFindTavernReputationValue()
         {
             DebugLog($"TryFindTavernReputationValue(): Looking for reputation location...");
             TavernReputation t = UnityEngine.Object.FindObjectOfType<TavernReputation>();
             int found = 0;
-            int foundCorrect = 1;
+            int foundCorrect = 0;
             FieldInfo[] tavRepFieldInfo = t.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance); //all private fields.
             foreach (FieldInfo fi in tavRepFieldInfo)
             {
@@ -251,7 +249,8 @@ namespace RestfulTweaks
                     found++;
                     if ((int)fi.GetValue(t) == TavernReputation.GetReputationExp())
                     {
-                        myRepLocation=fi;
+                        DebugLog($"TryFindTavernReputationValue(): found private int field with value: {TavernReputation.GetReputationExp()} name: \"{fi.Name}\"  hash: {fi.GetHashCode()}");
+                        myRepLocation =fi;
                         foundCorrect++;
                     }
                 }
@@ -263,7 +262,6 @@ namespace RestfulTweaks
                 return true;
             }
             return false;
-
         }
 
         // -------------
@@ -286,6 +284,7 @@ namespace RestfulTweaks
                 return myItemDatabaseAccessor;
             }
         }
+        // -------------
         private static ItemDatabase myitemDatabaseSO;
         public static ItemDatabase itemDatabaseSO
         {
@@ -295,7 +294,7 @@ namespace RestfulTweaks
                 return myitemDatabaseSO;
             }
         }
-
+        // -------------
         private static RecipeDatabaseAccessor myRecipeDatabaseAccessor;
         public static RecipeDatabaseAccessor recipeDatabaseAccessor
         {
@@ -305,6 +304,7 @@ namespace RestfulTweaks
                 return myRecipeDatabaseAccessor;
             }
         }
+        // -------------
         private static RecipeDatabase myRecipeDatabaseSO;
         public static RecipeDatabase recipeDatabaseSO
         {
@@ -314,6 +314,7 @@ namespace RestfulTweaks
                 return myRecipeDatabaseSO;
             }
         }
+        // -------------
 
 
 
@@ -321,7 +322,7 @@ namespace RestfulTweaks
 
 
         //public static RecipeDatabaseAccessor recipeDatabaseAccessor; //Not needed since RecipeDatabaseAccessor is full of useful static functions
- 
+
 
         private void Awake()
         {
@@ -457,7 +458,7 @@ namespace RestfulTweaks
 
                 int extraNeeded = Mathf.FloorToInt((_xpMult.Value - 1.0f) * addedXP);
                 DebugLog($"TavernReputation.ChangeReputation.Prefix(): Adding an extra {extraNeeded} rep");
-                rep = rep + extraNeeded;
+                repAccessor = repAccessor + extraNeeded;
             }
         }
 
