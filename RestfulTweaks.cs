@@ -96,6 +96,7 @@ namespace RestfulTweaks
         public static ConfigEntry<bool> _custCanCalm;
         public static ConfigEntry<bool> _custMorePatient;
         public static ConfigEntry<bool> _custNeverLeave;
+        public static ConfigEntry<bool> _custAlwaysLeave;
         private static ConfigEntry<bool> _AnimalsNoNeeds;
         private static ConfigEntry<bool> _AnimalsNoSick;
 
@@ -228,14 +229,15 @@ namespace RestfulTweaks
 
 
 
-            _custCleanRooms = Config.Bind("Customers", "Clean Rooms", false, "rented rooms are kept clean");
-            _custCleanFloor = Config.Bind("Customers", "Clean Floors", false, "customers do not make mess on floor (NOTE: staff can still make a mess)");
-            _custCleanTable = Config.Bind("Customers", "Clean Tables", false, "customers do not make mess on tables");
-            _custFastEating = Config.Bind("Customers", "Fast Eating", 1.0f, "customers eat faster - set to 1.0f to disable, higher to eat faster, lower to eat slower");
-            _custNeverAngry = Config.Bind("Customers", "Clean Rooms", false, "customer do not get angry");
-            _custCanCalm = Config.Bind("Customers", "Clean Rooms", false, "angry customers can always be calmed down");
+            _custCleanRooms  = Config.Bind("Customers", "Clean Rooms", false, "rented rooms are kept clean");
+            _custCleanFloor  = Config.Bind("Customers", "Clean Floors", false, "customers do not make mess on floor (NOTE: staff can still make a mess)");
+            _custCleanTable  = Config.Bind("Customers", "Clean Tables", false, "customers do not make mess on tables");
+            _custFastEating  = Config.Bind("Customers", "Fast Eating", 1.0f, "customers eat faster - set to 1.0f to disable, higher to eat faster, lower to eat slower");
+            _custNeverAngry  = Config.Bind("Customers", "Clean Rooms", false, "customer do not get angry");
+            _custCanCalm     = Config.Bind("Customers", "Clean Rooms", false, "angry customers can always be calmed down");
             _custMorePatient = Config.Bind("Customers", "More Patience", false, "customers don't mind waiting");
-            _custNeverLeave = Config.Bind("Customers", "Customers never leave", false, "customers just keep ordering more food/drink until last call  ");
+            _custNeverLeave  = Config.Bind("Customers", "Customers never leave", false, "customers just keep ordering more food/drink until last call");
+            _custAlwaysLeave = Config.Bind("Customers", "Customers never leave", false, "customers leave after one meal/drink (overrides never leave)");
 
 #if CONSTRUCTIONFEATURES
             _buildNoMatsUsed = Config.Bind("Building", "No Materials used", false, "Building materials not consumed by construction (you still need enough to do the construction)");

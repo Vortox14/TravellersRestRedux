@@ -89,6 +89,10 @@ namespace RestfulTweaks
                 {
                     __instance.customerInfo.requestAgainProbability = 100;
                 }
+                if (Plugin._custAlwaysLeave.Value)
+                {
+                    __instance.customerInfo.requestAgainProbability = 0;
+                }
 
                 if (Plugin._custFastEating.Value != 1.0f)
                 {
