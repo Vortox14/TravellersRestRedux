@@ -41,6 +41,8 @@ A Traveller's Rest mod with a lot of small tweaks. Each option can be configured
 * Customer always calm down 
 * Customer wait longer 
 * Customer never leave (until last call)
+* Customer leave after one order
+* Customers ignore dirt, cold and darkness
 
 ## Downloading the mod
 
