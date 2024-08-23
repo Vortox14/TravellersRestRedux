@@ -97,6 +97,7 @@ namespace RestfulTweaks
         public static ConfigEntry<bool> _custMorePatient;
         public static ConfigEntry<bool> _custNeverLeave;
         public static ConfigEntry<bool> _custAlwaysLeave;
+        public static ConfigEntry<bool> _custIgnoreDirt;
         private static ConfigEntry<bool> _AnimalsNoNeeds;
         private static ConfigEntry<bool> _AnimalsNoSick;
 
@@ -237,7 +238,8 @@ namespace RestfulTweaks
             _custCanCalm     = Config.Bind("Customers", "Clean Rooms", false, "angry customers can always be calmed down");
             _custMorePatient = Config.Bind("Customers", "More Patience", false, "customers don't mind waiting");
             _custNeverLeave  = Config.Bind("Customers", "Customers never leave", false, "customers just keep ordering more food/drink until last call");
-            _custAlwaysLeave = Config.Bind("Customers", "Customers never leave", false, "customers leave after one meal/drink (overrides never leave)");
+            _custAlwaysLeave = Config.Bind("Customers", "Customers always leave", false, "customers leave after one meal/drink (overrides never leave)");
+            _custIgnoreDirt  = Config.Bind("Customers", "Customers ignore dirt, cold, dark", false, "customers ignore dirt, cold and darkness");
 
 #if CONSTRUCTIONFEATURES
             _buildNoMatsUsed = Config.Bind("Building", "No Materials used", false, "Building materials not consumed by construction (you still need enough to do the construction)");

@@ -51,8 +51,16 @@ namespace RestfulTweaks
             Plugin.DebugLog($"CustomerInfo: requestAgainProbability -> {x.customerInfo.requestAgainProbability}");
             Plugin.DebugLog($"CustomerInfo: timeEatingMin -> {x.customerInfo.timeEatingMin}");
             Plugin.DebugLog($"CustomerInfo: timeEatingMax -> {x.customerInfo.timeEatingMax}");
-            Plugin.DebugLog($"CustomerInfo: timeEatingMin -> {x.customerInfo.timeEatingLastOrdersMin}");
-            Plugin.DebugLog($"CustomerInfo: timeEatingMax -> {x.customerInfo.timeEatingLastOrdersMax}");
+            Plugin.DebugLog($"CustomerInfo: timeEatingLastOrdersMin -> {x.customerInfo.timeEatingLastOrdersMin}");
+            Plugin.DebugLog($"CustomerInfo: timeEatingLastOrdersMax -> {x.customerInfo.timeEatingLastOrdersMax}");
+            Plugin.DebugLog($"CustomerInfo: tableDirtyPenalty -> {x.customerInfo.tableDirtyPenalty}");
+            Plugin.DebugLog($"CustomerInfo: tableVeryDirtyPenalty -> {x.customerInfo.tableVeryDirtyPenalty}");
+            Plugin.DebugLog($"CustomerInfo: floorDirtPenalty -> {x.customerInfo.floorDirtPenalty}");
+            Plugin.DebugLog($"CustomerInfo: tavernDirty -> {x.customerInfo.tavernDirty}");
+            Plugin.DebugLog($"CustomerInfo: tavernFilthy -> {x.customerInfo.tavernFilthy}");
+            Plugin.DebugLog($"CustomerInfo: tavernDisgusting -> {x.customerInfo.tavernDisgusting}");
+            Plugin.DebugLog($"CustomerInfo: temperaturePenalty -> {x.customerInfo.temperaturePenalty}");
+            Plugin.DebugLog($"CustomerInfo: notEnoughLightEvery10secs -> {x.customerInfo.notEnoughLightEvery10secs}");
         }
 
 
@@ -84,6 +92,7 @@ namespace RestfulTweaks
                 {
                     __instance.customerInfo.requestOrderPatience = 100;
                     __instance.customerInfo.requestRoomPatience = 100;
+
                 }
                 if (Plugin._custNeverLeave.Value)
                 {
@@ -93,7 +102,17 @@ namespace RestfulTweaks
                 {
                     __instance.customerInfo.requestAgainProbability = 0;
                 }
-
+                if (Plugin._custIgnoreDirt.Value)
+                {
+                    __instance.customerInfo.tableDirtyPenalty = 0.0f;
+                    __instance.customerInfo.tableVeryDirtyPenalty = 0.0f;
+                    __instance.customerInfo.floorDirtPenalty = 0.0f;
+                    __instance.customerInfo.tavernDirty = 0.0f;
+                    __instance.customerInfo.tavernFilthy = 0.0f;
+                    __instance.customerInfo.tavernDisgusting = 0.0f;
+                    __instance.customerInfo.temperaturePenalty = 0.0f;
+                    __instance.customerInfo.notEnoughLightEvery10secs = 0.0f;
+                }
                 if (Plugin._custFastEating.Value != 1.0f)
                 {
                     //Gets weird if set to zero.  
