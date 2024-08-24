@@ -197,36 +197,32 @@ namespace RestfulTweaks
         // Some Accessor objects
         // -------------
         // This horendous pile of jank is because TavernReputation has three private int fields and the one with the repvalue has a random name.  
+        //
+        // I wonder if this could be replaced with using ILCode to steal the location/name of value from TavernReputation.GetReputationExp()
+
         private static FieldInfo myRepLocation;
         private static bool foundRepLocation=false;
+        private static TavernReputation myTavernReputation = null;
         public static int repAccessor
         {
             get
             {
-                if (foundRepLocation)
-                {
-                    return (int)myRepLocation.GetValue(UnityEngine.Object.FindObjectOfType<TavernReputation>());
-                }
-                else
-                {
-                    TryFindTavernReputationValue();
-                    if (foundRepLocation) return (int)myRepLocation.GetValue(UnityEngine.Object.FindObjectOfType<TavernReputation>());
-                    DebugLog($"Still Looking for TavernReputation rep value, returning -1");
-                    return -1;                    
-                }
+                return TavernReputation.GetReputationExp(); 
             }
             set
             {
+                if (myTavernReputation is null) myTavernReputation = UnityEngine.Object.FindObjectOfType<TavernReputation>();
+
                 if (foundRepLocation)
                 {
-                    myRepLocation.SetValue(UnityEngine.Object.FindObjectOfType<TavernReputation>(),value);
+                    myRepLocation.SetValue(myTavernReputation, value);
                 }
                 else
                 {
                     TryFindTavernReputationValue();
                     if (foundRepLocation)
                     {
-                        myRepLocation.SetValue(UnityEngine.Object.FindObjectOfType<TavernReputation>(), value);
+                        myRepLocation.SetValue(myTavernReputation, value);
                     }
                     else
                     {
