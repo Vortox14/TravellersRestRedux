@@ -101,7 +101,7 @@ namespace RestfulTweaks
         private static ConfigEntry<bool> _AnimalsNoSick;
         private static ConfigEntry<bool> _fasterMilk;
         private static ConfigEntry<bool> _AnimalsFastGrow;
-
+        private static ConfigEntry<int> _moreEggs;
 
         public Plugin()
         {
@@ -143,6 +143,7 @@ namespace RestfulTweaks
             _AnimalsNoNeeds = Config.Bind("Animals", "No Needs", false, "Animals don't need food/water/walking");
             _AnimalsNoSick = Config.Bind("Animals", "No Sickness", false, "Animals never get sick DO NOT ENABLE DURING THE BARN TUTORIAL");
             _AnimalsFastGrow = Config.Bind("Animals", "Fast Growth", false, "Animals grow to max level overnight");
+            _moreEggs = Config.Bind("Animals", "More Eggs From Chickens", 0, "More eggs; set to 0 to disable");
 
             _recipesNoFuel = Config.Bind("Recipes", "No Fuel", false, "Recipes no longer require fuel");
             _recipesNoFragments = Config.Bind("Recipes", "No Fragment Cost", false, "Cave Recipies only cost one fragment");

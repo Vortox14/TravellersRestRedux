@@ -13,6 +13,7 @@ Mor eloot from killing cows: AnimalNPC.Hit PRefix, Check lives, if only 1 left i
 Crab Loot: Add to CrabNPC OnDestroy() DroppedItem.SpawnDroppedItem(base.gameObject.transform.position, this.crabDrop.item, this.crabDrop.amount, false, false, 0);
 DroppedItem.DroppedItemFollowPlayer - more range, faster movement/pickup?
 What about a mod that limits the charge for re picking your talent points?
+Zoom level  PlayerPrefs.GetInt("cameraZoom")
 
 
 

@@ -73,8 +73,25 @@ namespace RestfulTweaks
                 Animal a = __instance.placeable.itemSetup.item as Animal;
                 if (a.productionLimitedToOnce) __instance.productionProgress = Mathf.Max(1f, __instance.productionProgress);
             }
+
+
+
         }
 
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // More Eggs
+        [HarmonyPatch(typeof(ChickenNPC), "IncrementProduction")]  //Called once per day, by the barn?
+        [HarmonyPrefix]
+        private static void ChickenNPCIncrementProductionPrefix(ChickenNPC __instance)
+        {
+            if (_moreEggs.Value > 0)
+            {
+                HenHouse h = __instance.currentBuilding as HenHouse;
+                h.IncrementEggsAmount(_moreEggs.Value);
+
+            }
+
+        }
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Never Sick
