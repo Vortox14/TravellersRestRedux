@@ -66,8 +66,10 @@ FarmBuilding.Start() >
 
 
 3. Multiplier for fishing (get multiple of the fish you just caught)
-5. Animals don't require Food and/or Food in Animal Dishes/Barns/Coops doesn't decrease
+5. Food in Animal Dishes/Barns/Coops doesn't decrease
 6. Cows/Sheep provide Milk every day. 
+
+
 More harvests: Change worm item/change root item, add "only trash"
 Easy Fishing: no long pause after catch, fish multiplier
 Better Clocks: Xeno's Late Night Paradox
@@ -85,6 +87,7 @@ That is called (indirectly) by Housekeepr Update(), Waiter.Update(), Customer.Up
 Customer.customerInfo.floorDirtProbability = 55;
 
 
+Milking: CowNPc.OnHover -> AAOLLIPJEKP which sets ButtonsContext.GetPlayer(FALFKEPOBBP).SetCrafterAction(new ItemInstanceAmount(this.GNFGMLHBPDE.productionItem.item.POHEKNPLNLC(), 1)); 
 
 
 

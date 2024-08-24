@@ -87,7 +87,6 @@ namespace RestfulTweaks
         private static ConfigEntry<int> _pigLootExtra;
         private static ConfigEntry<int> _sheepLootExtra;
         private static ConfigEntry<bool> _GrowTreesTypeFix;
-        private static ConfigEntry<int> _moreMilk;
         public static ConfigEntry<bool> _custCleanRooms;
         public static ConfigEntry<bool> _custCleanFloor;
         public static ConfigEntry<bool> _custCleanTable;
@@ -139,10 +138,9 @@ namespace RestfulTweaks
             _pigLootExtra = Config.Bind("Animals", "Pig Bonus Loot", 0, "Increase Pig loot by this amount; set to 0 to disable");
             _chickenLootExtra = Config.Bind("Animals", "Chicken Bonus Loot", 0, "Increase Chicken loot by this amount; set to 0 to disable");
             _sheepLootExtra = Config.Bind("Animals", "Sheep Bonus Loot", 0, "Increase Sheep loot by this amount; set to 0 to disable");
-            _moreMilk = Config.Bind("Animals", "More Milk", 0, "NOT DONE Higher Milk Yield");
             _fasterMilk = Config.Bind("Animals", "Milk Every Day", false, "Animals provide milk every day");
             _AnimalsNoNeeds = Config.Bind("Animals", "No Needs", false, "Animals don't need food/water/walking");
-            _AnimalsNoSick = Config.Bind("Animals", "No Sickness", false, "NOT DONE Animals never get sick");
+            _AnimalsNoSick = Config.Bind("Animals", "No Sickness", false, "Animals never get sick DO NOT ENABLE DURING THE BARN TUTORIAL");
 
 
             _recipesNoFuel = Config.Bind("Recipes", "No Fuel", false, "Recipes no longer require fuel");

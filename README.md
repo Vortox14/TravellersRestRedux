@@ -30,9 +30,9 @@ A Traveller's Rest mod with a lot of small tweaks. Each option can be configured
 * [NOT STARTED] change: grow trees to max instead of one age level
 * [NOT STARTED] change: grow crops to max instead of one age level, update graphic right away (Cropsetter.UpdateCropVisual())
 * [NOT STARTED] hotkey: re-harvestable crops all become ready to harvest
-* [NOT STARTED] More milk from animals
-* [NOT STARTED] Animals no needs
-* [NOT STARTED] Animals Never Sick
+* Animals can be milked every day
+* Animals have no need for food/water/exercise
+* Animals Never Sick (Do not enable during the barn tutorial)
 * Rented rooms do not get  messy 
 * Tables never get messy
 * Customers do not mess up floor (note: staff can still make mess)

@@ -76,7 +76,16 @@ namespace RestfulTweaks
         }
 
 
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Never Sick
 
+        [HarmonyPatch(typeof(AnimalNPC), "Sick")]  //Called once per day, by the barn?
+        [HarmonyPrefix]
+        private static bool AnimalNPCSickPrefix(AnimalNPC __instance)
+        {
+            return !_AnimalsNoSick.Value;
+
+        }
 
 
 
