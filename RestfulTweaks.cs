@@ -101,6 +101,7 @@ namespace RestfulTweaks
         private static ConfigEntry<bool> _AnimalsNoNeeds;
         private static ConfigEntry<bool> _AnimalsNoSick;
 
+
         public Plugin()
         {
             // bind to config settings
@@ -138,8 +139,9 @@ namespace RestfulTweaks
             _chickenLootExtra = Config.Bind("Animals", "Chicken Bonus Loot", 0, "Increase Chicken loot by this amount; set to 0 to disable");
             _sheepLootExtra = Config.Bind("Animals", "Sheep Bonus Loot", 0, "Increase Sheep loot by this amount; set to 0 to disable");
             _moreMilk = Config.Bind("Animals", "More Milk", 0, "NOT DONE Higher Milk Yield");
-            _AnimalsNoNeeds = Config.Bind("Animals", "No Needs", false, "NOT DONE Animals don't need food/water/walking");
+            _AnimalsNoNeeds = Config.Bind("Animals", "No Needs", false, "Animals don't need food/water/walking");
             _AnimalsNoSick = Config.Bind("Animals", "No Sickness", false, "NOT DONE Animals never get sick");
+
 
             _recipesNoFuel = Config.Bind("Recipes", "No Fuel", false, "Recipes no longer require fuel");
             _recipesNoFragments = Config.Bind("Recipes", "No Fragment Cost", false, "Cave Recipies only cost one fragment");

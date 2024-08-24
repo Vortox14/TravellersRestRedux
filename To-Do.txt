@@ -10,7 +10,7 @@ No Mess
 More items in shops
 Trigger halloween/christmas
 Mor eloot from killing cows: AnimalNPC.Hit PRefix, Check lives, if only 1 left it will die, so > base.StartCoroutine(this.FGKMOHEFAFK()); > DFCCMMHLKMA() that does the item dropping
-
+Crab Loot: Add to CrabNPC OnDestroy() DroppedItem.SpawnDroppedItem(base.gameObject.transform.position, this.crabDrop.item, this.crabDrop.amount, false, false, 0);
 DroppedItem.DroppedItemFollowPlayer - more range, faster movement/pickup?
 What about a mod that limits the charge for re picking your talent points?
 

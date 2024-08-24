@@ -48,9 +48,19 @@ namespace RestfulTweaks
 
 
 
+       
 
-
-
+        [HarmonyPatch(typeof(AnimalNPC), "Update")]
+        [HarmonyPrefix]
+        private static void AnimalNCPUpdatePrefic(AnimalNPC __instance)
+        {
+            if (_AnimalsNoNeeds.Value)
+            {
+                __instance.hasWalked = true;
+                __instance.hasWater = true;
+                __instance.hasFood = true;
+            }
+        }
 
 
 
