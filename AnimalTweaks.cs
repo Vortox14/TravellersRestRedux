@@ -46,13 +46,12 @@ namespace RestfulTweaks
             DroppedItem.SpawnDroppedItem(__instance.gameObject.transform.position, food, extraItems, false, false, 0);
         }
 
-
-
-       
-
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Animal  No needs
+        
         [HarmonyPatch(typeof(AnimalNPC), "Update")]
         [HarmonyPrefix]
-        private static void AnimalNCPUpdatePrefic(AnimalNPC __instance)
+        private static void AnimalNPCUpdatePrefix(AnimalNPC __instance)
         {
             if (_AnimalsNoNeeds.Value)
             {
@@ -62,8 +61,19 @@ namespace RestfulTweaks
             }
         }
 
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Milk Everyday
 
-
+        [HarmonyPatch(typeof(AnimalNPC), "IncrementProduction")]  //Called once per day, by the barn?
+        [HarmonyPrefix]
+        private static void AnimalNPCIncrementProductionPrefix(AnimalNPC __instance)
+        {
+            if (_fasterMilk.Value)
+            {
+                Animal a = __instance.placeable.itemSetup.item as Animal;
+                if (a.productionLimitedToOnce) __instance.productionProgress = Mathf.Max(1f, __instance.productionProgress);
+            }
+        }
 
 
 
