@@ -87,7 +87,33 @@ namespace RestfulTweaks
 
         }
 
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Rapid Growth
 
+        [HarmonyPatch(typeof(AnimalNPC), "IncrementLevel")]  //Called once per day, by the barn?
+        [HarmonyPrefix]
+        private static void AnimalNPCIncrementLevelPrefix(AnimalNPC __instance)
+        {
+            if (_AnimalsFastGrow.Value)
+            {
+                __instance.level = __instance.maxLevel;
+            }
+        }
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Rapid Growth
+
+        [HarmonyPatch(typeof(AnimalNPC), "IncrementLevel")]  //Called once per day, by the barn?
+        [HarmonyPostfix]
+        private static void AnimalNPCIncrementLevelPostfix(AnimalNPC __instance)
+        {
+            if (_AnimalsNoNeeds.Value)
+            {
+                __instance.hasWalked = true;
+                __instance.hasWater = true;
+                __instance.hasFood = true;
+            }
+        }
 
     }
 
