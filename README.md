@@ -30,19 +30,25 @@ A Traveller's Rest mod with a lot of small tweaks. Each option can be configured
 * [NOT STARTED] change: grow trees to max instead of one age level
 * [NOT STARTED] change: grow crops to max instead of one age level, update graphic right away (Cropsetter.UpdateCropVisual())
 * [NOT STARTED] hotkey: re-harvestable crops all become ready to harvest
-* Animals can be milked every day
-* Animals have no need for food/water/exercise
-* Animals Never Sick (Do not enable during the barn tutorial)
+* Barn Animals can be milked every day
+* Barn Animals have no need for food/water/exercise
+* Barn Animals Never Sick (Do not enable during the barn tutorial)
+* [NOT STARTED] Barn Animals can be milked endlessly
+* Chickens lay more eggs
+* Animals grow to max level overnight
 * Rented rooms do not get  messy 
 * Tables never get messy
 * Customers do not mess up floor (note: staff can still make mess)
-* Customer fast eating
-* Customer never angry
-* Customer always calm down 
-* Customer wait longer 
-* Customer never leave (until last call)
-* Customer leave after one order
+* Customers eat faster
+* Customers never angry
+* Customers always calm down 
+* Customers wait longer 
+* Customers never leave (until last call)
+* Customers leave after one order
 * Customers ignore dirt, cold and darkness
+* Shops refresh stop every day
+* [NOT STARTED] Shops have their full range instead of a random selection
+* [NOT STARTED] Shop have increased quantity of items with limited supply
 
 ## Downloading the mod
 

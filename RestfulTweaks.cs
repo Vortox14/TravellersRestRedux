@@ -103,6 +103,10 @@ namespace RestfulTweaks
         private static ConfigEntry<bool> _AnimalsFastGrow;
         private static ConfigEntry<int> _moreEggs;
 
+        private static ConfigEntry<bool> _shopUpdateDaily;
+        private static ConfigEntry<bool> _shopAllItems;
+        private static ConfigEntry<int> _shopMoreItems;
+
         public Plugin()
         {
             // bind to config settings
@@ -118,6 +122,12 @@ namespace RestfulTweaks
             _dumpStaffGenDataOnStart = Config.Bind("Database", "List staff generation data on start", false, "set to true to print a list of staff generation data on startup");
             _dumpIngredientGroupListOnStart = Config.Bind("Database", "List Ingredient Group data on start", false, "set to true to print a list of ingredient Groups on startup");
             _dumpCropListOnStart = Config.Bind("Database", "List Crops on start", false, "set to true to print a list of all crops to console on startup");
+
+            _shopUpdateDaily = Config.Bind("Shops", "Update Stock Daily", false, "Shops refresh every day");
+            _shopAllItems = Config.Bind("Shops", "All Items", false, "Shops have their full range instead of a random selection");
+            _shopMoreItems = Config.Bind("Shops", "More Items", 0, "Increase count of limited stock items; set to 0 to disable");
+
+
 
             _moveSpeed = Config.Bind("Movement", "Walking Speed", 2.5f, "walking speed; set to 2.5 for default speed ");
             _moveRunMult = Config.Bind("Movement", "Run Speed Multiplier", 1.6f, "run speed multiplier; set to 1.6 for default speed ");
@@ -164,8 +174,8 @@ namespace RestfulTweaks
 
             _badBirdIsFunny = Config.Bind("Misc", "Naughty Bird is Funny", false, "Patrons like a naughty bird, so everything your bird says causes reputation gain instead of loss");
             _fireplaceNoFuelUse = Config.Bind("Misc", "Fireplace does not consume fuel", false, "fireplace no longer consumes fuel");
-            _xpMult             = Config.Bind("Misc", "XP Multiplier", 1.0f, "NOT WORKING increase the amopunt of reputation earned; set to 1.0 to disable");
-            _endlessWater = Config.Bind("Misc", "Endless Water", false, "DO NOT USE DURING TUTORIAL. PREVENTS FILLING BUCKETS AT WELL. Buckets of water do not empty when used");
+            _xpMult             = Config.Bind("Misc", "XP Multiplier", 1.0f, "increase the amopunt of reputation earned; set to 1.0 to disable (may cause slight performance stutter when earning rep)");
+            _endlessWater = Config.Bind("Misc", "Endless Water", false, "DO NOT USE DURING TUTORIAL. PREVENTS FILLING BUCKETS AT WELL. Buckets of water do not empty when used.");
             _hotKeyBirdTalk = Config.Bind("Misc", "All Birds Talk", KeyCode.None, "Make your birds say something nice");
 
             _wilsonOneCoin = Config.Bind("Prices", "Wilson Price Reduction", false, "Wilson only charges 1 coin per item");
@@ -219,7 +229,7 @@ namespace RestfulTweaks
 
                 if (foundRepLocation)
                 {
-                    myRepLocation.SetValue(myTavernReputation, value);
+                    myRepLocation.SetValue(myTavernReputation, value);  //causes a very slight perfoance stutter - is there a more efficent way?
                 }
                 else
                 {
