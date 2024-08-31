@@ -87,22 +87,22 @@ namespace RestfulTweaks
         private static ConfigEntry<int> _pigLootExtra;
         private static ConfigEntry<int> _sheepLootExtra;
         private static ConfigEntry<bool> _GrowTreesTypeFix;
-        public static ConfigEntry<bool> _custCleanRooms;
-        public static ConfigEntry<bool> _custCleanFloor;
-        public static ConfigEntry<bool> _custCleanTable;
-        public static ConfigEntry<float> _custFastEating;
-        public static ConfigEntry<bool> _custNeverAngry;
-        public static ConfigEntry<bool> _custCanCalm;
-        public static ConfigEntry<bool> _custMorePatient;
-        public static ConfigEntry<bool> _custNeverLeave;
-        public static ConfigEntry<bool> _custAlwaysLeave;
-        public static ConfigEntry<bool> _custIgnoreDirt;
+        private static ConfigEntry<bool> _custCleanRooms;
+        private static ConfigEntry<bool> _custCleanFloor;
+        private static ConfigEntry<bool> _custCleanTable;
+        private static ConfigEntry<float> _custFastEating;
+        private static ConfigEntry<bool> _custNeverAngry;
+        private static ConfigEntry<bool> _custCanCalm;
+        private static ConfigEntry<bool> _custMorePatient;
+        private static ConfigEntry<bool> _custNeverLeave;
+        private static ConfigEntry<bool> _custAlwaysLeave;
+        private static ConfigEntry<bool> _custIgnoreDirt;
         private static ConfigEntry<bool> _AnimalsNoNeeds;
         private static ConfigEntry<bool> _AnimalsNoSick;
         private static ConfigEntry<bool> _fasterMilk;
         private static ConfigEntry<bool> _AnimalsFastGrow;
         private static ConfigEntry<int> _moreEggs;
-
+        private static ConfigEntry<bool> _infiniteMilk;
         private static ConfigEntry<bool> _shopUpdateDaily;
         private static ConfigEntry<bool> _shopAllItems;
         private static ConfigEntry<bool> _shopMoreItems;
@@ -154,6 +154,7 @@ namespace RestfulTweaks
             _AnimalsNoSick = Config.Bind("Animals", "No Sickness", false, "Animals never get sick DO NOT ENABLE DURING THE BARN TUTORIAL");
             _AnimalsFastGrow = Config.Bind("Animals", "Fast Growth", false, "Animals grow to max level overnight");
             _moreEggs = Config.Bind("Animals", "More Eggs From Chickens", 0, "More eggs; set to 0 to disable");
+            _infiniteMilk = Config.Bind("Animals", "Infinite Milk", false, "Milk Animals Endlessly");
 
             _recipesNoFuel = Config.Bind("Recipes", "No Fuel", false, "Recipes no longer require fuel");
             _recipesNoFragments = Config.Bind("Recipes", "No Fragment Cost", false, "Cave Recipies only cost one fragment");

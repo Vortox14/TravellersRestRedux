@@ -73,9 +73,33 @@ namespace RestfulTweaks
                 Animal a = __instance.placeable.itemSetup.item as Animal;
                 if (a.productionLimitedToOnce) __instance.productionProgress = Mathf.Max(1f, __instance.productionProgress);
             }
+        }
 
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Infinite Milk
 
+        [HarmonyPatch(typeof(CowNPC), "MouseHold")]  
+        [HarmonyPostfix]
+        private static void CowNPCMouseHoldPostfix(CowNPC __instance)
+        {
+            DebugLog($"CowNPCMouseHoldPostfix()");
+            if (_infiniteMilk.Value)
+            {
+                Animal a = __instance.placeable.itemSetup.item as Animal;
+                __instance.productionProgress = 1f;
+            }
+        }
 
+        [HarmonyPatch(typeof(SheepNPC), "MouseHold")]
+        [HarmonyPostfix]
+        private static void SheepNPCMouseHoldPostfix(SheepNPC __instance)
+        {
+            DebugLog($"SheepNPCMouseHoldPostfix()");
+            if (_infiniteMilk.Value)
+            {
+                Animal a = __instance.placeable.itemSetup.item as Animal;
+                __instance.productionProgress = 1f;
+            }
         }
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

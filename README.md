@@ -26,14 +26,14 @@ A Traveller's Rest mod with a lot of small tweaks. Each option can be configured
 * Crops grow in all seasons
 * Increased loot from slaughtering animals
 
-1.5.0 goals:
+1.5.0:
 * [NOT STARTED] change: grow trees to max instead of one age level
 * [NOT STARTED] change: grow crops to max instead of one age level, update graphic right away (Cropsetter.UpdateCropVisual())
 * [NOT STARTED] hotkey: re-harvestable crops all become ready to harvest
 * Barn Animals can be milked every day
 * Barn Animals have no need for food/water/exercise
 * Barn Animals Never Sick (Do not enable during the barn tutorial)
-* [NOT STARTED] Barn Animals can be milked endlessly
+* Barn Animals can be milked endlessly
 * Chickens lay more eggs
 * Animals grow to max level overnight
 * Rented rooms do not get  messy 
