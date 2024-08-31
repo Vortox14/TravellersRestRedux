@@ -48,8 +48,10 @@ A Traveller's Rest mod with a lot of small tweaks. Each option can be configured
 * Customers ignore dirt, cold and darkness
 * Shops refresh stop every day
 * hotkey to instantly refresh shops
-* [NOT STARTED] Shops have their full range instead of a random selection
-* [NOT STARTED] Shop have increased quantity of items with limited supply
+* Shops have their full range instead of a random selection (Note: To make Rhia sell all crop seeds enable "All-season crops")
+* All shop items are available in unlimited quantities
+
+
 
 ## Downloading the mod
 

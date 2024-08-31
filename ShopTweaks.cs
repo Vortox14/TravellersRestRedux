@@ -20,26 +20,35 @@ namespace RestfulTweaks
     public partial class Plugin : BaseUnityPlugin
     {
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Player Speed
+        // Refresh Every Day 
 
         [HarmonyPatch(typeof(ShopDatabaseAccessor), "Awake")]
         [HarmonyPostfix]
         private static void ShopDatabaseAccessorAwakePostfix()
         {
-            if (!(_shopUpdateDaily.Value || _shopAllItems.Value || (_shopMoreItems.Value>0))) return; //To avoid the pause from getting the full shop list
+            if (!(_shopUpdateDaily.Value || _shopAllItems.Value || _shopMoreItems.Value)) return; //To avoid the pause from getting the full shop list
 
             List<Shop> allShops = ShopDatabaseAccessor.GetAllShops();
             DebugLog($"ShopDatabaseAccessorAwakePostfix(): {allShops.Count()} shops found");
 
-            if (_shopUpdateDaily.Value)
+            //Iterate through each shop and make changes (will only take effect next inventory update)
+            foreach (Shop s in allShops)
             {
-                foreach (Shop s in allShops)
+                DebugLog($"ShopDatabaseAccessorAwakePostfix(): Shop Name:{s.name} Item Count:{s.shopItems.Count}");
+                if (_shopUpdateDaily.Value) s.updateDays = new List<Day> { Day.Mon, Day.Tue, Day.Wed, Day.Thurs, Day.Fri, Day.Sat, Day.Sun };
+                if (s.shopItems is null) continue;
+                for (int i = 0; i < s.shopItems.Count; i++)
                 {
-                    s.updateDays = new List<Day> { Day.Mon, Day.Tue, Day.Wed, Day.Thurs, Day.Fri, Day.Sat, Day.Sun };
-                    DebugLog($"ShopDatabaseAccessorAwakePostfix(): {s.name}: Stock updates on: {string.Join(",", s.updateDays)}");
+                    if (_shopAllItems.Value) s.shopItems[i].alwaysAppear = true;
+                    if (_shopMoreItems.Value) s.shopItems[i].unlimited = true;
                 }
+                
             }
+
         }
+
+
+
 
 
         public static void ShopRefresh()
