@@ -47,6 +47,7 @@ A Traveller's Rest mod with a lot of small tweaks. Each option can be configured
 * Customers leave after one order
 * Customers ignore dirt, cold and darkness
 * Shops refresh stop every day
+* hotkey to instantly refresh shops
 * [NOT STARTED] Shops have their full range instead of a random selection
 * [NOT STARTED] Shop have increased quantity of items with limited supply
 

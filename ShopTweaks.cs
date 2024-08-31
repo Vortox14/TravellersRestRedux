@@ -42,7 +42,45 @@ namespace RestfulTweaks
         }
 
 
-        
+        public static void ShopRefresh()
+        {
+            List<Shop> allShops = ShopDatabaseAccessor.GetAllShops();
+            DebugLog($"{allShops.Count()} shops found");
+
+
+            ShopDatabaseAccessor dbA = ShopDatabaseAccessor.GetInstance();
+            Dictionary<int, Shop> reflectedShopDict = null;
+            FieldInfo[] piFieldInfo = dbA.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance); //all private fields.
+            foreach (FieldInfo fi in piFieldInfo) // now look for the one of type Slot[]
+            {
+                if (fi.FieldType == typeof(Dictionary<int, Shop>))
+                {
+                    reflectedShopDict = (Dictionary<int, Shop>)fi.GetValue(dbA);
+                    break;
+                }
+            }
+            if (reflectedShopDict == null)
+            {
+                DebugLog($"ShopRefresh(): Unable to find reflected Dictionary<int, Shop>");
+                return;
+            }
+            foreach (KeyValuePair<int, Shop> keyValuePair in reflectedShopDict)
+            {
+                if (keyValuePair.Value.limitedItems)
+                {
+                    try
+                    {
+                        ShopDatabaseAccessor.CreateNewShopList(keyValuePair.Value);
+                    }
+                    catch (Exception ex)
+                    {
+                        DebugLog("ShopRefresh(): Exception: " + ex.ToString());
+                    }
+                }
+            }
+
+
+        }
 
     }
 

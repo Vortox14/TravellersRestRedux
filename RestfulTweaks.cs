@@ -106,7 +106,7 @@ namespace RestfulTweaks
         private static ConfigEntry<bool> _shopUpdateDaily;
         private static ConfigEntry<bool> _shopAllItems;
         private static ConfigEntry<int> _shopMoreItems;
-
+        private static ConfigEntry<KeyCode> _shopRefreshHotkey;
         public Plugin()
         {
             // bind to config settings
@@ -126,7 +126,7 @@ namespace RestfulTweaks
             _shopUpdateDaily = Config.Bind("Shops", "Update Stock Daily", false, "Shops refresh every day");
             _shopAllItems = Config.Bind("Shops", "All Items", false, "Shops have their full range instead of a random selection");
             _shopMoreItems = Config.Bind("Shops", "More Items", 0, "Increase count of limited stock items; set to 0 to disable");
-
+            _shopRefreshHotkey = Config.Bind("Shops", "Refresh Shops hotkey", KeyCode.None, "Refresh shop inventory immediately");
 
 
             _moveSpeed = Config.Bind("Movement", "Walking Speed", 2.5f, "walking speed; set to 2.5 for default speed ");
@@ -362,6 +362,10 @@ namespace RestfulTweaks
             else if (Input.GetKeyDown(_regrowRegrowables.Value))
             {
                 RegrowRegrowables();
+            }
+            else if (Input.GetKeyDown(_shopRefreshHotkey.Value))
+            {
+                ShopRefresh();
             }
         }
         private void OnDestroy()
