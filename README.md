@@ -27,9 +27,6 @@ A Traveller's Rest mod with a lot of small tweaks. Each option can be configured
 * Increased loot from slaughtering animals
 
 1.5.0:
-* [NOT STARTED] change: grow trees to max instead of one age level
-* [NOT STARTED] change: grow crops to max instead of one age level, update graphic right away (Cropsetter.UpdateCropVisual())
-* [NOT STARTED] hotkey: re-harvestable crops all become ready to harvest
 * Barn Animals can be milked every day
 * Barn Animals have no need for food/water/exercise
 * Barn Animals Never Sick (Do not enable during the barn tutorial)
@@ -51,7 +48,8 @@ A Traveller's Rest mod with a lot of small tweaks. Each option can be configured
 * Shops have their full range instead of a random selection (Note: To make Rhia sell all crop seeds enable "All-season crops")
 * All shop items are available in unlimited quantities
 
-
+Future:
+* [NOT STARTED] hotkey: re-harvestable crops all become ready to harvest
 
 ## Downloading the mod
 

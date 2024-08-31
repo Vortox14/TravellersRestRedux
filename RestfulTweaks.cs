@@ -142,7 +142,7 @@ namespace RestfulTweaks
             _hotkeyGrowTrees = Config.Bind("Farming", "grow all trees hotkey", KeyCode.None, "Press to instantly grow all trees");
             _allSeasonCrops = Config.Bind("Farming", "All-season crops", false, "All crops can be grown in any season.");
             _whatIsThatTree = Config.Bind("Farming", "What is that tree", KeyCode.None, "For Troubleshooting - lists details of crop trees");
-            _regrowRegrowables = Config.Bind("Farming", "Regrow Regrowales", KeyCode.None, "NOT DONE makes re-harvestable crops & trees ready to harvest");
+            _regrowRegrowables = Config.Bind("Farming", "Regrow Regrowales", KeyCode.None, "NOT IMPLEMENTED makes re-harvestable crops & trees ready to harvest");
 
 
             _cowLootExtra = Config.Bind("Animals", "Cow Bonus Loot", 0, "Increase Cow loot by this amount; set to 0 to disable");
