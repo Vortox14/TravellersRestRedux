@@ -5,8 +5,9 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using System;
-using System.Reflection;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 namespace RestfulTweaks
@@ -141,7 +142,6 @@ namespace RestfulTweaks
             _allSeasonCrops = Config.Bind("Farming", "All-season crops", false, "All crops can be grown in any season.");
             _whatIsThatTree = Config.Bind("Farming", "What is that tree", KeyCode.None, "For Troubleshooting - lists details of crop trees");
             _regrowRegrowables = Config.Bind("Farming", "Regrow Regrowales", KeyCode.None, "NOT IMPLEMENTED makes re-harvestable crops & trees ready to harvest");
-
 
             _cowLootExtra = Config.Bind("Animals", "Cow Bonus Loot", 0, "Increase Cow loot by this amount; set to 0 to disable");
             _pigLootExtra = Config.Bind("Animals", "Pig Bonus Loot", 0, "Increase Pig loot by this amount; set to 0 to disable");
@@ -339,7 +339,7 @@ namespace RestfulTweaks
             }
             else if (Input.GetKeyDown(_hotkeyGrowWoodTrees.Value))
             {
-                GrowAllWoodTrees();
+                GrowAllWoodFarmTrees();
             }
             else if (Input.GetKeyDown(_whatIsThatTree.Value))
             {
@@ -440,17 +440,41 @@ namespace RestfulTweaks
             }
             return result;
         }
- 
-        [HarmonyPatch(typeof(TavernReputation), "ChangeReputation")]
-        [HarmonyPrefix]
-        private static void TavernReputationChangeReputationPrefix(object[] __args)
+
+        [HarmonyPatch]
+        internal static class TavernReputationAnyIntMethodPatch
         {
-            if (_xpMult.Value != 1.0f)
+            static IEnumerable<MethodBase> TargetMethods()
             {
-                int addedXP = (int)__args[0];
-                int extraNeeded = Mathf.FloorToInt((_xpMult.Value - 1.0f) * addedXP);
-                DebugLog($"TavernReputation.ChangeReputation.Prefix(): Adding an extra {extraNeeded} rep");
-                repAccessor = repAccessor + extraNeeded;
+                return typeof(TavernReputation)
+                    .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                    .Where(m =>
+                        m.ReturnType == typeof(void) &&
+                        m.GetParameters().Length == 1 &&
+                        m.GetParameters()[0].ParameterType == typeof(int)
+                    );
+            }
+
+            static void Prefix(object __instance, int KBMEKFNECEJ, MethodBase __originalMethod)
+            {
+                if (Plugin._xpMult?.Value == 1.0f)
+                    return;
+
+                try
+                {
+                    var field = __instance.GetType().GetField("EANOCJCGDNN", BindingFlags.Instance | BindingFlags.NonPublic);
+                    if (field == null) return;
+
+                    int oldValue = (int)field.GetValue(__instance);
+                    int extra = Mathf.FloorToInt((Plugin._xpMult.Value - 1.0f) * KBMEKFNECEJ);
+                    field.SetValue(__instance, oldValue + extra);
+
+                    Plugin.DebugLog($"[ReputationPatch] Patched: {__originalMethod.Name}, Added XP: {KBMEKFNECEJ} → +{extra} (Total: {oldValue + extra})");
+                }
+                catch (Exception ex)
+                {
+                    Plugin.DebugLog($"[ReputationPatch] Exception in {__originalMethod?.Name ?? "unknown"}: {ex.Message}");
+                }
             }
         }
 
