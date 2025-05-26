@@ -1,45 +1,27 @@
 ﻿using BepInEx;
-using BepInEx.Configuration;
-using BepInEx.Logging;
 using HarmonyLib;
 using System;
-using System.Linq;
-using System.Reflection;
-using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.UIElements.UIRAtlasAllocator;
-using System.Diagnostics;
-using System.Security.Cryptography;
-using System.Xml.Linq;
-using System.Text;
-using UnityEngine.Playables;
-
 
 namespace RestfulTweaks
 {
     public partial class Plugin : BaseUnityPlugin
     {
-        // /////////////////////////////////
-        // Dont mess up rooms after sleeping in them!
-
-        [HarmonyPatch(typeof(RentedRoom), "MessUpRoom")]
+        [HarmonyPatch(typeof(RentedRoom), "CleanRoom")]
+        [HarmonyPatch(new Type[] { typeof(bool) })]
         [HarmonyPrefix]
-        public static bool RentedRoomMessUpRoomPrefix()
+        public static bool RentedRoomCleanRoomPrefix()
         {
-            return (!(Plugin._custCleanRooms.Value));
+            return !Plugin._custCleanRooms.Value;
         }
 
-        // /////////////////////////////////
-        // Tables ignore attempts to make them messy
-
         [HarmonyPatch(typeof(Table), "AddDirtiness")]
+        [HarmonyPatch(new Type[] { typeof(float), typeof(bool), typeof(bool) })]
         [HarmonyPrefix]
         public static bool TableAddDirtinessPrefix()
         {
-            return (!(Plugin._custCleanTable.Value));
+            return !Plugin._custCleanTable.Value;
         }
-
-
 
         public static void LogCustomerInfo(Customer x)
         {
@@ -63,15 +45,10 @@ namespace RestfulTweaks
             Plugin.DebugLog($"CustomerInfo: notEnoughLightEvery10secs -> {x.customerInfo.notEnoughLightEvery10secs}");
         }
 
-
-        // /////////////////////////////////
-        // Assorted customer tweaks
-
         [HarmonyPatch(typeof(Customer), "Awake")]
         [HarmonyPostfix]
         public static void CustomerAwakePostfix(Customer __instance)
         {
-            //Changing CustomerInfo changes it for *every* customer, so only do it once
             if (!setupDoneCustomerInfo)
             {
                 Plugin.DebugLog("CustomerAwakePostfix(): ------ Pre change data -----");
@@ -115,7 +92,6 @@ namespace RestfulTweaks
                 }
                 if (Plugin._custFastEating.Value != 1.0f)
                 {
-                    //Gets weird if set to zero.  
                     __instance.customerInfo.timeEatingMin = Math.Max(1, Mathf.FloorToInt(__instance.customerInfo.timeEatingMin / Plugin._custFastEating.Value));
                     __instance.customerInfo.timeEatingMax = Math.Max(1, Mathf.FloorToInt(__instance.customerInfo.timeEatingMax / Plugin._custFastEating.Value));
                     __instance.customerInfo.timeEatingLastOrdersMin = Math.Max(1, Mathf.FloorToInt(__instance.customerInfo.timeEatingMin / Plugin._custFastEating.Value));

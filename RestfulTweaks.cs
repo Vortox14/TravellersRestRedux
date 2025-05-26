@@ -5,27 +5,24 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using System;
-using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.UIElements.UIRAtlasAllocator;
-using System.Diagnostics;
-using System.Security.Cryptography;
-using System.Xml.Linq;
-using System.Text;
-using UnityEngine.Playables;
-using static CropsDatabase;
-
 
 namespace RestfulTweaks
 {
+    public static class PluginInfo
+    {
+        public const string PLUGIN_GUID = "net.nep.bepinex.restfultweaks";
+        public const string PLUGIN_NAME = "Restful Tweaks Redux";
+        public const string PLUGIN_VERSION = "1.7.0";
+    }
+    
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public partial class Plugin : BaseUnityPlugin
     {
         private static Harmony _harmony;
-        internal static ManualLogSource Log; // static copy of the BaseUnityPligin.Logger object so it can be accessed in static methods, initilized in constructor
-
+        internal static ManualLogSource Log;
         private static ConfigEntry<bool> _debugLogging;
         private static ConfigEntry<bool> _dumpItemListOnStart;
         private static ConfigEntry<int>  _dispensorStackSize;
@@ -67,7 +64,8 @@ namespace RestfulTweaks
         private static ConfigEntry<float> _xpMult;
         private static ConfigEntry<KeyCode> _hotkeyGrowCrops;
         private static ConfigEntry<KeyCode> _hotKeyBirdTalk;
-        private static ConfigEntry<KeyCode> _hotkeyGrowTrees;
+        private static ConfigEntry<KeyCode> _hotkeyGrowCropTrees;
+        private static ConfigEntry<KeyCode> _hotkeyGrowWoodTrees;
         private static ConfigEntry<KeyCode> _whatIsThatTree;
         private static ConfigEntry<KeyCode> _regrowRegrowables;
 
@@ -109,7 +107,6 @@ namespace RestfulTweaks
         private static ConfigEntry<KeyCode> _shopRefreshHotkey;
         public Plugin()
         {
-            // bind to config settings
             _debugLogging = Config.Bind("Debug", "Debug Logging", false, "Logs additional information to console");
 
             _dispensorStackSize = Config.Bind("Stacks", "Tap/Keg Stack Size", -1, "Change the amount of drinks you can store in taps/kegs; set to -1 to disable, set to 0 to use item stack size");
@@ -139,7 +136,8 @@ namespace RestfulTweaks
             _walkThroughCrops = Config.Bind("Farming", "Walk Through Crops", false, "Lets you walk through your crops.");
             _hotkeyGrowCrops = Config.Bind("Farming", "grow all crops hotkey", KeyCode.None, "Press to instantly grow planted crops");
             _GrowTreesTypeFix = Config.Bind("Farming", "grow trees type fix", true, "workarpund for tree growth key changeing type");
-            _hotkeyGrowTrees = Config.Bind("Farming", "grow all trees hotkey", KeyCode.None, "Press to instantly grow all trees");
+            _hotkeyGrowCropTrees = Config.Bind("Farming", "grow all crop trees hotkey", KeyCode.None, "Press to instantly grow all crop bearing trees");
+            _hotkeyGrowWoodTrees = Config.Bind("Farming", "grow all wood trees hotkey", KeyCode.None, "Press to instantly grow all wood farm trees");
             _allSeasonCrops = Config.Bind("Farming", "All-season crops", false, "All crops can be grown in any season.");
             _whatIsThatTree = Config.Bind("Farming", "What is that tree", KeyCode.None, "For Troubleshooting - lists details of crop trees");
             _regrowRegrowables = Config.Bind("Farming", "Regrow Regrowales", KeyCode.None, "NOT IMPLEMENTED makes re-harvestable crops & trees ready to harvest");
@@ -180,7 +178,7 @@ namespace RestfulTweaks
             _hotKeyBirdTalk = Config.Bind("Misc", "All Birds Talk", KeyCode.None, "Make your birds say something nice");
 
             _wilsonOneCoin = Config.Bind("Prices", "Wilson Price Reduction", false, "Wilson only charges 1 coin per item");
-            //Setting sellPrice doesn't work for objects where the price gets determined (at least partly) by the stuff it is made of.
+
             _moreValuableFish = Config.Bind("Prices", "Fish price increase", 1.0f, "increase the value of fish/shellfish; set to 1.0 to disable");
             _moreValuableMeat = Config.Bind("Prices", "Meat price increase", 1.0f, "increase the value of meat; set to 1.0 to disable");
             _moreValuableVege = Config.Bind("Prices", "Vege price increase", 1.0f, "increase the value of Vegetables/Legumes; set to 1.0 to disable");
@@ -204,20 +202,12 @@ namespace RestfulTweaks
             _buildNoMatsUsed = Config.Bind("Building", "No Materials used", false, "Building materials not consumed by construction (you still need enough to do the construction)");
             _buildNoMatsUsedFarm = Config.Bind("Building", "Farm Construction No Materials used", false, "TEST WITH BARN/COOP CONSTRUCTION");
 #endif
-
         }
-
-
-        // ----------------------------------------------------
-        // Some Accessor objects
-        // -------------
-        // This horendous pile of jank is because TavernReputation has three private int fields and the one with the repvalue has a random name.  
-        //
-        // I wonder if this could be replaced with using ILCode to steal the location/name of value from TavernReputation.GetReputationExp()
 
         private static FieldInfo myRepLocation;
         private static bool foundRepLocation=false;
         private static TavernReputation myTavernReputation = null;
+
         public static int repAccessor
         {
             get
@@ -230,7 +220,7 @@ namespace RestfulTweaks
 
                 if (foundRepLocation)
                 {
-                    myRepLocation.SetValue(myTavernReputation, value);  //causes a very slight perfoance stutter - is there a more efficent way?
+                    myRepLocation.SetValue(myTavernReputation, value);
                 }
                 else
                 {
@@ -246,13 +236,14 @@ namespace RestfulTweaks
                 }
             }
         }
-        public static bool TryFindTavernReputationValue() //RestfulTweaks.Plugin.TryFindTavernReputationValue()
+
+        public static bool TryFindTavernReputationValue()
         {
             DebugLog($"TryFindTavernReputationValue(): Looking for reputation location...");
             TavernReputation t = UnityEngine.Object.FindObjectOfType<TavernReputation>();
             int found = 0;
             int foundCorrect = 0;
-            FieldInfo[] tavRepFieldInfo = t.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance); //all private fields.
+            FieldInfo[] tavRepFieldInfo = t.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
             foreach (FieldInfo fi in tavRepFieldInfo)
             {
                 if (fi.FieldType == typeof(int))
@@ -261,11 +252,12 @@ namespace RestfulTweaks
                     if ((int)fi.GetValue(t) == TavernReputation.GetReputationExp())
                     {
                         DebugLog($"TryFindTavernReputationValue(): found private int field with value: {TavernReputation.GetReputationExp()} name: \"{fi.Name}\"  hash: {fi.GetHashCode()}");
-                        myRepLocation =fi;
+                        myRepLocation = fi;
                         foundCorrect++;
                     }
                 }
             }
+
             DebugLog($"TryFindTavernReputationValue(): Found {found} ints, {foundCorrect} with correct value");
             if (foundCorrect == 1)
             {
@@ -275,7 +267,6 @@ namespace RestfulTweaks
             return false;
         }
 
-        // -------------
         private static CommonReferences myCommonReferences;
         public static CommonReferences commonReferences
         {
@@ -285,7 +276,7 @@ namespace RestfulTweaks
                 return myCommonReferences;
             }
         }
-        // -------------
+
         private static ItemDatabaseAccessor myItemDatabaseAccessor;
         public static ItemDatabaseAccessor itemDatabaseAccessor
         {
@@ -295,7 +286,7 @@ namespace RestfulTweaks
                 return myItemDatabaseAccessor;
             }
         }
-        // -------------
+
         private static ItemDatabase myitemDatabaseSO;
         public static ItemDatabase itemDatabaseSO
         {
@@ -305,7 +296,7 @@ namespace RestfulTweaks
                 return myitemDatabaseSO;
             }
         }
-        // -------------
+
         private static RecipeDatabaseAccessor myRecipeDatabaseAccessor;
         public static RecipeDatabaseAccessor recipeDatabaseAccessor
         {
@@ -315,7 +306,7 @@ namespace RestfulTweaks
                 return myRecipeDatabaseAccessor;
             }
         }
-        // -------------
+
         private static RecipeDatabase myRecipeDatabaseSO;
         public static RecipeDatabase recipeDatabaseSO
         {
@@ -325,19 +316,9 @@ namespace RestfulTweaks
                 return myRecipeDatabaseSO;
             }
         }
-        // -------------
-
-
-
-        // ----------------------------------------------------
-
-
-        //public static RecipeDatabaseAccessor recipeDatabaseAccessor; //Not needed since RecipeDatabaseAccessor is full of useful static functions
-
 
         private void Awake()
         {
-            // Plugin startup logic
             Log = Logger;
             _harmony = Harmony.CreateAndPatchAll(typeof(Plugin));
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} {PluginInfo.PLUGIN_VERSION} is loaded!");
@@ -352,9 +333,13 @@ namespace RestfulTweaks
             {
                 GrowAllCrops();
             }
-            else if (Input.GetKeyDown(_hotkeyGrowTrees.Value))
+            else if (Input.GetKeyDown(_hotkeyGrowCropTrees.Value))
             {
-                GrowAllTrees();
+                GrowAllCropTrees();
+            }
+            else if (Input.GetKeyDown(_hotkeyGrowWoodTrees.Value))
+            {
+                GrowAllWoodTrees();
             }
             else if (Input.GetKeyDown(_whatIsThatTree.Value))
             {
@@ -373,18 +358,15 @@ namespace RestfulTweaks
         {
             _harmony.UnpatchSelf();
         }
- 
+
         public static void DebugLog(string message)
         {
-            // Log a message to console only if debug is enabled in console
             if (_debugLogging.Value)
             {
                 Log.LogInfo(string.Format("DEBUG: {0}", message));
             }
         }
 
-        // //////////////////////////////////////////////////////////////////////
-        // A bunch of functions for converting things to text to spit out 
         public static int Price2Copper(Price x)
         {
             return x.gold * 100000 + x.silver * 100 + x.copper;
@@ -418,13 +400,15 @@ namespace RestfulTweaks
             string xName = (x.translationByID) ? LocalisationSystem.Get("Items/item_name_" + xId.ToString()) : x.nameId;
             return String.Format("{0}:{1}",xId, xName);
         }
+
         public static string ItemMod2String(ItemMod x)
         {
             if (x.item == null) return "-";
-            string a = Item2String(x.item); //The base item
-            String b = (x.mod == null) ? "" : Item2String(x.mod); //the modifier item, or empty string if no modifier
+            string a = Item2String(x.item);
+            String b = (x.mod == null) ? "" : Item2String(x.mod);
             return String.Format("[{0}({1})]", a,b ); 
         }
+
         public static string ItemModList2String(List<ItemMod> x)
         {
             string s = "";
@@ -456,11 +440,6 @@ namespace RestfulTweaks
             }
             return result;
         }
-
-
-
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // XP Mult
  
         [HarmonyPatch(typeof(TavernReputation), "ChangeReputation")]
         [HarmonyPrefix]
@@ -468,28 +447,21 @@ namespace RestfulTweaks
         {
             if (_xpMult.Value != 1.0f)
             {
-
                 int addedXP = (int)__args[0];
-
                 int extraNeeded = Mathf.FloorToInt((_xpMult.Value - 1.0f) * addedXP);
                 DebugLog($"TavernReputation.ChangeReputation.Prefix(): Adding an extra {extraNeeded} rep");
                 repAccessor = repAccessor + extraNeeded;
             }
         }
 
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Reputation Milestone Stuff
-
         [HarmonyPatch(typeof(ReputationDBAccessor), "Awake")]
-        [HarmonyPrefix] //Has to be a prefix so our changes are done before this.SetUpDatabase(); 
+        [HarmonyPrefix]
 
         private static void ReputationDBAccessorAwakePrefix(ReputationDBAccessor __instance)
         {
             DebugLog("ReputationDBAccessor.Awake.Prefix");
             ReputationInfo[] repDB = ReputationDBAccessor.GetAllReputations();
             if(_dumpReputationListOnStart.Value) Log.LogInfo("repNumber, craftingTiles, craftingZonesNumber, customersCapacity, diningTiles, diningZonesNumber, floorDisponible, rentedRoomsNumber, repMax");
-
-                         
             for (int i = 0; i < repDB.Length; i++)
             {
                 if (_moreTiles.Value > 0) {repDB[i].craftingTiles += _moreTiles.Value; repDB[i].diningTiles += _moreTiles.Value;}
@@ -504,14 +476,6 @@ namespace RestfulTweaks
             }
         }
 
-
-
-
-
-
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Player Speed
-
         [HarmonyPatch(typeof(PlayerController), "Awake")]
         [HarmonyPostfix]
         private static void setPlayerSpeed(PlayerController __instance)
@@ -520,25 +484,18 @@ namespace RestfulTweaks
             __instance.sprintMultiplier = _moveRunMult.Value;
         }
 
-
-
-
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Fireplace does not consume fuel
-
         [HarmonyPatch(typeof(Fireplace), "Update")]
         [HarmonyPrefix]
         static bool FireplaceUpdatePrefix(Fireplace __instance)
         {
             if (_fireplaceNoFuelUse.Value)
             {
-                return false; //just disable the update so fuel is never checvked
+                return false;
             }
             else
             {
-                return true; // flow thorugh to normal Update
+                return true;
             }
         }
-
     }
 }

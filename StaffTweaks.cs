@@ -1,41 +1,10 @@
 ﻿using BepInEx;
-using BepInEx.Configuration;
-using BepInEx.Logging;
 using HarmonyLib;
-using System;
-using System.Linq;
-using System.Reflection;
-using System.Collections.Generic;
-using UnityEngine;
-using static UnityEngine.UIElements.UIRAtlasAllocator;
-using System.Diagnostics;
-using System.Security.Cryptography;
-using System.Xml.Linq;
-using System.Text;
-using UnityEngine.Playables;
-using static CropsDatabase;
 
 namespace RestfulTweaks
 {
     public partial class Plugin : BaseUnityPlugin
     {
-
-
-
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Staff Generation Stuff
-
-        // Default values:
-        // reputation, prob1Perk, prob2Perk, lvlRangePerk1, lvlRangePerk2, lvlRangePerk3
-        // 7, 80, 20, (1, 2), (1, 2), (0, 0)
-        // 10, 60, 40, (1, 3), (2, 4), (0, 0)
-        // 13, 25, 60, (2, 5), (3, 5), (3, 5)
-        // 16, 0, 80, (0, 0), (4, 7), (5, 7)
-        // 19, 0, 70, (0, 0), (5, 8), (7, 10)
-        // 21, 0, 50, (0, 0), (6, 9), (9, 11)
-        // 24, 0, 40, (0, 0), (7, 10), (10, 15)
-
-
         [HarmonyPatch(typeof(StaffManager), "Awake")]
         [HarmonyPostfix]
         private static void StaffManagerAwakePostfix()
@@ -62,10 +31,6 @@ namespace RestfulTweaks
             setupDoneStaffManager = true;
         }
 
-
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Refresh Staff on every HireUI open
-
         [HarmonyPatch(typeof(HireStaffUI), "OpenUI")]
         [HarmonyPrefix]
         private static void HireStaffUIOpenUIPrefix()
@@ -76,9 +41,6 @@ namespace RestfulTweaks
             }
 
         }
-
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // No Negative Perks on new Staff
 
         [HarmonyPatch(typeof(StaffManager), "CreateRandomOptionsWorkers")]
         [HarmonyPostfix]
@@ -96,17 +58,5 @@ namespace RestfulTweaks
             }
 
         }
-
-
-
-
-
-
-
     }
-
-
-
-
-
 }

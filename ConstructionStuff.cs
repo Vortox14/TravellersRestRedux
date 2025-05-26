@@ -1,39 +1,11 @@
 ﻿#undef CONSTRUCTIONFEATURES
-
 using BepInEx;
-using BepInEx.Configuration;
-using BepInEx.Logging;
-using HarmonyLib;
-using System;
-using System.Linq;
-using System.Reflection;
-using System.Collections.Generic;
-using UnityEngine;
-using static UnityEngine.UIElements.UIRAtlasAllocator;
-using System.Diagnostics;
-using System.Security.Cryptography;
-using System.Xml.Linq;
-using System.Text;
-using UnityEngine.Playables;
-using static CropsDatabase;
 
 namespace RestfulTweaks
 {
     public partial class Plugin : BaseUnityPlugin
     {
-
-
-
-
-
-
-
-
-
 #if CONSTRUCTIONFEATURES
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Free Building
-
         [HarmonyPatch(typeof(ConstructionPlayerInfo), "RemoveMaterialsUsed")]
         [HarmonyPrefix]
         private static bool ConstructionPlayerInfoRemoveMaterialsUsedPrefix()
@@ -75,13 +47,7 @@ namespace RestfulTweaks
                 return true;
             }
         }
-#endif 
-
-
-
-
-
-
+#endif
     }
 
 }

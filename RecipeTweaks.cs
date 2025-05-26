@@ -1,30 +1,11 @@
 ﻿using BepInEx;
-using BepInEx.Configuration;
-using BepInEx.Logging;
 using HarmonyLib;
 using System;
-using System.Linq;
-using System.Reflection;
-using System.Collections.Generic;
-using UnityEngine;
-using static UnityEngine.UIElements.UIRAtlasAllocator;
-using System.Diagnostics;
-using System.Security.Cryptography;
-using System.Xml.Linq;
-using System.Text;
-using UnityEngine.Playables;
-using static CropsDatabase;
 
 namespace RestfulTweaks
 {
     public partial class Plugin : BaseUnityPlugin
     {
-
-
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Recipe Stuff
-        // The Recipe database is not accessible during Plugin.Awake(), so we attach to the Accessor Awake() function
-
         [HarmonyPatch(typeof(RecipeDatabaseAccessor), "Awake")]
         [HarmonyPostfix]
         private static void RecipeDatabaseAccessorAwakePostFix(RecipeDatabaseAccessor __instance)
@@ -45,18 +26,12 @@ namespace RestfulTweaks
                     int newMin = (craftTime) % 60;
                     int newHr = (craftTime - newMin) / (60) % 24;
                     int newDay = (craftTime - newMin - 60 * newHr) / (60 * 24) % 7;
-                    int newWk = (craftTime - newMin - 60 * newHr - 60 * 24 * newDay) / (60 * 24 * 7) % 16; //16 weeks in a year
+                    int newWk = (craftTime - newMin - 60 * newHr - 60 * 24 * newDay) / (60 * 24 * 7) % 16;
                     int newYr = (craftTime - newMin - 60 * newHr - 60 * 24 * newDay - 60 * 24 * 7 * newWk) / (60 * 24 * 7 * 16);
                     allRecipes[i].time = new GameDate.Time(newYr, newWk, newDay, newHr, newMin);
-
                 }
-
             }
             setupDoneRecipes = true;
-
         }
-
     }
-
-
 }

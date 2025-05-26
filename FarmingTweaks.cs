@@ -1,37 +1,16 @@
 ﻿using BepInEx;
-using BepInEx.Configuration;
-using BepInEx.Logging;
 using HarmonyLib;
 using System;
-using System.Linq;
 using System.Reflection;
-using System.Collections.Generic;
-using UnityEngine;
-using static UnityEngine.UIElements.UIRAtlasAllocator;
-using System.Diagnostics;
-using System.Security.Cryptography;
-using System.Xml.Linq;
-using System.Text;
-using UnityEngine.Playables;
-using static CropsDatabase;
 
 namespace RestfulTweaks
 {
     public partial class Plugin : BaseUnityPlugin
     {
-
-        ////////////////////////////////////////////////////////////////////////////////////////
-        // Make all crop trees/reharvestable crops insantly ready to harvest again.
-        // Can call manually from Unity Explorer Console with RestfulTweaks.Plugin.RegrowRegrowables();
         public static void RegrowRegrowables()
         {
             DebugLog("RegrowRegrowables(): This is where my code would go, IF I HAD ANY!");
-
         }
-
-        ////////////////////////////////////////////////////////////////////////////////////////
-        // Grow all crops
-        // Can call manually from Unity Explorer Console with RestfulTweaks.Plugin.GrowAllCrops();
 
         public static void GrowAllCrops()
         {
@@ -44,55 +23,185 @@ namespace RestfulTweaks
             }
         }
 
-
-
-        ////////////////////////////////////////////////////////////////////////////////////////
-        // Grow all trees
-        // Can call manually from Unity Explorer Console with RestfulTweaks.Plugin.GrowAllTrees();
-
-        public static void GrowAllTrees()
+        public static void GrowAllCropTrees()
         {
-            foreach (Tree t in UnityEngine.Object.FindObjectsOfType<Tree>())
+            var trees = UnityEngine.Object.FindObjectsOfType<Tree>();
+
+            Plugin.DebugLog($"GrowAllCropTrees(): Found {trees.Length} trees.");
+
+            foreach (Tree tree in trees)
             {
-                bool isCrop = Traverse.Create(t).Field("isCropTree").GetValue<bool>();
-                if (!isCrop) continue;
-                CropSetter cSet = Traverse.Create(t).Field("cropSetter").GetValue<CropSetter>();
-                Crop crop = Traverse.Create(cSet).Field("_crop").GetValue<Crop>();
-
-                // Lets check if the Cropsetter and crop are different, using the number at the start of the cropsetter object name and the crop object name
-                string cropSetNumStr = cSet.name.Substring(0, cSet.name.IndexOf(" "));
-                string cropNumStr = crop.name.Substring(0, crop.name.IndexOf(" "));
-                if (cropSetNumStr != cropNumStr)
+                try
                 {
-                    DebugLog($"GrowAllTrees(): ERROR: Cropsetter/Crop mismatch! (\"{cSet.name}\",\"{crop.name}\") (\"{cropSetNumStr}\", \"{cropNumStr}\")");
-                    if (_GrowTreesTypeFix.Value)
+                    var cropSetterField = tree.GetType().GetField("cropSetter", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                    if (cropSetterField == null)
                     {
-                        int cropInt = crop.id;
-                        int cropSetInt;
-                        bool parsed = Int32.TryParse(cropSetNumStr, out cropSetInt);
-                        if (!parsed)
-                        {
-                            DebugLog($"GrowAllTrees(): ERROR count not get int from string \"{cropSetNumStr}\" that was taken from \"{cSet.name}\": skipping Crop Type Fix");
-                        }
-                        else
-                        {
-                            DebugLog($"GrowAllTrees(): changing Tree.cropsetter._crop.growablePrefabs from {cropInt} to {cropSetInt} before growing");
+                        Plugin.DebugLog($"GrowAllCropTrees(): Tree {tree.name} has no cropSetter field, skipping.");
+                        continue;
+                    }
 
-                            //copy growablePrefabs[] from the correct crop over Tree.cropSetter._crop.growablePrefabs[]
-                            Crop correctCrop = CropDatabaseAccessor.GetCrop(cropSetInt);
-                            crop.growablePrefabs = correctCrop.growablePrefabs;
+                    CropSetter cropSetter = cropSetterField.GetValue(tree) as CropSetter;
+                    if (cropSetter == null)
+                    {
+                        Plugin.DebugLog($"GrowAllCropTrees(): Tree {tree.name} cropSetter is null, skipping.");
+                        continue;
+                    }
+
+                    bool isTreeCrop = cropSetter.IsTreeCrop();
+                    if (!isTreeCrop)
+                    {
+                        Plugin.DebugLog($"GrowAllCropTrees(): Tree {tree.name} is not a tree crop, skipping.");
+                        continue;
+                    }
+
+                    Crop crop = null;
+
+                    foreach (var field in cropSetter.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
+                    {
+                        if (field.FieldType == typeof(Crop))
+                        {
+                            crop = (Crop)field.GetValue(cropSetter);
+                            Plugin.DebugLog($"GrowAllCropTrees(): Found Crop field {field.Name} dynamically.");
+                            break;
                         }
                     }
+
+                    if (crop == null)
+                    {
+                        foreach (var prop in cropSetter.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
+                        {
+                            if (prop.PropertyType == typeof(Crop) && prop.CanRead)
+                            {
+                                crop = (Crop)prop.GetValue(cropSetter);
+                                Plugin.DebugLog($"GrowAllCropTrees(): Found Crop property {prop.Name} dynamically.");
+                                break;
+                            }
+                        }
+                    }
+
+                    if (crop == null)
+                    {
+                        Plugin.DebugLog($"GrowAllCropTrees(): Could not find Crop on {tree.name}, skipping.");
+                        continue;
+                    }
+
+                    int currentAge = tree.currentAge;
+                    int maxAge = crop.growablePrefabs.Length - 1;
+                    bool grewTree = false;
+
+                    if (currentAge < maxAge)
+                    {
+                        Plugin.DebugLog($"GrowAllCropTrees(): Growing tree {tree.name} from Age {currentAge} to MaxAge {maxAge}.");
+                        tree.SetCurrentAge(maxAge);
+                        cropSetter.UpdateCropVisual(tree.currentAge);
+                        grewTree = true;
+                    }
+                    else
+                    {
+                        Plugin.DebugLog($"GrowAllCropTrees(): Tree {tree.name} already at max age.");
+                    }
+
+                    Harvestable harvestable = cropSetter.harvestable;
+                    if (harvestable != null)
+                    {
+                        harvestable.isHarvestable = true;
+
+                        if (grewTree)
+                            Plugin.DebugLog($"GrowAllCropTrees(): Set {tree.name} as ready to harvest (after growing).");
+                        else
+                            Plugin.DebugLog($"GrowAllCropTrees(): Set {tree.name} as ready to harvest (already max age).");
+                    }
+                    else
+                    {
+                        Plugin.DebugLog($"GrowAllCropTrees(): {tree.name} has no harvestable component.");
+                    }
                 }
+                catch (Exception ex)
+                {
+                    Plugin.DebugLog($"GrowAllCropTrees(): Exception while processing tree {tree.name}: {ex.Message}");
+                }
+            }
+        }
 
-                string preName = t.name;
-                int preAge = t.currentAge;
-                t.SetCurrentAge(t.currentAge + 1);
-                cSet.UpdateCropVisual(t.currentAge);
-                int postAge = t.currentAge;
+        public static void GrowAllWoodFarmTrees()
+        {
+            var trees = UnityEngine.Object.FindObjectsOfType<Tree>();
 
+            Plugin.DebugLog($"GrowAllWoodFarmTrees(): Found {trees.Length} trees.");
 
-                DebugLog($"GrowAllTrees(): Age: {preAge} -> {postAge} Name: \"{preName}\"");
+            foreach (Tree tree in trees)
+            {
+                try
+                {
+                    var cropSetterField = tree.GetType().GetField("cropSetter", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                    if (cropSetterField == null)
+                    {
+                        Plugin.DebugLog($"GrowAllWoodFarmTrees(): Tree {tree.name} has no cropSetter field, skipping.");
+                        continue;
+                    }
+
+                    CropSetter cropSetter = cropSetterField.GetValue(tree) as CropSetter;
+                    if (cropSetter == null)
+                    {
+                        Plugin.DebugLog($"GrowAllWoodFarmTrees(): Tree {tree.name} cropSetter is null, skipping.");
+                        continue;
+                    }
+
+                    bool isTreeCrop = cropSetter.IsTreeCrop();
+                    if (isTreeCrop)
+                    {
+                        Plugin.DebugLog($"GrowAllWoodFarmTrees(): Tree {tree.name} is a crop tree, skipping.");
+                        continue;
+                    }
+
+                    Crop crop = null;
+                    foreach (var field in cropSetter.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
+                    {
+                        if (field.FieldType == typeof(Crop))
+                        {
+                            crop = (Crop)field.GetValue(cropSetter);
+                            Plugin.DebugLog($"GrowAllWoodFarmTrees(): Found Crop field {field.Name} dynamically.");
+                            break;
+                        }
+                    }
+
+                    if (crop == null)
+                    {
+                        foreach (var prop in cropSetter.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
+                        {
+                            if (prop.PropertyType == typeof(Crop) && prop.CanRead)
+                            {
+                                crop = (Crop)prop.GetValue(cropSetter);
+                                Plugin.DebugLog($"GrowAllWoodFarmTrees(): Found Crop property {prop.Name} dynamically.");
+                                break;
+                            }
+                        }
+                    }
+
+                    if (crop == null)
+                    {
+                        Plugin.DebugLog($"GrowAllWoodFarmTrees(): Could not find Crop on {tree.name}, skipping.");
+                        continue;
+                    }
+
+                    int currentAge = tree.currentAge;
+                    int maxAge = crop.growablePrefabs.Length - 1;
+
+                    if (currentAge < maxAge)
+                    {
+                        Plugin.DebugLog($"GrowAllWoodFarmTrees(): Growing wood tree {tree.name} from Age {currentAge} to MaxAge {maxAge}.");
+                        tree.SetCurrentAge(maxAge);
+                        cropSetter.UpdateCropVisual(tree.currentAge);
+                    }
+                    else
+                    {
+                        Plugin.DebugLog($"GrowAllWoodFarmTrees(): Wood tree {tree.name} already at max age.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Plugin.DebugLog($"GrowAllWoodFarmTrees(): Exception while processing tree {tree.name}: {ex.Message}");
+                }
             }
         }
 
@@ -174,53 +283,37 @@ namespace RestfulTweaks
             DebugLog(Prefabs2String(__instance, ___cropSetter));
         }
         */
-        // ---------------------- End  growth troubleshooting --------------------------------------
-
-
-        ////////////////////////////////////////////////////////////////////////////////////////
-        // ListTreeTypes
-        // Can call manually from Unity Explorer Console with RestfulTweaks.Plugin.GrowAllTrees();
+        // ---------------------- End growth troubleshooting --------------------------------------
 
         public static void WhatIsThatTree()
         {
             DebugLog("~~~~~ Trees ~~~~~");
-
-            foreach (Tree t in UnityEngine.Object.FindObjectsOfType<Tree>())
+            foreach (Tree tree in UnityEngine.Object.FindObjectsOfType<Tree>())
             {
-
-                bool isCrop = Traverse.Create(t).Field("isCropTree").GetValue<bool>();
+                bool isCrop = Traverse.Create(tree).Field("isCropTree").GetValue<bool>();
                 if (isCrop)
                 {
-                    CropSetter cs = Traverse.Create(t).Field("cropSetter").GetValue<CropSetter>();
-                    Crop c = Traverse.Create(cs).Field("_crop").GetValue<Crop>();
-                    DebugLog($"name:{t.name} cropsetter:\"{cs.name}\" crop: \"{c.name}\" age:\"{t.currentAge}\"");
+                    CropSetter cs = Traverse.Create(tree).Field("cropSetter").GetValue<CropSetter>();
+                    Crop crop = Traverse.Create(cs).Field("_crop").GetValue<Crop>();
+                    DebugLog($"name:{tree.name} cropsetter:\"{cs.name}\" crop: \"{crop.name}\" age:\"{tree.currentAge}\"");
                 }
             }
             DebugLog("~~~~~~~~~~~~~~~~~");
         }
 
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // CropSetter Stuff
-
         [HarmonyPatch(typeof(CropSetter), "Awake")]
         [HarmonyPostfix]
         private static void CropSetterAwakePostfix(CropSetter __instance)
         {
-            //DebugLog("CropSetter.awake.Postfix");
-            if (__instance.cropCollider != null && !__instance.IsTreeCrop() && _walkThroughCrops.Value) __instance.cropCollider.enabled = false;
-            //DebugLog(String.Format("collisionDetection: {0} cutDetection: {1} cropCollider: {2}", (__instance.collisionDetection == null) ? "null" : "active", (__instance.cutDetection == null) ? "null" : "active", __instance.cropCollider.enabled));
+            if (__instance.cropCollider != null && !__instance.IsTreeCrop() && _walkThroughCrops.Value) __instance.cropCollider.enabled = false;            
         }
+
         [HarmonyPatch(typeof(CropSetter), "UpdateCropVisual")]
         [HarmonyPostfix]
         private static void CropSetterUpdateCropVisualPostfix(CropSetter __instance)
         {
-            //DebugLog("UpdateCropVisual.awake.Postfix");
             if (__instance.cropCollider != null && !__instance.IsTreeCrop() && _walkThroughCrops.Value) __instance.cropCollider.enabled = false;
         }
-
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Crops Stuff
-        // The Recipe database is not accessible during Plugin.Awake(), so we attach to the Accessor Awake() function
 
         [HarmonyPatch(typeof(CropDatabaseAccessor), "Awake")]
         [HarmonyPostfix]
@@ -228,8 +321,6 @@ namespace RestfulTweaks
         {
             if (setupDoneCrops) return;
             DebugLog("CropDatabaseAccessor.Awake.PostFix");
-            //Crop[] allCrops = CropDatabaseAccessor.GetInstance().allCrops;
-            //CropsDatabase reflectedCropDatabaseSO = Traverse.Create(__instance).Field("CropDatabaseSO").GetValue<CropsDatabase>().Crops;
             Crop[] allCrops = Traverse.Create(__instance).Field("CropDatabaseSO").GetValue<CropsDatabase>().Crops;
 
             DebugLog(String.Format("Found {0} crops", allCrops.Length));
@@ -244,16 +335,9 @@ namespace RestfulTweaks
                 {
                     Log.LogInfo(String.Format("Recipe: {0}, {1}, {2}, {3}, {4}, {5}", allCrops[i].id, allCrops[i].nameId, allCrops[i].name, allCrops[i].daysToGrow, allCrops[i].daysUntilNewHarvest, allCrops[i].reusable));
                 }
-
             }
             setupDoneCrops = true;
         }
-
-
-
-
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Soil Stays Watered
 
         [HarmonyPatch(typeof(FertileSoil), "CheckWater")]
         [HarmonyPrefix]
@@ -267,21 +351,7 @@ namespace RestfulTweaks
             {
                 if (Weather.IsWeatherActive(Weather.WeatherType.Rain) && __instance.daysUntilDry <= 3) __instance.daysUntilDry = 3;
             }
-            return true; // flow thorugh to normal Update
+            return true;
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 }
